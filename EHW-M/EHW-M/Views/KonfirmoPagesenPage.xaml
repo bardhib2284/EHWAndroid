@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.KonfirmoPagesenPage" Title="Konfirmimi i Pageses">
+    <ContentPage.Content>
+        <StackLayout Padding="10">
+            <StackLayout Orientation="Horizontal">
+                <StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal">
+                    <Label Text="Nr. Fatures : " FontSize="16"/>
+                    <Label Text="{Binding NrFatures}" FontSize="16"/>
+                </StackLayout>
+                <StackLayout HorizontalOptions="EndAndExpand" Orientation="Horizontal">
+                    <Label Text="Data : "  FontSize="16"/>
+                    <Label Text="{Binding DataEPageses,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="16"/>
+                </StackLayout>
+            </StackLayout>
+
+
+            <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue">
+                <Grid HeightRequest="50" Padding="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="12*"/>
+                        <ColumnDefinition Width="2.7*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="2.8*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Start" Margin="10,0" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Sasia" Grid.Row="0" Grid.Column="1" />
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Cmimi" Grid.Row="0" Grid.Column="2" />
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Totali" Grid.Row="0" Grid.Column="3" />
+                </Grid>
+            </Frame>
+
+            <Frame Padding="5" BorderColor="Black">
+                <StackLayout>
+                    <ListView x:Name="testList" ItemsSource="{Binding SelectedArikujt}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="00">
+                                        <Label Text="{Binding Emri}" WidthRequest="200" MinimumWidthRequest="195" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" FontSize="12"/>
+                                            <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0" FontSize="12"/>
+                                            <Label Text="{Binding CmimiTotal,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" FontSize="12"/>
+                                        </StackLayout>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                        <Label Text="Totali per pages : " VerticalTextAlignment="Center" HorizontalOptions="Fill" FontSize="12"/>
+                        <Label Text="{Binding TotalPrice,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="Fill"/>
+                        <Button Text="Printo" WidthRequest="70" FontSize="12" Clicked="Button_Clicked" HorizontalOptions="EndAndExpand"/>
+                        <Button Text="Dalje" WidthRequest="70" FontSize="12" Command="{Binding DaljeCommand}" HorizontalOptions="EndAndExpand"/>
+                    </StackLayout>
+                </StackLayout>
+
+
+            </Frame>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

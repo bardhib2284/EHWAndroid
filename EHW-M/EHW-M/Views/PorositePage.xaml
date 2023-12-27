@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.PorositePage" >
+    <NavigationPage.TitleView>
+        <StackLayout HorizontalOptions="FillAndExpand" Orientation="Vertical">
+            <Label Text="Porosite" HorizontalTextAlignment="Start" HorizontalOptions="FillAndExpand" FontAttributes="Bold" FontSize="16" TextColor="White"/>
+            <Label Text="{Binding SubTitle}" TextColor="White" HorizontalTextAlignment="Start" FontSize="12"/>
+        </StackLayout>
+    </NavigationPage.TitleView>
+    <ContentPage.Content>
+        <StackLayout>
+            <Frame Padding="1" Margin="0" BorderColor="Black" HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
+                <StackLayout BackgroundColor="LightBlue" Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="0" Margin="0">
+                    <Label Text="Porosia" TextColor="Black" WidthRequest="130" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                    <BoxView HeightRequest="1" BackgroundColor="Black" WidthRequest="1" />
+                    <Label Text="Data e porosis" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                    <BoxView HeightRequest="1" BackgroundColor="Black" WidthRequest="1" />
+                    <Label Text="Sync" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                </StackLayout>
+            </Frame>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="EndAndExpand">
+                <Button Text="Vizualizo" Clicked="Button_Clicked"  x:Name="Vizualizo"/>
+                <Button Text="Faturo" Clicked="Button_Clicked" x:Name="Faturo"/>
+                <Button Text="Krijo liste" Clicked="Button_Clicked" x:Name="Krijo"/>
+                <Button Text="Shto" Clicked="Button_Clicked" x:Name="Shto"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

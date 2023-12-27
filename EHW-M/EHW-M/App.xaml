@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:converters="clr-namespace:EHWM.Converters"
+             x:Class="EHW_M.App">
+    <Application.Resources>
+        
+        <converters:VizitaStatusToImage x:Key="VizitaStatusToImage"/>
+        <converters:NegateBooleanConverter x:Key="NegateBooleanConverter"/>
+        <converters:VizitaStatusToString x:Key="VizitaStatusToString"/>
+        <converters:VizitaStatusToInt x:Key="VizitaStatusToInt"/>
+        <converters:ArsyejaToString x:Key="ArsyejaToString"/>
+        
+        <OnPlatform x:TypeArguments="x:String" x:Key="GrandHalva">
+            <On Platform="iOS" Value="GrandHalva"/>
+            <On Platform="Android" Value="GRAND HALVA.otf#Regular"/>
+            <On Platform="UWP" Value="/Assets/Fonts/GRAND HALVA.otf#"/>
+        </OnPlatform>
+        <OnPlatform x:TypeArguments="x:String" x:Key="SulphurPointBold">
+            <On Platform="iOS" Value="SulphurPoint-Bold"/>
+            <On Platform="Android" Value="sulphur-point.ttf#Regular"/>
+            <On Platform="UWP" Value="/Assets/Fonts/sulphur-point.ttf#Sulphur Point"/>
+        </OnPlatform>
+        <OnPlatform x:TypeArguments="x:String" x:Key="PointDEMOSemiBold">
+            <On Platform="iOS" Value="PointDEMO-SemiBold"/>
+            <On Platform="Android" Value="PointSemiBold.ttf"/>
+            <On Platform="UWP" Value="/Assets/Fonts/Ndiscover - Point DEMO Semi Bold.otf#Point DEMO"/>
+        </OnPlatform>
+        <OnPlatform x:TypeArguments="x:String" x:Key="PointDEMOLight">
+            <On Platform="iOS" Value="PointDEMO-SemiBold"/>
+            <On Platform="Android" Value="Roboto-Light.ttf"/>
+            <On Platform="UWP" Value="/Assets/Fonts/Ndiscover - Point DEMO Semi Bold.otf#Point DEMO"/>
+        </OnPlatform>
+        
+        <Style TargetType="Button">
+            <Setter Property="BorderColor" Value="White"/>
+            <Setter Property="Background" Value="#0047AB"/>
+            <Setter Property="BorderWidth" Value="1"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontFamily" Value="{StaticResource PointDEMOSemiBold}"/>
+        </Style>
+
+        <Style TargetType="Label" x:Key="TitleLabel">
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="HorizontalOptions" Value="Start" />
+            <Setter Property="HorizontalTextAlignment" Value="Start" />
+            <Setter Property="LineBreakMode" Value="TailTruncation" />
+            <Setter Property="FontSize" Value="Small" />
+        </Style>
+        <Style TargetType="Label" x:Key="ValueLabel" BasedOn="{StaticResource TitleLabel}">
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="FontSize" Value="Medium" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="{StaticResource PointDEMOLight}"/>
+        </Style>
+        <Style TargetType="Entry">
+            <Setter Property="FontFamily" Value="{StaticResource PointDEMOSemiBold}"/>
+            <Setter Property="TextColor" Value="Black"/>
+        </Style>
+
+        <Style TargetType="Picker">
+            <Setter Property="FontFamily" Value="{StaticResource PointDEMOSemiBold}"/>
+        </Style>
+        <Style TargetType="DatePicker">
+            <Setter Property="FontFamily" Value="{StaticResource PointDEMOSemiBold}"/>
+        </Style>
+    </Application.Resources>
+</Application>

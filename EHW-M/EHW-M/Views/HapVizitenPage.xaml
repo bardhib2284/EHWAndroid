@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.HapVizitenPage" Title="Hap Viziten">
+    <ContentPage.Content>
+        <StackLayout Padding="10" Margin="0,0,0,0" HorizontalOptions="FillAndExpand">
+            <Label Text="Hap Viziten Opsionet" HorizontalOptions="Center" TextColor="Black"/>
+            <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Klienti: " HorizontalOptions="StartAndExpand" FontSize="18" VerticalTextAlignment="Center" />
+                    <Entry IsEnabled="False" TextColor="Black" Text="{Binding SelectedVizita.Klienti}" FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Adresa: " FontSize="18" HorizontalOptions="StartAndExpand"  VerticalTextAlignment="Center"/>
+                    <Entry IsEnabled="False" TextColor="Black" Text="{Binding SelectedVizita.Vendi}" FontSize="18"  HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Data dhe koha : " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
+                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.DataPlanifikimit,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
+                </StackLayout>
+                
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Statusi Aktual: " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
+                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.IDStatusiVizites,Converter={StaticResource VizitaStatusToString}}"  TextColor="Black"  FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Statusi i ri: " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
+                    <Picker x:Name="statusiVizites" SelectedItem="{Binding SelectedVizita.IDStatusiVizites,Converter={StaticResource VizitaStatusToInt},Mode=TwoWay}"  TextColor="Black" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170" ItemDisplayBinding="{Binding Gjendja}"/>
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout HorizontalOptions="End" Orientation="Horizontal">
+                <Button Text="Kthehu" HorizontalOptions="FillAndExpand"/>
+                <Button Text="Regjistro" Command="{Binding ChangeVizitaStatusCommand}" HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

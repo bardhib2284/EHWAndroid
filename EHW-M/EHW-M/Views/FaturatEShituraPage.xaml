@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.FaturatEShituraPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                <Label Text="Dita : " VerticalOptions="Center" FontSize="16"/>
+                <Label Text="{Binding DataEZgjedhur}" VerticalOptions="Center" FontSize="16"/>
+
+                <Label Text="Data : " VerticalOptions="Center" FontSize="16" HorizontalOptions="EndAndExpand"/>
+                <DatePicker Date="{Binding TodaysDate}" DateSelected="DatePicker_DateSelected"/>
+            </StackLayout>
+
+            <StackLayout>
+                <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue">
+                    <Grid HeightRequest="30" Padding="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Kontakt" Grid.Row="0" Grid.Column="0" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Klienti" Grid.Row="0" Grid.Column="1" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Data" Grid.Row="0" Grid.Column="2" />
+                        <Label FontAttributes="Bold" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" VerticalTextAlignment="Center" Text="Nr.Fat" Grid.Row="0" Grid.Column="3" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Totali" Grid.Row="0" Grid.Column="4" />
+                    </Grid>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout>
+                <ListView x:Name="SearchedClientsList" ItemsSource="{Binding LiferimetEKryera}" SelectionMode="Single" ItemSelected="SearchedClientsList_ItemSelected">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="5">
+                                    <Label Text="{Binding Klienti}" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="13"/>
+                                    <Label Text="{Binding Kontakt}" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="13"/>
+                                    <Label Text="{Binding Data,StringFormat='{}{0:dd-MM-yyyy}'}" HorizontalOptions="FillAndExpand" TextColor="Black" VerticalOptions="FillAndExpand" FontSize="13" VerticalTextAlignment="Center"/>
+                                    <Label Text="{Binding NrFat}" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" FontSize="13"/>
+                                    <Label Text="{Binding Totali}" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="13"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+
+            <StackLayout HorizontalOptions="FillAndExpand" Padding="10">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Faturimi : " FontSize="21" HorizontalTextAlignment="End" HorizontalOptions="FillAndExpand" WidthRequest="150"/>
+                    <Label Text="{Binding AllLiferimetEKryeraCmimiTotal,StringFormat='{0:F2}'}" FontSize="22" MinimumWidthRequest="100" BackgroundColor="LightGreen" WidthRequest="150" HorizontalTextAlignment="End" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Pagesat/Kthimet : " FontSize="18" VerticalTextAlignment="Center" HorizontalTextAlignment="Start" HorizontalOptions="FillAndExpand" WidthRequest="150"/>
+                    <Label Text="{Binding AllLiferimetEKryeraKthimet,StringFormat='{0:F2}'}" FontSize="22" MinimumWidthRequest="100" BackgroundColor="LightGreen" WidthRequest="150" HorizontalTextAlignment="End" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Inkasimet : " FontSize="22" HorizontalTextAlignment="End" HorizontalOptions="FillAndExpand" WidthRequest="150"/>
+                    <Label Text="{Binding AllLiferimetEKryeraInkasimet,StringFormat='{0:F2}'}" FontSize="22" MinimumWidthRequest="100" BackgroundColor="LightGreen" WidthRequest="150" HorizontalTextAlignment="End" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+
+            </StackLayout>
+            
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
+                <Button Text="Shfaq" Command="{Binding ShfaqPorosineCommand}" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
+                <Button Text="Inkaso"  x:Name="Kthimi" WidthRequest="60" FontSize="13"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

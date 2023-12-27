@@ -1,0 +1,940 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s1="https://eFiskalizimi.tatime.gov.al/FiscalizationService/schema" xmlns:tns="http://tempuri.org/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:import namespace="https://eFiskalizimi.tatime.gov.al/FiscalizationService/schema" />
+      <s:element name="RegisterTCR">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="IDAgjenti" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="businessUnitCode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RegisterTCRResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RegisterTCRResult" type="tns:ResultLog" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ResultLog">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Created" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="Request" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Response" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseObject" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="RequestType" type="tns:RequestType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Stacktrace" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MobileIdRef" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="OperatorCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="QRCodeLink" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TCRBusinessCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NSLF" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NIVF" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseUUID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EIC" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseUUIDSH" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NIVFSH" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NSLFSH" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="Status">
+        <s:restriction base="s:string">
+          <s:enumeration value="Ok" />
+          <s:enumeration value="FaultCode" />
+          <s:enumeration value="CertificateNotValid" />
+          <s:enumeration value="InternalError" />
+          <s:enumeration value="TCRAlreadyRegistered" />
+          <s:enumeration value="InProcess" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="RequestType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Fault" />
+          <s:enumeration value="Undefiend" />
+          <s:enumeration value="RegisterTCR" />
+          <s:enumeration value="RegisterCashDeposit" />
+          <s:enumeration value="RegisterInvoice" />
+          <s:enumeration value="RegisterWTN" />
+          <s:enumeration value="RegisterEinvoice" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetTCRByIDAgjenti">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="IDAgjenti" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTCRByIDAgjentiResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTCRByIDAgjentiResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetConfigurationByIDAgjenti">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="IDAgjenti" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetConfigurationByIDAgjentiResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetConfigurationByIDAgjentiResult" type="tns:ResultConfiguration" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ResultConfiguration">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseObject" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="TCRCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="OperatorCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="BusinessCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TAGNR" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IDN" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="LevizjeIDN" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Viti" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateNumriFiskByIDAgjenti">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="IDAgjenti" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="TCRCode" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="IDN" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="LevizjeIDN" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateNumriFiskByIDAgjentiResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateNumriFiskByIDAgjentiResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckCorrectiveInvoice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="invId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="DeviceID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="TCRCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="OperatorCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="BusinessUnitCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="NIPT" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckCorrectiveInvoiceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CheckCorrectiveInvoiceResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTCRRequestByMobleIdRef">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="MobleIdRef" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTCRRequestByMobleIdRefResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTCRRequestByMobleIdRefResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RegisterCashDeposit">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="req" type="tns:RegisterCashDepositInputRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RegisterCashDepositInputRequest">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="CashAmount" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="DepositType" type="s1:CashDepositOperationSType" />
+          <s:element minOccurs="0" maxOccurs="1" name="TCRCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="OperatorCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SubseqDelivTypeSType" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="SendDateTime" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="RegisterCashDepositResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RegisterCashDepositResult" type="tns:ResultLog" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RegisterInvoice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="req" type="tns:RegisterInvoiceInputRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RegisterInvoiceInputRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="TCRCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="OperatorCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="BusinessUnitCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="InoiceType" type="s1:InvoiceSType" />
+          <s:element minOccurs="0" maxOccurs="1" name="InvOrdNum" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="InvNum" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SendDatetime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsIssuerInVAT" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="TaxFreeAmt" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="PriceWithoutVAT" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="VATAmount" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="PriceWithVAT" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NrLiferimit" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentMethodTypeSType" type="s1:PaymentMethodTypeSType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Buyer" type="s1:BuyerType" />
+          <s:element minOccurs="0" maxOccurs="1" name="InvoiceItems" type="tns:ArrayOfInvoiceItemType" />
+          <s:element minOccurs="0" maxOccurs="1" name="CardNumber" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsReverseCharge" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="IICRef" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IssueDateTimeRef" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="TypeRef" type="s1:CorrectiveInvTypeSType" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsCorrectiveInv" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="MobileRefId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SubseqDelivTypeSType" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfInvoiceItemType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="InvoiceItemType" nillable="true" type="s1:InvoiceItemType" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="RegisterInvoiceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RegisterInvoiceResult" type="tns:ResultLog" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RegisterWTN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="req" type="tns:RegisterWTNInputRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RegisterWTNInputRequest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="TCRCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="OperatorCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="BusinessUnitCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="InvOrdNum" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="InvNum" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SendDatetime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="ValueOfGoods" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="StartPointSTypeSpecified" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="StartPointSType" type="s1:WTNStartPointSType" />
+          <s:element minOccurs="1" maxOccurs="1" name="DestinPointSTypeSpecified" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="DestinPointSType" type="s1:WTNDestinPointSType" />
+          <s:element minOccurs="0" maxOccurs="1" name="TransferItems" type="tns:ArrayOfWTNItemType" />
+          <s:element minOccurs="0" maxOccurs="1" name="MobileRefId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SubseqDelivTypeSType" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="FromDeviceId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ToDeviceId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfWTNItemType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WTNItemType" nillable="true" type="s1:WTNItemType" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="RegisterWTNResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RegisterWTNResult" type="tns:ResultLog" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="https://eFiskalizimi.tatime.gov.al/FiscalizationService/schema">
+      <s:simpleType name="CashDepositOperationSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="INITIAL" />
+          <s:enumeration value="WITHDRAW" />
+          <s:enumeration value="DEPOSIT" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="InvoiceSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="CASH" />
+          <s:enumeration value="NONCASH" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="PaymentMethodTypeSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="BANKNOTE" />
+          <s:enumeration value="CARD" />
+          <s:enumeration value="CHECK" />
+          <s:enumeration value="SVOUCHER" />
+          <s:enumeration value="COMPANY" />
+          <s:enumeration value="ORDER" />
+          <s:enumeration value="ACCOUNT" />
+          <s:enumeration value="FACTORING" />
+          <s:enumeration value="COMPENSATION" />
+          <s:enumeration value="TRANSFER" />
+          <s:enumeration value="WAIVER" />
+          <s:enumeration value="KIND" />
+          <s:enumeration value="OTHER" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="BuyerType">
+        <s:attribute name="IDType" type="s1:IDTypeSType" />
+        <s:attribute name="IDNum" type="s:string" />
+        <s:attribute name="Name" type="s:string" />
+        <s:attribute name="Address" type="s:string" />
+        <s:attribute name="Town" type="s:string" />
+        <s:attribute name="Country" type="s1:CountryCodeSType" />
+      </s:complexType>
+      <s:simpleType name="IDTypeSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="NUIS" />
+          <s:enumeration value="ID" />
+          <s:enumeration value="PASS" />
+          <s:enumeration value="VAT" />
+          <s:enumeration value="TAX" />
+          <s:enumeration value="SOC" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="CountryCodeSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="ABW" />
+          <s:enumeration value="AFG" />
+          <s:enumeration value="AGO" />
+          <s:enumeration value="AIA" />
+          <s:enumeration value="ALA" />
+          <s:enumeration value="ALB" />
+          <s:enumeration value="AND" />
+          <s:enumeration value="ARE" />
+          <s:enumeration value="ARG" />
+          <s:enumeration value="ARM" />
+          <s:enumeration value="ASM" />
+          <s:enumeration value="ATA" />
+          <s:enumeration value="ATF" />
+          <s:enumeration value="ATG" />
+          <s:enumeration value="AUS" />
+          <s:enumeration value="AUT" />
+          <s:enumeration value="AZE" />
+          <s:enumeration value="BDI" />
+          <s:enumeration value="BEL" />
+          <s:enumeration value="BEN" />
+          <s:enumeration value="BES" />
+          <s:enumeration value="BFA" />
+          <s:enumeration value="BGD" />
+          <s:enumeration value="BGR" />
+          <s:enumeration value="BHR" />
+          <s:enumeration value="BHS" />
+          <s:enumeration value="BIH" />
+          <s:enumeration value="BLM" />
+          <s:enumeration value="BLR" />
+          <s:enumeration value="BLZ" />
+          <s:enumeration value="BMU" />
+          <s:enumeration value="BOL" />
+          <s:enumeration value="BRA" />
+          <s:enumeration value="BRB" />
+          <s:enumeration value="BRN" />
+          <s:enumeration value="BTN" />
+          <s:enumeration value="BVT" />
+          <s:enumeration value="BWA" />
+          <s:enumeration value="CAF" />
+          <s:enumeration value="CAN" />
+          <s:enumeration value="CCK" />
+          <s:enumeration value="CHE" />
+          <s:enumeration value="CHL" />
+          <s:enumeration value="CHN" />
+          <s:enumeration value="CIV" />
+          <s:enumeration value="CMR" />
+          <s:enumeration value="COD" />
+          <s:enumeration value="COG" />
+          <s:enumeration value="COK" />
+          <s:enumeration value="COL" />
+          <s:enumeration value="COM" />
+          <s:enumeration value="CPV" />
+          <s:enumeration value="CRI" />
+          <s:enumeration value="CUB" />
+          <s:enumeration value="CUW" />
+          <s:enumeration value="CXR" />
+          <s:enumeration value="CYM" />
+          <s:enumeration value="CYP" />
+          <s:enumeration value="CZE" />
+          <s:enumeration value="DEU" />
+          <s:enumeration value="DJI" />
+          <s:enumeration value="DMA" />
+          <s:enumeration value="DNK" />
+          <s:enumeration value="DOM" />
+          <s:enumeration value="DZA" />
+          <s:enumeration value="ECU" />
+          <s:enumeration value="EGY" />
+          <s:enumeration value="ERI" />
+          <s:enumeration value="ESH" />
+          <s:enumeration value="ESP" />
+          <s:enumeration value="EST" />
+          <s:enumeration value="ETH" />
+          <s:enumeration value="FIN" />
+          <s:enumeration value="FJI" />
+          <s:enumeration value="FLK" />
+          <s:enumeration value="FRA" />
+          <s:enumeration value="FRO" />
+          <s:enumeration value="FSM" />
+          <s:enumeration value="GAB" />
+          <s:enumeration value="GBR" />
+          <s:enumeration value="GEO" />
+          <s:enumeration value="GGY" />
+          <s:enumeration value="GHA" />
+          <s:enumeration value="GIB" />
+          <s:enumeration value="GIN" />
+          <s:enumeration value="GLP" />
+          <s:enumeration value="GMB" />
+          <s:enumeration value="GNB" />
+          <s:enumeration value="GNQ" />
+          <s:enumeration value="GRC" />
+          <s:enumeration value="GRD" />
+          <s:enumeration value="GRL" />
+          <s:enumeration value="GTM" />
+          <s:enumeration value="GUF" />
+          <s:enumeration value="GUM" />
+          <s:enumeration value="GUY" />
+          <s:enumeration value="HKG" />
+          <s:enumeration value="HMD" />
+          <s:enumeration value="HND" />
+          <s:enumeration value="HRV" />
+          <s:enumeration value="HTI" />
+          <s:enumeration value="HUN" />
+          <s:enumeration value="IDN" />
+          <s:enumeration value="IMN" />
+          <s:enumeration value="IND" />
+          <s:enumeration value="IOT" />
+          <s:enumeration value="IRL" />
+          <s:enumeration value="IRN" />
+          <s:enumeration value="IRQ" />
+          <s:enumeration value="ISL" />
+          <s:enumeration value="ISR" />
+          <s:enumeration value="ITA" />
+          <s:enumeration value="JAM" />
+          <s:enumeration value="JEY" />
+          <s:enumeration value="JOR" />
+          <s:enumeration value="JPN" />
+          <s:enumeration value="KAZ" />
+          <s:enumeration value="KEN" />
+          <s:enumeration value="KGZ" />
+          <s:enumeration value="KHM" />
+          <s:enumeration value="KIR" />
+          <s:enumeration value="KNA" />
+          <s:enumeration value="KOR" />
+          <s:enumeration value="KWT" />
+          <s:enumeration value="LAO" />
+          <s:enumeration value="LBN" />
+          <s:enumeration value="LBR" />
+          <s:enumeration value="LBY" />
+          <s:enumeration value="LCA" />
+          <s:enumeration value="LIE" />
+          <s:enumeration value="LKA" />
+          <s:enumeration value="LSO" />
+          <s:enumeration value="LTU" />
+          <s:enumeration value="LUX" />
+          <s:enumeration value="LVA" />
+          <s:enumeration value="MAC" />
+          <s:enumeration value="MAF" />
+          <s:enumeration value="MAR" />
+          <s:enumeration value="MCO" />
+          <s:enumeration value="MDA" />
+          <s:enumeration value="MDG" />
+          <s:enumeration value="MDV" />
+          <s:enumeration value="MEX" />
+          <s:enumeration value="MHL" />
+          <s:enumeration value="MKD" />
+          <s:enumeration value="MLI" />
+          <s:enumeration value="MLT" />
+          <s:enumeration value="MMR" />
+          <s:enumeration value="MNE" />
+          <s:enumeration value="MNG" />
+          <s:enumeration value="MNP" />
+          <s:enumeration value="MOZ" />
+          <s:enumeration value="MRT" />
+          <s:enumeration value="MSR" />
+          <s:enumeration value="MTQ" />
+          <s:enumeration value="MUS" />
+          <s:enumeration value="MWI" />
+          <s:enumeration value="MYS" />
+          <s:enumeration value="MYT" />
+          <s:enumeration value="NAM" />
+          <s:enumeration value="NCL" />
+          <s:enumeration value="NER" />
+          <s:enumeration value="NFK" />
+          <s:enumeration value="NGA" />
+          <s:enumeration value="NIC" />
+          <s:enumeration value="NIU" />
+          <s:enumeration value="NLD" />
+          <s:enumeration value="NOR" />
+          <s:enumeration value="NPL" />
+          <s:enumeration value="NRU" />
+          <s:enumeration value="NZL" />
+          <s:enumeration value="OMN" />
+          <s:enumeration value="PAK" />
+          <s:enumeration value="PAN" />
+          <s:enumeration value="PCN" />
+          <s:enumeration value="PER" />
+          <s:enumeration value="PHL" />
+          <s:enumeration value="PLW" />
+          <s:enumeration value="PNG" />
+          <s:enumeration value="POL" />
+          <s:enumeration value="PRI" />
+          <s:enumeration value="PRK" />
+          <s:enumeration value="PRT" />
+          <s:enumeration value="PRY" />
+          <s:enumeration value="PSE" />
+          <s:enumeration value="PYF" />
+          <s:enumeration value="QAT" />
+          <s:enumeration value="REU" />
+          <s:enumeration value="ROU" />
+          <s:enumeration value="RUS" />
+          <s:enumeration value="RWA" />
+          <s:enumeration value="SAU" />
+          <s:enumeration value="SDN" />
+          <s:enumeration value="SEN" />
+          <s:enumeration value="SGP" />
+          <s:enumeration value="SGS" />
+          <s:enumeration value="SHN" />
+          <s:enumeration value="SJM" />
+          <s:enumeration value="SLB" />
+          <s:enumeration value="SLE" />
+          <s:enumeration value="SLV" />
+          <s:enumeration value="SMR" />
+          <s:enumeration value="SOM" />
+          <s:enumeration value="SPM" />
+          <s:enumeration value="SRB" />
+          <s:enumeration value="SSD" />
+          <s:enumeration value="STP" />
+          <s:enumeration value="SUR" />
+          <s:enumeration value="SVK" />
+          <s:enumeration value="SVN" />
+          <s:enumeration value="SWE" />
+          <s:enumeration value="SWZ" />
+          <s:enumeration value="SXM" />
+          <s:enumeration value="SYC" />
+          <s:enumeration value="SYR" />
+          <s:enumeration value="TCA" />
+          <s:enumeration value="TCD" />
+          <s:enumeration value="TGO" />
+          <s:enumeration value="THA" />
+          <s:enumeration value="TJK" />
+          <s:enumeration value="TKL" />
+          <s:enumeration value="TKM" />
+          <s:enumeration value="TLS" />
+          <s:enumeration value="TON" />
+          <s:enumeration value="TTO" />
+          <s:enumeration value="TUN" />
+          <s:enumeration value="TUR" />
+          <s:enumeration value="TUV" />
+          <s:enumeration value="TWN" />
+          <s:enumeration value="TZA" />
+          <s:enumeration value="UGA" />
+          <s:enumeration value="UKR" />
+          <s:enumeration value="UMI" />
+          <s:enumeration value="RKS" />
+          <s:enumeration value="URY" />
+          <s:enumeration value="USA" />
+          <s:enumeration value="UZB" />
+          <s:enumeration value="VAT" />
+          <s:enumeration value="VCT" />
+          <s:enumeration value="VEN" />
+          <s:enumeration value="VGB" />
+          <s:enumeration value="VIR" />
+          <s:enumeration value="VNM" />
+          <s:enumeration value="VUT" />
+          <s:enumeration value="WLF" />
+          <s:enumeration value="WSM" />
+          <s:enumeration value="YEM" />
+          <s:enumeration value="ZAF" />
+          <s:enumeration value="ZMB" />
+          <s:enumeration value="ZWE" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="InvoiceItemType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="VS" type="s1:VouchersSoldType" />
+        </s:sequence>
+        <s:attribute name="N" type="s:string" />
+        <s:attribute name="C" type="s:string" />
+        <s:attribute name="U" type="s:string" />
+        <s:attribute name="Q" type="s:double" use="required" />
+        <s:attribute name="UPB" type="s:decimal" use="required" />
+        <s:attribute name="UPA" type="s:decimal" use="required" />
+        <s:attribute name="R" type="s:decimal" />
+        <s:attribute name="RR" type="s:boolean" />
+        <s:attribute name="PB" type="s:decimal" use="required" />
+        <s:attribute name="VR" type="s:decimal" />
+        <s:attribute name="VA" type="s:decimal" />
+        <s:attribute name="IN" type="s:boolean" />
+        <s:attribute name="PA" type="s:decimal" use="required" />
+        <s:attribute name="EX" type="s1:ExemptFromVATSType" />
+      </s:complexType>
+      <s:complexType name="VouchersSoldType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="VD" type="s1:VoucherSoldDataType" />
+          <s:element minOccurs="0" maxOccurs="1" name="VN" type="s1:ArrayOfVoucherType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VoucherSoldDataType">
+        <s:attribute name="D" type="s:date" use="required" />
+        <s:attribute name="N" type="s:decimal" use="required" />
+      </s:complexType>
+      <s:complexType name="ArrayOfVoucherType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="V" type="s1:VoucherType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VoucherType">
+        <s:attribute name="Num" type="s:string" />
+      </s:complexType>
+      <s:simpleType name="ExemptFromVATSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="TYPE_1" />
+          <s:enumeration value="TYPE_2" />
+          <s:enumeration value="TAX_FREE" />
+          <s:enumeration value="MARGIN_SCHEME" />
+          <s:enumeration value="EXPORT_OF_GOODS" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="CorrectiveInvTypeSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="CORRECTIVE" />
+          <s:enumeration value="DEBIT" />
+          <s:enumeration value="CREDIT" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="WTNStartPointSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="WAREHOUSE" />
+          <s:enumeration value="EXHIBITION" />
+          <s:enumeration value="STORE" />
+          <s:enumeration value="SALE" />
+          <s:enumeration value="ANOTHER" />
+          <s:enumeration value="CUSTOMS" />
+          <s:enumeration value="OTHER" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="WTNDestinPointSType">
+        <s:restriction base="s:string">
+          <s:enumeration value="WAREHOUSE" />
+          <s:enumeration value="EXHIBITION" />
+          <s:enumeration value="STORE" />
+          <s:enumeration value="SALE" />
+          <s:enumeration value="OTHER" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="WTNItemType">
+        <s:attribute name="N" type="s:string" />
+        <s:attribute name="C" type="s:string" />
+        <s:attribute name="U" type="s:string" />
+        <s:attribute name="Q" type="s:double" use="required" />
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="RegisterTCRSoapIn">
+    <wsdl:part name="parameters" element="tns:RegisterTCR" />
+  </wsdl:message>
+  <wsdl:message name="RegisterTCRSoapOut">
+    <wsdl:part name="parameters" element="tns:RegisterTCRResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTCRByIDAgjentiSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTCRByIDAgjenti" />
+  </wsdl:message>
+  <wsdl:message name="GetTCRByIDAgjentiSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTCRByIDAgjentiResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationByIDAgjentiSoapIn">
+    <wsdl:part name="parameters" element="tns:GetConfigurationByIDAgjenti" />
+  </wsdl:message>
+  <wsdl:message name="GetConfigurationByIDAgjentiSoapOut">
+    <wsdl:part name="parameters" element="tns:GetConfigurationByIDAgjentiResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateNumriFiskByIDAgjentiSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateNumriFiskByIDAgjenti" />
+  </wsdl:message>
+  <wsdl:message name="UpdateNumriFiskByIDAgjentiSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateNumriFiskByIDAgjentiResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckCorrectiveInvoiceSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckCorrectiveInvoice" />
+  </wsdl:message>
+  <wsdl:message name="CheckCorrectiveInvoiceSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckCorrectiveInvoiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTCRRequestByMobleIdRefSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTCRRequestByMobleIdRef" />
+  </wsdl:message>
+  <wsdl:message name="GetTCRRequestByMobleIdRefSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTCRRequestByMobleIdRefResponse" />
+  </wsdl:message>
+  <wsdl:message name="RegisterCashDepositSoapIn">
+    <wsdl:part name="parameters" element="tns:RegisterCashDeposit" />
+  </wsdl:message>
+  <wsdl:message name="RegisterCashDepositSoapOut">
+    <wsdl:part name="parameters" element="tns:RegisterCashDepositResponse" />
+  </wsdl:message>
+  <wsdl:message name="RegisterInvoiceSoapIn">
+    <wsdl:part name="parameters" element="tns:RegisterInvoice" />
+  </wsdl:message>
+  <wsdl:message name="RegisterInvoiceSoapOut">
+    <wsdl:part name="parameters" element="tns:RegisterInvoiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="RegisterWTNSoapIn">
+    <wsdl:part name="parameters" element="tns:RegisterWTN" />
+  </wsdl:message>
+  <wsdl:message name="RegisterWTNSoapOut">
+    <wsdl:part name="parameters" element="tns:RegisterWTNResponse" />
+  </wsdl:message>
+  <wsdl:portType name="FiscalisationServiceSoap">
+    <wsdl:operation name="RegisterTCR">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to Register a TCR. The neccessary parameters are: 
+              String IDAgjenti which represents the  Id of the PDA/Agjenti</wsdl:documentation>
+      <wsdl:input message="tns:RegisterTCRSoapIn" />
+      <wsdl:output message="tns:RegisterTCRSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTCRByIDAgjenti">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to GET the TCRCode (if exists) depending on the IDAgjenti</wsdl:documentation>
+      <wsdl:input message="tns:GetTCRByIDAgjentiSoapIn" />
+      <wsdl:output message="tns:GetTCRByIDAgjentiSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationByIDAgjenti">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to GET the TCRCode, OperatorCode, BusinessUnitCode depending on the IDAgjenti</wsdl:documentation>
+      <wsdl:input message="tns:GetConfigurationByIDAgjentiSoapIn" />
+      <wsdl:output message="tns:GetConfigurationByIDAgjentiSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNumriFiskByIDAgjenti">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to Update the IDN, LevizjeIDN at NumriFisk table depending on the IDAgjenti</wsdl:documentation>
+      <wsdl:input message="tns:UpdateNumriFiskByIDAgjentiSoapIn" />
+      <wsdl:output message="tns:UpdateNumriFiskByIDAgjentiSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckCorrectiveInvoice">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to count Liferim for this InvNumber(NumriFisk) and TCR</wsdl:documentation>
+      <wsdl:input message="tns:CheckCorrectiveInvoiceSoapIn" />
+      <wsdl:output message="tns:CheckCorrectiveInvoiceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTCRRequestByMobleIdRef">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to GET the Request (if exists) of an Invoice that is already made</wsdl:documentation>
+      <wsdl:input message="tns:GetTCRRequestByMobleIdRefSoapIn" />
+      <wsdl:output message="tns:GetTCRRequestByMobleIdRefSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterCashDeposit">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to Register a CashDeposit. An input object RegisterCashDepositInputRequest with INITIAL, WITHDRAW or DEPOSIT amount. 
+              The neccessary parameters of the object are: 
+              decimal CashAmount, CashDepositOperationSType DepositType, string OperatorCode/PDA TCR Code, int SubseqDelivTypeSType =-1</wsdl:documentation>
+      <wsdl:input message="tns:RegisterCashDepositSoapIn" />
+      <wsdl:output message="tns:RegisterCashDepositSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterInvoice">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to Register a Invoice. An input object RegisterInvoiceInputRequest which has the neccessary parameters: 
+              String OperatorCode, InvoiceSType InoiceType, String InvOrdNum, DateTime SendDatetime,
+              bool IsIssuerInVAT, decimal TaxFreeAmt, decimal PriceWithoutVAT, decimal VATAmount, decimal PriceWithVAT,
+              PaymentMethodTypeSType PaymentMethodTypeSType, BuyerType Buyer, List&lt;InvoiceItemType&gt; InvoiceItems, string MobileRefId,
+              string IICRef = ", DateTime? IssueDateTimeRef= null, CorrectiveInvTypeSType TypeRef = CorrectiveInvTypeSType.CORRECTIVE, 
+              bool IsCorrectiveInv, String CardNumber = "", bool IsReverseCharge = false, int SubseqDelivTypeSType =-1</wsdl:documentation>
+      <wsdl:input message="tns:RegisterInvoiceSoapIn" />
+      <wsdl:output message="tns:RegisterInvoiceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterWTN">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">This Method will be used to Register a Item/s transfer. An input Object RegisterWTNInputRequest with the neccessary parameters is required: 
+              string FromDeviceId, string ToDeviceId, String OperatorCode, String InvOrdNum, DateTime SendDatetime, decimal ValueOfGoods,
+              WTNStartPointSType StartPointSType, WTNDestinPointSType DestinPointSType, List&lt;WTNItemType&gt; InvoiceItems, string MobileRefId, int SubseqDelivTypeSType =-1</wsdl:documentation>
+      <wsdl:input message="tns:RegisterWTNSoapIn" />
+      <wsdl:output message="tns:RegisterWTNSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="FiscalisationServiceSoap" type="tns:FiscalisationServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="RegisterTCR">
+      <soap:operation soapAction="http://tempuri.org/RegisterTCR" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTCRByIDAgjenti">
+      <soap:operation soapAction="http://tempuri.org/GetTCRByIDAgjenti" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationByIDAgjenti">
+      <soap:operation soapAction="http://tempuri.org/GetConfigurationByIDAgjenti" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNumriFiskByIDAgjenti">
+      <soap:operation soapAction="http://tempuri.org/UpdateNumriFiskByIDAgjenti" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckCorrectiveInvoice">
+      <soap:operation soapAction="http://tempuri.org/CheckCorrectiveInvoice" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTCRRequestByMobleIdRef">
+      <soap:operation soapAction="http://tempuri.org/GetTCRRequestByMobleIdRef" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterCashDeposit">
+      <soap:operation soapAction="http://tempuri.org/RegisterCashDeposit" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterInvoice">
+      <soap:operation soapAction="http://tempuri.org/RegisterInvoice" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterWTN">
+      <soap:operation soapAction="http://tempuri.org/RegisterWTN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="FiscalisationServiceSoap12" type="tns:FiscalisationServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="RegisterTCR">
+      <soap12:operation soapAction="http://tempuri.org/RegisterTCR" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTCRByIDAgjenti">
+      <soap12:operation soapAction="http://tempuri.org/GetTCRByIDAgjenti" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigurationByIDAgjenti">
+      <soap12:operation soapAction="http://tempuri.org/GetConfigurationByIDAgjenti" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNumriFiskByIDAgjenti">
+      <soap12:operation soapAction="http://tempuri.org/UpdateNumriFiskByIDAgjenti" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckCorrectiveInvoice">
+      <soap12:operation soapAction="http://tempuri.org/CheckCorrectiveInvoice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTCRRequestByMobleIdRef">
+      <soap12:operation soapAction="http://tempuri.org/GetTCRRequestByMobleIdRef" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterCashDeposit">
+      <soap12:operation soapAction="http://tempuri.org/RegisterCashDeposit" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterInvoice">
+      <soap12:operation soapAction="http://tempuri.org/RegisterInvoice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterWTN">
+      <soap12:operation soapAction="http://tempuri.org/RegisterWTN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="FiscalisationService">
+    <wsdl:port name="FiscalisationServiceSoap" binding="tns:FiscalisationServiceSoap">
+      <soap:address location="http://10.200.60.75:4448/FiscalisationService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="FiscalisationServiceSoap12" binding="tns:FiscalisationServiceSoap12">
+      <soap12:address location="http://10.200.60.75:4448/FiscalisationService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

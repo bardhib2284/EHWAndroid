@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.LoginPage">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Configurimi" Command="{Binding GoToConfigurimiCommand}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Padding>
+        <OnPlatform x:TypeArguments="Thickness">
+            <On Platform="iOS" Value="0,10,0,0" />
+            <On Platform="Android, UWP" Value="0,0,0,0" />
+        </OnPlatform>
+    </ContentPage.Padding>
+    <ScrollView Padding="0,0" x:Name="scrollView" HeightRequest="2000">
+        <StackLayout Spacing="0">
+            <AbsoluteLayout VerticalOptions="Fill">
+                <Image Source="logo" Aspect="AspectFit" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="1,1,1,1"/>
+            </AbsoluteLayout>
+            <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+                <StackLayout Padding="20,0,20,0" VerticalOptions="CenterAndExpand" Spacing="10">
+                    <Entry BackgroundColor="Transparent" PlaceholderColor="LightGray" HeightRequest="50" TextColor="Black" HorizontalOptions="FillAndExpand" Placeholder="Përdoruesi" Text="{Binding al.perdoruesi,Mode=TwoWay}" />
+                    <Entry BackgroundColor="Transparent" PlaceholderColor="LightGray" HeightRequest="50" TextColor="Black" HorizontalOptions="FillAndExpand" Placeholder="Fjalëkalimi" Text="{Binding al.idagjenti}" IsPassword="true"/>
+                </StackLayout>
+                <Button VerticalOptions="CenterAndExpand" Margin="40,0" Text="Kycu" TextColor="White" BackgroundColor="#2CC6E1" CornerRadius="20"
+                                Command="{Binding LoginCommand}" />
+            </StackLayout>
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

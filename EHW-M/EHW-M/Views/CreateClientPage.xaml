@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.CreateClientPage" BackgroundColor="Gray">
+    <ContentPage.Content>
+        <ScrollView>
+
+            <StackLayout BackgroundColor="Gray">
+                <Entry Text="{Binding CreatedKlient.Name}"  Placeholder="Emri" PlaceholderColor="White"/>
+                <Entry Text="{Binding CreatedKlient.LastName}" Placeholder="Mbiemri" PlaceholderColor="White"/>
+                <Entry Text="{Binding CreatedKlient.Adresa}" Placeholder="Adresa" PlaceholderColor="White"/>
+
+                <Entry Text="{Binding SelectedVizita.Name}" Placeholder="Vizita" PlaceholderColor="White"/>
+                <DatePicker Date="{Binding SelectedVizita.Date}"/>
+                <Picker x:Name="ClientPicker" ItemsSource="{Binding Clients}"
+        ItemDisplayBinding="{Binding Name}" SelectedIndexChanged="ClientPicker_SelectedIndexChanged"/>
+                <Label IsVisible="false" Text="{Binding Source={x:Reference ClientPicker}, Path=SelectedItem}" />
+
+                <BoxView WidthRequest="10000" BackgroundColor="Black"/>
+                <Entry Text="{Binding SelectedAuthenticatedUser.Username}" Placeholder="username"/>
+                <Entry Text="{Binding SelectedAuthenticatedUser.Password}" Placeholder="username"/>
+
+                <Entry Text="{Binding SelectedArtikulli.Name}" Placeholder="Emri i artikullit"/>
+                <Entry Text="{Binding SelectedArtikulli.Cmimi}" Placeholder="Emri i artikullit"/>
+
+                <Picker x:Name="cmimoret" Title="Cmimoret"/>
+                <Button Text="Save Klient" Command="{Binding SaveNewClientCommand}"/>
+                <Button Text="Save Viziten" Command="{Binding SaveNewVizitaCommand}"/>
+                <Button Text="Save AuthenticatedUser" Command="{Binding SaveAuthenticatedUserCommand}"/>
+                <Button Text="Save Cmimoren" Command="{Binding SaveAuthenticatedUserCommand}"/>
+                <Button Text="Save Artikujt" Command="{Binding SaveSampleArtikujtCommand}"/>
+                <Button Text="Save Sale Prices" Command="{Binding SaveSalesPricesCommand}"/>
+                <Button Text="Save Malli Mbetur" Command="{Binding SaveMalliMbeturCommand}"/>
+                <Button Text="Save Numri Faturave" Command="{Binding SaveNumriFaturaveCommand}"/>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

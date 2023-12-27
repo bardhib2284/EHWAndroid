@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.PagesaPage" Title="Pagesa">
+    <ContentPage.Content>
+        <StackLayout Padding="10" VerticalOptions="FillAndExpand">
+            <StackLayout Orientation="Horizontal" VerticalOptions="Fill">
+                <StackLayout HorizontalOptions="StartAndExpand">
+                    <Label Text="Monedha"/>
+                    <Picker x:Name="monedhaPicker"/>
+                </StackLayout>
+                <StackLayout HorizontalOptions="EndAndExpand">
+                    <Label Text="Menyra e pageses"/>
+                    <Picker x:Name="menyraPicker"/>
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="Fill" BackgroundColor="LightGreen">
+                <Label Text="Shuma e fatures = " FontSize="25" />
+                <Label Text="{Binding TotalBillPrice,StringFormat='{0:F2}'}" FontSize="25"/>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" VerticalOptions="EndAndExpand">
+                <RadioButton IsChecked="True"/>
+                <Label Text="Totale"  VerticalTextAlignment="Center" FontSize="25"/>
+            </StackLayout>
+            <StackLayout>
+                <Label Text="Shuma e paguar" FontSize="20"/>
+                <Entry Text="{Binding TotalPrice,StringFormat='{0:F2}'}" FontSize="20" IsEnabled="False" />
+
+                <Label Text="Data per pagese" FontSize="20"/>
+                <Entry Text="{Binding DataEPageses}" FontSize="20" IsEnabled="False"/>
+            </StackLayout>
+
+            <Button x:Name="vazhdoButton" Text="Vazhdo" Command="{Binding VazhdoTeKonfirmoPageCommand}" Clicked="vazhdoButton_Clicked" IsEnabled="False"/>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

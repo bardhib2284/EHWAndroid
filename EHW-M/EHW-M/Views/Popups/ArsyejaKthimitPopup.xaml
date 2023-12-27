@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"     
+                 xmlns:animations="clr-namespace:Rg.Plugins.Popup.Animations;assembly=Rg.Plugins.Popup"
+             x:Class="EHWM.Views.Popups.ArsyejaKthimitPopup">
+    <!--You can set an animation in the xaml file or in the csharp code behind-->
+    <pages:PopupPage.Animation>
+        <animations:ScaleAnimation 
+            PositionIn="Center"
+            PositionOut="Center"
+            ScaleIn="1.2"
+            ScaleOut="0.8"
+            DurationIn="400"
+            DurationOut="300"
+            EasingIn="SinOut"
+            EasingOut="SinIn"
+            HasBackgroundAnimation="True"/>
+    </pages:PopupPage.Animation>
+    <!--You can use any elements here which are extended from Xamarin.Forms.View-->
+    <Frame 
+        VerticalOptions="Center" 
+        HorizontalOptions="Center" 
+        BackgroundColor="White"
+        Padding="20, 20, 20, 20" CornerRadius="20">
+        <StackLayout>
+            <Label Text="Ju lutemi zgjedhni arsyejen e kthimit"/>
+            <Picker x:Name="arsyejaPicker" SelectedIndex="{Binding CurrentlySelectedArtikulli.ArsyejaEKthimit,Converter={StaticResource ArsyejaToString},Mode=TwoWay}" ItemsSource="{Binding ArsyejetEKthimit}" ItemDisplayBinding="{Binding Pershkrimi}"/>
+
+            <Button Text="Ruaj" Clicked="Button_Clicked" />
+        </StackLayout>
+        
+    </Frame>
+</pages:PopupPage>

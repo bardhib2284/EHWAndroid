@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.ClientsPage" Title="Lista e klienteve">
+    <ContentPage.Content>
+        
+        <StackLayout Padding="5,0" Margin="0">
+            <StackLayout Orientation="Horizontal" HeightRequest="60">
+                <Label Text="Kontakti:" VerticalTextAlignment="Center" WidthRequest="100"/>
+                <Entry Text="{Binding SelectedVizita.Klienti}" WidthRequest="270" IsEnabled="False" HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HeightRequest="60">
+                <Label Text="Adresa:" VerticalTextAlignment="Center" WidthRequest="100"/>
+                <Entry Text="{Binding SelectedVizita.Vendi}" WidthRequest="270" IsEnabled="False" HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HeightRequest="60" HorizontalOptions="FillAndExpand">
+                <Label Text="Data Filter: " WidthRequest="75" VerticalTextAlignment="Center"  HorizontalTextAlignment="Start"/>
+                <DatePicker  Date="{Binding FilterDate}" DateSelected="DatePicker_DateSelected" MinimumDate="{Binding FilterMinDate}"  MaximumDate="{Binding FilterMaxDate}" HorizontalOptions="FillAndExpand" WidthRequest="200" />
+            </StackLayout>            
+            <StackLayout Orientation="Horizontal" HeightRequest="60">
+                <Label Text="Filter: " WidthRequest="100" VerticalTextAlignment="Center"  HorizontalTextAlignment="Start"/>
+                <SearchBar HorizontalOptions="Fill" WidthRequest="200" TextChanged="SearchBar_TextChanged"/>
+                <Button Text="Shitje" Command="{Binding GoToShitjaCommand}"/>
+            </StackLayout>
+            <Grid Margin="0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width ="120"/>
+                    <ColumnDefinition Width ="160"/>
+                    <ColumnDefinition Width ="AUTO"/>
+                </Grid.ColumnDefinitions>
+                <Label Text="Klienti" Grid.Row="0" Grid.Column="0" FontAttributes="Bold"/>
+                <Label Text="Klienti/Vendi" Grid.Row="0" HorizontalTextAlignment="Center" Grid.Column="1" FontAttributes="Bold"/>
+                <Label Text="Statusi Vizites" Grid.Row="0" Grid.Column="2" FontAttributes="Bold"/>
+            </Grid>
+            <ListView x:Name="AllClientsList" ItemsSource="{Binding VizitatFilteredByDate}" SelectionMode="None" ItemTapped="ListView_ItemTapped">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell Tapped="ViewCell_Tapped">
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="5">
+                                <Label Text="{Binding Klienti}" WidthRequest="170" MinimumWidthRequest="170" TextColor="Black" HorizontalOptions="Fill" VerticalTextAlignment="Center"/>
+                                <Label Text="{Binding Vendi}" TextColor="Black" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center"/>
+                                <Image Source="{Binding IDStatusiVizites,Converter={StaticResource VizitaStatusToImage}}"  VerticalOptions="FillAndExpand" HorizontalOptions="EndAndExpand"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SearchedVizitat}" SelectionMode="Single" ItemTapped="ListView_ItemTapped">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="5">
+                                <Label Text="{Binding Klienti}" TextColor="Black" HorizontalOptions="Fill" VerticalTextAlignment="Center"/>
+                                <BoxView HeightRequest="100" WidthRequest="0.1" BackgroundColor="Black" VerticalOptions="Fill"/>
+                                <Label Text="{Binding Vendi}" TextColor="Black" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center"/>
+                                <Image Source="{Binding IDStatusiVizites,Converter={StaticResource VizitaStatusToImage}}"  VerticalOptions="FillAndExpand" HorizontalOptions="EndAndExpand"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Vizitat" Clicked="Button_Clicked" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
+                <Button Text="Shitjet" Clicked="Button_Clicked" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
+                <Button Text="Kthimi" Clicked="Button_Clicked" x:Name="Kthimi" WidthRequest="60" FontSize="13"/>
+                <Button Text="Vizualo" Clicked="Button_Clicked" x:Name="Vizualo" WidthRequest="60" FontSize="13"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

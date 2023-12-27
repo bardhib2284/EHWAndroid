@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.ArtikujtPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Filter: "
+                VerticalOptions="CenterAndExpand" 
+                HorizontalOptions="Start" />
+                <Entry
+                VerticalOptions="CenterAndExpand" 
+                HorizontalOptions="FillAndExpand" 
+                TextChanged="Entry_TextChanged"/>
+            </StackLayout>
+            <Frame Padding="0" BorderColor="Black" x:Name="unsearchedFrame">
+                <ListView x:Name="testList" ItemsSource="{Binding Artikujt}" HasUnevenRows="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+                                    <StackLayout Orientation="Horizontal" Spacing="0"  HorizontalOptions="FillAndExpand" VerticalOptions="Center">
+                                        <Label Text="{Binding Emri}" Padding="10" FontSize="12" VerticalOptions="Center" MinimumHeightRequest="240" WidthRequest="240" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
+                                        <BoxView Margin="0,-10" BackgroundColor="Black" WidthRequest="0.7" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand" WidthRequest="100" MinimumWidthRequest="100">
+                                            <Label Text="{Binding Sasia}" FontSize="12" VerticalOptions="Center" Margin="0,0,0,0" WidthRequest="40" HorizontalOptions="Start"/>
+                                            <BoxView Margin="0,-10" BackgroundColor="Black" WidthRequest="0.7" HorizontalOptions="Fill"/>
+                                            <Label VerticalOptions="Center" FontSize="12" Text="{Binding Seri}" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                    <BoxView BackgroundColor="Black" HeightRequest="1" Margin="-10,0"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Frame>
+
+            <Frame Padding="0" BorderColor="Black" x:Name="searchedFrame" IsVisible="False">
+                <ListView x:Name="testListsearched" ItemsSource="{Binding SearchedArtikujt}" HasUnevenRows="True">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+                                    <StackLayout Orientation="Horizontal" Spacing="0"  HorizontalOptions="FillAndExpand" VerticalOptions="Center">
+                                        <Label Text="{Binding Emri}" Padding="10" FontSize="12" VerticalOptions="Center" MinimumHeightRequest="240" WidthRequest="240" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
+                                        <BoxView Margin="0,-10" BackgroundColor="Black" WidthRequest="0.7" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand" WidthRequest="100" MinimumWidthRequest="100">
+                                            <Label Text="{Binding Sasia}" FontSize="12" VerticalTextAlignment="Center" VerticalOptions="Center" Margin="10,0,0,10" WidthRequest="30" HorizontalOptions="Start"/>
+                                            <BoxView Margin="0,-10" BackgroundColor="Black"  WidthRequest="0.7" HorizontalOptions="Fill"/>
+                                            <Label VerticalOptions="Center" Text="{Binding IDArtikulli}" FontSize="12" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                    <BoxView BackgroundColor="Black" HeightRequest="1" Margin="-10,0"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Frame>
+        </StackLayout>
+
+    </ContentPage.Content>
+</ContentPage>

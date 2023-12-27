@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<discovery xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.xmlsoap.org/disco/">
+  <contractRef ref="http://84.22.42.59:5010/FiscalisationService.asmx?wsdl" docRef="http://84.22.42.59:5010/FiscalisationService.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
+  <soap address="http://84.22.42.59:5010/FiscalisationService.asmx" xmlns:q1="http://tempuri.org/" binding="q1:FiscalisationServiceSoap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+  <soap address="http://84.22.42.59:5010/FiscalisationService.asmx" xmlns:q2="http://tempuri.org/" binding="q2:FiscalisationServiceSoap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+</discovery>

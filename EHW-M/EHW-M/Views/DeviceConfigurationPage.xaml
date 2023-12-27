@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.DeviceConfigurationPage">
+    <ContentPage.Content>
+        <StackLayout Orientation="Vertical" Padding="20" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <Label Text="Paisja"/>
+            <Entry Text="{Binding Configurimi.Paisja}"/>
+
+            <Label Text="Kodi i TCR"/>
+            <Entry Text="{Binding Configurimi.KodiTCR}"/>
+
+            <Label Text="Kodi i Operatorit"/>
+            <Entry Text="{Binding Configurimi.KodiIOperatorit}"/>
+
+            <Label Text="Kodi i njesise se biznesit"/>
+            <Entry Text="{Binding Configurimi.KodiINjesiseSeBiznesit}"/>
+            <StackLayout VerticalOptions="EndAndExpand">
+                <Label VerticalOptions="EndAndExpand" Text="Ruajtja e te dhenva funksionon per te gjitha faqet, nuk ka nevoj me prek ruaj per te dy faqet"/>
+                <Button VerticalOptions="EndAndExpand" Text="Ruaj" Command="{Binding SaveConfigurimiCommand}"/>
+            </StackLayout>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.ShfaqPorosinePage"
+             Title="Shfaq Porosine">
+    <ContentPage.Content>
+        <StackLayout >
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="10">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Nr.Fat: " FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.NrFat}" FontSize="16"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
+                    <Label Text="Data: " FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Data,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="16"/>
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="10">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Kontakt: " FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Klienti}" FontSize="16"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
+                    <Label Text="Vendi: " FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Kontakt,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="16"/>
+                </StackLayout>
+            </StackLayout>
+
+
+            <StackLayout>
+                <Frame Padding="0" BorderColor="Black" BackgroundColor="LightBlue">
+                    <Grid HeightRequest="30" Padding="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Porosi" Grid.Row="0" Grid.Column="1" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="C.Njesi" Grid.Row="0" Grid.Column="2" />
+                        <Label FontAttributes="Bold" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Totali" Grid.Row="0" Grid.Column="3" />
+                    </Grid>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout>
+                <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SelectedLiferimetEKryera.ListaEArtikujve}" SelectionMode="Single" >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center" Padding="0,0,10,0">
+                                    <Label Text="{Binding Emri}" HorizontalTextAlignment="Center" WidthRequest="175" MinimumHeightRequest="175" LineBreakMode="TailTruncation" FontSize="12" HorizontalOptions="Fill"/>
+                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                        <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" FontSize="12"/>
+                                        <Label Text="{Binding CmimiNjesi}" HorizontalOptions="CenterAndExpand" Margin="10,0,0,0" FontSize="12"/>
+                                        <Label Text="{Binding CmimiTotal,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" FontSize="12"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+
+
+            <StackLayout BackgroundColor="LightGreen" Orientation="Horizontal" HorizontalOptions="FillAndExpand" HeightRequest="70" Padding="5">
+                <Label Text="Totali:" HorizontalTextAlignment="End" HorizontalOptions="EndAndExpand" FontSize="16"/>
+                <Label Text="{Binding SelectedLiferimetEKryera.Totali,StringFormat='{0:F2}'}" HorizontalTextAlignment="End" FontSize="16"/>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Printo"  x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
+                <Button Text="Kthimi" Command="{Binding KthePorosineAutomatikishtCommand}" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.RegjistrimiIVizitesPage" Title="Regjistro Viziten">
+    <ContentPage.Content>
+        <StackLayout Padding="10" Margin="0,0,0,0" HorizontalOptions="FillAndExpand">
+            <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+
+                <Label Text="Regjistro Viziten Duke Zgjedhur Klientin" HorizontalOptions="Center" Margin="0,0,0,50" TextColor="Black"/>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Klienti: " HorizontalOptions="StartAndExpand" FontSize="18" VerticalTextAlignment="Center" />
+                    <Picker x:Name="pickerForClients" ItemsSource="{Binding Clients}" HorizontalOptions="EndAndExpand" ItemDisplayBinding="{Binding Emri}" SelectedIndexChanged="Picker_SelectedIndexChanged"  FontSize="18" MinimumHeightRequest="170" WidthRequest="170"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Adresa: " FontSize="18" HorizontalOptions="StartAndExpand"/>
+                    <Label x:Name="Adresa" FontSize="18"  HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Data: " FontSize="18" HorizontalOptions="StartAndExpand" VerticalTextAlignment="Center"/>
+                    <Label Text="{Binding RegjistroVizitenDate, StringFormat='{0:MMMM dd, yyyy}'}" FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"  />
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
+                    <Label Text="Ora: " FontSize="18"/>
+                    <Label Text="{Binding RegjistroVizitenDate, StringFormat='{}{0:HH:mm:ss}'}" FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"  />
+                </StackLayout>
+
+            </StackLayout>
+
+            <StackLayout HorizontalOptions="EndAndExpand" Orientation="Horizontal" VerticalOptions="EndAndExpand">
+                <Button Text="Kthehu" HorizontalOptions="EndAndExpand"/>
+                <Button Text="Regjistro" HorizontalOptions="EndAndExpand" Clicked="Button_Clicked"/>
+            </StackLayout>
+        </StackLayout>
+        
+    </ContentPage.Content>
+</ContentPage>

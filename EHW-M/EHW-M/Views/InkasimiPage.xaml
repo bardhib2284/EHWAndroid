@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.InkasimiPage" Title="Inkasimi">
+    <ContentPage.Content>
+        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="10" Spacing="10">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                <Label Text="Klienti" HorizontalOptions="Fill" VerticalOptions="Center"/>
+                <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Emri}" VerticalOptions="Start" HorizontalOptions="FillAndExpand" SelectedIndexChanged="depotPicker_SelectedIndexChanged"/>
+            </StackLayout>
+
+            <Grid VerticalOptions="Fill" HorizontalOptions="FillAndExpand" RowSpacing="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Text="Shuma pageses" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Row="0" Grid.Column="1" Text="Monedha" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Row="0" Grid.Column="2" Text="Tipi Pageses" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+
+                <Entry Grid.Row="1" Grid.Column="0" Text="{Binding ShumaPaguar}" VerticalOptions="Start"/>
+                <Picker x:Name="monedhaPicker" SelectedItem="{Binding CoinType}" Grid.Row="1" Grid.Column="1"  VerticalOptions="Start" HorizontalTextAlignment="Center"/>
+                <Picker x:Name="tipiPagesesPicker" SelectedItem="{Binding PayType}" Grid.Row="1" Grid.Column="2" VerticalOptions="Start" HorizontalTextAlignment="Center"/>
+            </Grid>
+
+            <StackLayout Orientation="Horizontal" Margin="40,0,0,0" HorizontalOptions="FillAndExpand">
+                <Label Text="Data Aktuale" HorizontalOptions="Fill" VerticalOptions="Center"/>
+                <Entry Text="{Binding TodaysDate}" IsEnabled="False" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+
+
+            <Frame BorderColor="Black" Padding="0" Margin="0" VerticalOptions="FillAndExpand" HeightRequest="300">
+                <StackLayout Padding="0" Margin="0">
+                    <Frame Padding="1" Margin="0" BorderColor="Black" HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
+                        <StackLayout BackgroundColor="LightBlue" Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="0" Margin="0">
+                            <Label Text="ID Detyrimi" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                            <Label Text="KOD" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                            <Label Text="Emri" WidthRequest="90" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                            <Label Text="KMON" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                            <Label Text="Detyrimi" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                        </StackLayout>
+                    </Frame>
+                    <ListView x:Name="testList" ItemsSource="{Binding DetyrimetNgaKlienti}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Padding="5,0" >
+                                        <Label Text="{Binding IDDetyrimi}" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
+                                        <StackLayout Orientation="Horizontal" Spacing="8">
+                                            <Label Text="{Binding KOD}" TextColor="red" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start"/>
+                                            <Label Text="{Binding Emri}" WidthRequest="135" HorizontalOptions="FillAndExpand" Margin="0,0,0,0" LineBreakMode="TailTruncation"/>
+                                            <Label Text="{Binding KMON}" WidthRequest="10" HorizontalOptions="FillAndExpand"/>
+                                            <Label Text="{Binding Detyrimi,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand"/>
+                                        </StackLayout>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackLayout Orientation="Horizontal">
+                        <Label Text="{Binding TotalPrice}" VerticalTextAlignment="Center"/>
+                        <Button Text="Inkaso" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

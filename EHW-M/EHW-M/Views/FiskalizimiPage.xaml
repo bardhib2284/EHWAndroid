@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.FiskalizimiPage" Title="Fiskalizimi">
+    <ContentPage.Content>
+        <StackLayout Padding="10">
+            <Label Text="Tento fiskalizim (Offline) per :" />
+
+            <Picker x:Name="pickerItemSource"/>
+
+
+            <StackLayout x:Name="ShitjetStackList">
+                <Frame>
+                    <StackLayout>
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                            <Label Text="Nr. Shitjes" HorizontalOptions="FillAndExpand"/>
+                            <Label Text="Mesazhi" HorizontalOptions="FillAndExpand"/>
+                        </StackLayout>
+
+                        <ListView ItemsSource="{Binding LiferimetList}" ItemTapped="ListView_ItemTapped"> 
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Orientation="Horizontal">
+                                            <Label Text="{Binding NrLiferimit}" WidthRequest="150" VerticalOptions="Center" VerticalTextAlignment="Center" TextColor="Black" HorizontalOptions="FillAndExpand"/>
+                                            <Label Text="{Binding Message}" HorizontalOptions="FillAndExpand" />
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout x:Name="CashRegisterStackList">
+                <Frame>
+                    <StackLayout>
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                            <Label Text="Data" HorizontalOptions="FillAndExpand"/>
+                            <Label Text="Shuma" HorizontalOptions="FillAndExpand"/>
+                            <Label Text="Mesazhi" HorizontalOptions="FillAndExpand"/>
+                        </StackLayout>
+
+                        <ListView ItemsSource="{Binding CashRegisterList}" ItemTapped="ListView_ItemTapped">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout HorizontalOptions="FillAndExpand" Orientation="Horizontal">
+                                            <Label Text="{Binding RegisterDate}" WidthRequest="100" VerticalTextAlignment="Center" TextColor="Black" HorizontalOptions="FillAndExpand"/>
+                                            <Label Text="{Binding Cashamount,StringFormat='{0:F2}'}" VerticalOptions="Center" VerticalTextAlignment="Center" TextColor="Black" HorizontalOptions="FillAndExpand"/>
+                                            <Label WidthRequest="150" Text="{Binding Message}" HorizontalOptions="FillAndExpand" LineBreakMode="TailTruncation" VerticalTextAlignment="Center" />
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout>
+                <Button Text="Fiskalizo" Command="{Binding FiskalizoItemEZgjedhurCommand}"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

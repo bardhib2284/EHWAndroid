@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.KrijoPorositePage">
+    <ContentPage.Content>
+        <StackLayout >
+            <StackLayout Padding="10" Orientation="Horizontal">
+                <Label Text="Klienti" HorizontalOptions="Fill" VerticalOptions="Center"/>
+                <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Emri}" VerticalOptions="Start" HorizontalOptions="FillAndExpand" SelectedIndexChanged="depotPicker_SelectedIndexChanged"/>
+                <Button Text="Shto" Command="{Binding ShtoKlientinCommand}" WidthRequest="120" HeightRequest="20" TextColor="Black" HorizontalOptions="Fill" />
+            </StackLayout>
+            <Frame Padding="1" Margin="0" BorderColor="Black" HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
+                <StackLayout BackgroundColor="LightBlue" Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="0" Margin="0">
+                    <Label Text="ID" TextColor="Black" WidthRequest="150" HorizontalOptions="Fill" HorizontalTextAlignment="Center"/>
+                    <BoxView WidthRequest="1" BackgroundColor="Black" HeightRequest="1"/>
+                    <Label Text="Klienti" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
+                </StackLayout>
+            </Frame>
+            <ListView x:Name="testList" ItemsSource="{Binding KrijimiPorositeKlientet}" ItemTapped="testList_ItemTapped" SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Vertical" Padding="0,0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                <StackLayout Orientation="Horizontal" Spacing="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                    <Label Text="{Binding IDKlienti}" WidthRequest="160" TextColor="red" HorizontalOptions="Fill" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
+                                    <Label Text="{Binding Emri}" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" LineBreakMode="TailTruncation" VerticalTextAlignment="Center"/>
+                                </StackLayout>
+                                <BoxView BackgroundColor="Black" HeightRequest="0.5" VerticalOptions="Fill"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
