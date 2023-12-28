@@ -1535,12 +1535,12 @@ namespace EHWM.ViewModel {
         }
 
         public async Task GoToShtoVizitenPageAsync() {
-            foreach(var viz in VizitatFilteredByDate) {
-                if (viz.IDStatusiVizites == "0") {
-                    UserDialogs.Instance.Alert("Nuk mund te shtohet vizite e re pa perfunduar viziten e hapur");
-                    return;
-                }
-            }
+            //foreach(var viz in VizitatFilteredByDate) {
+            //    if (viz.IDStatusiVizites == "0") {
+            //        UserDialogs.Instance.Alert("Nuk mund te shtohet vizite e re pa perfunduar viziten e hapur");
+            //        return;
+            //    }
+            //}
             var klientet = await App.Database.GetKlientetAsync();
             if (klientet != null) {
                 if (klientet.Count > 0) {
@@ -1841,20 +1841,20 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            if (SelectedVizita.IDStatusiVizites == "1") {
-                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
-                return;
-            }
-            foreach (var g in VizitatFilteredByDate) {
-                if (g != null) {
-                    if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
-                        if (g.IDStatusiVizites == "0") {
-                            UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
-                            return;
-                        }
-                    }
-                }
-            }
+            //if (SelectedVizita.IDStatusiVizites == "1") {
+            //    UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+            //    return;
+            //}
+            //foreach (var g in VizitatFilteredByDate) {
+            //    if (g != null) {
+            //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+            //            if (g.IDStatusiVizites == "0") {
+            //                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+            //                return;
+            //            }
+            //        }
+            //    }
+            //}
             ShitjaPage page = new ShitjaPage();
             //          SELECT nf.CurrNrFat from NumriFaturave nf where nf.KOD = 'M03'
             //SELECT nf.NRKUFIP from NumriFaturave nf where nf.KOD = 'M03'
@@ -1901,20 +1901,20 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            if (SelectedVizita.IDStatusiVizites == "1" || SelectedVizita.IDStatusiVizites == "1") {
-                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
-                return;
-            }
-            foreach (var g in VizitatFilteredByDate) {
-                if (g != null) {
-                    if(g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
-                        if (g.IDStatusiVizites == "0") {
-                            UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
-                            return;
-                        }
-                    }
-                }
-            }
+            //if (SelectedVizita.IDStatusiVizites != "0" || SelectedVizita.IDStatusiVizites != "1") {
+            //    UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+            //    return;
+            //}
+            //foreach (var g in VizitatFilteredByDate) {
+            //    if (g != null) {
+            //        if(g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+            //            if (g.IDStatusiVizites == "0") {
+            //                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+            //                return;
+            //            }
+            //        }
+            //    }
+            //}
             ShitjaPage page = new ShitjaPage();
             //          SELECT nf.CurrNrFat from NumriFaturave nf where nf.KOD = 'M03'
             //SELECT nf.NRKUFIP from NumriFaturave nf where nf.KOD = 'M03'
@@ -1962,16 +1962,16 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert("Duhet te shtohet vizite e re per kete klient!", "Error", "Ok");
                     return;
                 }
-                foreach (var g in VizitatFilteredByDate) {
-                    if (g != null) {
-                        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
-                            if (g.IDStatusiVizites == "0") {
-                                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
-                                return;
-                            }
-                        }
-                    }
-                }
+                //foreach (var g in VizitatFilteredByDate) {
+                //    if (g != null) {
+                //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+                //            if (g.IDStatusiVizites == "0") {
+                //                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+                //                return;
+                //            }
+                //        }
+                //    }
+                //}
                 var res = VizitatFilteredByDate.FirstOrDefault(x => x.IDVizita == SelectedVizita.IDVizita);
                 if (res != null) {
                     switch (res.IDStatusiVizites) {
