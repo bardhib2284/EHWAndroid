@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="EHWM.Views.LoginPage">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Configurimi" Command="{Binding GoToConfigurimiCommand}"/>
+        <ToolbarItem Text="Konfigurimi" Command="{Binding GoToConfigurimiCommand}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Padding>
         <OnPlatform x:TypeArguments="Thickness">

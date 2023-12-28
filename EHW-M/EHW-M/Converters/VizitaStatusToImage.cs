@@ -188,6 +188,21 @@ namespace EHWM.Converters {
             return !((bool)value);
         }
     }
+    public class PayTypeVisibility : IValueConverter {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            if (value.ToString() == "KESH")
+                return true;
+            else
+                return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            if (value.ToString() == "KESH")
+                return true;
+            else
+                return false;
+        }
+    }
 
     public class StringEqualConverter : IValueConverter {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {

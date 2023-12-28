@@ -15,5 +15,11 @@ namespace EHWM.Views {
             InitializeComponent();
             statusiVizites.ItemsSource = App.Instance.MainViewModel.StatusetEVizites;
         }
+
+        protected override void OnAppearing() {
+            base.OnAppearing();
+            statusiVizites.SelectedIndex = 1;
+
+        }
     }
 }

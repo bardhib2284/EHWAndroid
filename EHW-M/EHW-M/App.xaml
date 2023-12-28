@@ -9,6 +9,7 @@
         <converters:VizitaStatusToString x:Key="VizitaStatusToString"/>
         <converters:VizitaStatusToInt x:Key="VizitaStatusToInt"/>
         <converters:ArsyejaToString x:Key="ArsyejaToString"/>
+        <converters:PayTypeVisibility x:Key="PayTypeVisibility"/>
         
         <OnPlatform x:TypeArguments="x:String" x:Key="GrandHalva">
             <On Platform="iOS" Value="GrandHalva"/>

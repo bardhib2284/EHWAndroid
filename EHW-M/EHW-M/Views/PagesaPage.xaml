@@ -25,8 +25,15 @@
                 <Label Text="Totale"  VerticalTextAlignment="Center" FontSize="25"/>
             </StackLayout>
             <StackLayout>
-                <Label Text="Shuma e paguar" FontSize="20"/>
-                <Entry Text="{Binding TotalPrice,StringFormat='{0:F2}'}" FontSize="20" IsEnabled="False" />
+                <StackLayout x:Name="cashShuma">
+                    <Label Text="Shuma e paguar" FontSize="20"/>
+                    <Entry Text="{Binding TotalBillPrice,StringFormat='{0:F2}'}" FontSize="20" IsEnabled="False" />
+                </StackLayout>
+                
+                <StackLayout IsVisible="false" x:Name="bankShuma">
+                    <Label Text="Shuma e paguar" FontSize="20"/>
+                    <Entry Text="0" FontSize="20" IsEnabled="False" />
+                </StackLayout>
 
                 <Label Text="Data per pagese" FontSize="20"/>
                 <Entry Text="{Binding DataEPageses}" FontSize="20" IsEnabled="False"/>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="EHWM.Views.FaturatEShituraPage">
+             x:Class="EHWM.Views.FaturatEShituraPage" Title="Vizualizimi i faturave">
     <ContentPage.Content>
         <StackLayout>
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
@@ -30,14 +30,13 @@
                     </Grid>
                 </Frame>
             </StackLayout>
-
             <StackLayout>
                 <ListView x:Name="SearchedClientsList" ItemsSource="{Binding LiferimetEKryera}" SelectionMode="Single" ItemSelected="SearchedClientsList_ItemSelected">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
                                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="5">
-                                    <Label Text="{Binding Klienti}" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="13"/>
+                                    <Label Text="{Binding Klienti}" WidthRequest="100" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="13"/>
                                     <Label Text="{Binding Kontakt}" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="13"/>
                                     <Label Text="{Binding Data,StringFormat='{}{0:dd-MM-yyyy}'}" HorizontalOptions="FillAndExpand" TextColor="Black" VerticalOptions="FillAndExpand" FontSize="13" VerticalTextAlignment="Center"/>
                                     <Label Text="{Binding NrFat}" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" FontSize="13"/>

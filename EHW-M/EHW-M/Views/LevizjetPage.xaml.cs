@@ -43,7 +43,6 @@ namespace EHWM.Views {
 
         protected override void OnAppearing() {
             base.OnAppearing();
-            depotPicker.SelectedIndex = 0;
         }
 
         private void checkNga_CheckedChanged(object sender, CheckedChangedEventArgs e) {

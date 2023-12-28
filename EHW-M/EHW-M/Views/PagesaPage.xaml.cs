@@ -35,6 +35,15 @@ namespace EHWM.Views {
             bc.PagesaType = menyraPicker.SelectedItem.ToString();
             if (menyraPicker.SelectedIndex == 2) {
                 bc.TotalPrice = 0;
+                cashShuma.IsVisible = false;
+                bankShuma.IsVisible = true;
+            }
+            else if(menyraPicker.SelectedIndex == 1) {
+                if(bc.TotalPrice == 0) {
+                    bc.TotalPrice = bc.TotalBillPrice;
+                }
+                cashShuma.IsVisible = true;
+                bankShuma.IsVisible = false;
             }
         }
 

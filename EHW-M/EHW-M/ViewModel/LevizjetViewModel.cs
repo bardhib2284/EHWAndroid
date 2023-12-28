@@ -444,8 +444,8 @@ namespace EHWM.ViewModel {
                 var topLevizjeIDN = numriFiskal
                                     .Where(v => v.Depo == App.Instance.MainViewModel.LoginData.Depo)
                                     .OrderBy(v => v.LevizjeIDN)
-                                    .Select(v => v.LevizjeIDN)
                                     .FirstOrDefault();
+                topLevizjeIDN.IDN = topLevizjeIDN.IDN + 1;
                 //TODO : FIX FISKALIZIMI KONFIGURIMET FROM API
                 var query = from a in agjendet
                             join d in depot on a.Depo equals d.Depo
@@ -480,7 +480,7 @@ namespace EHWM.ViewModel {
                     Longitude = geoLocation.Longitude.ToString(),
                     Message = "Levizja ka perfunduar",
                     NumriDaljes = "0",
-                    NumriFisk = topLevizjeIDN,
+                    NumriFisk = topLevizjeIDN.IDN,
                     SyncStatus = 0,
                     TCR = Agjendi.TCRCode,
                     TCRBusinessUnitCode = query.FirstOrDefault().BusinessUnitCode,
@@ -511,6 +511,7 @@ namespace EHWM.ViewModel {
                 await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetails);
                 await App.Database.SaveLevizjeHeaderAsync(levizjaHeader);
                 LevizjetHeader.Add(levizjaHeader);
+                await App.Database.UpdateNumriFiskalAsync(topLevizjeIDN);
                 UserDialogs.Instance.Alert("Levizja u regjistrua me sukses");
                 await App.Instance.PopPageAsync();
 
