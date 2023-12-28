@@ -7,5 +7,6 @@ namespace EHWM.Services {
         object AndroidResource { get; set; }
         string GetPath();
         object GetImgResource();    // Image Resource Type return
+        object GenerateQRCode(string qrCode);
     }
 }

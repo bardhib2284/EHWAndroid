@@ -59,6 +59,13 @@ namespace EHWM.Views {
                     mv._connectionInfo = info;
                     await mv.OnDeviceOpenClicked();
                 }
+            }            
+            else if(bc is LevizjetViewModel lmv) {
+                var info = e.SelectedItem as MposConnectionInformation;
+                if(info != null) {
+                    lmv._connectionInfo = info;
+                    await lmv.OnDeviceOpenClicked();
+                }
             }
             else {
                 var info = e.SelectedItem as MposConnectionInformation;

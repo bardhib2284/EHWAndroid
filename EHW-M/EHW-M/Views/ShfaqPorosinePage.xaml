@@ -72,7 +72,7 @@
             </StackLayout>
 
             <StackLayout Orientation="Horizontal">
-                <Button Text="Printo"  x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
+                <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
                 <Button Text="Kthimi" Command="{Binding KthePorosineAutomatikishtCommand}" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
             </StackLayout>
         </StackLayout>

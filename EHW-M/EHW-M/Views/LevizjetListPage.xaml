@@ -12,7 +12,7 @@
                     <Label Text="Totali" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
                 </StackLayout>
             </Frame>
-            <ListView ItemsSource="{Binding LevizjetHeader}">
+            <ListView ItemsSource="{Binding LevizjetHeader}" ItemTapped="ListView_ItemTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -28,8 +28,8 @@
             </ListView>
 
             <StackLayout  Orientation="Horizontal" VerticalOptions="EndAndExpand">
-                <Button Text="Printo"/>
-                <Button Text="Vizualizo"/>
+                <Button Text="Printo" Command="{Binding PrintoLevizjenCommand}"/>
+                <Button Text="Vizualizo" Clicked="Button_Clicked"/>
                 <Button Text="Shto" Command="{Binding ShtoLevizjenCommand}"/>
             </StackLayout>
         </StackLayout>

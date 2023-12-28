@@ -17,6 +17,7 @@ namespace EHW_M.Droid {
     (Android.Manifest.Permission.BluetoothConnect, true),
     (Android.Manifest.Permission.AccessCoarseLocation,true),
     (Android.Manifest.Permission.AccessFineLocation,true),
+    (Android.Manifest.Permission.ReadMediaImages,true),
 }.ToArray();
     }
 }

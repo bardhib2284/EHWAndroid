@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.ShfaqLevizjenPage"
+             Title="Detajet e levizjes">
+    <ContentPage.Content>
+        <StackLayout >
+        <StackLayout>
+            <Frame Padding="0" BorderColor="Black" BackgroundColor="LightBlue">
+                <Grid HeightRequest="30" Padding="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Sasia" Grid.Row="0" Grid.Column="1" />
+                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Cmimi" Grid.Row="0" Grid.Column="2" />
+                    <Label FontAttributes="Bold" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Totali" Grid.Row="0" Grid.Column="3" />
+                </Grid>
+            </Frame>
+        </StackLayout>
+
+        <StackLayout>
+                <ListView x:Name="SearchedClientsList" ItemsSource="{Binding CurrentlySelectedLevizjetDetails}" SelectionMode="Single" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center" Padding="0,0,10,0">
+                                    <Label Text="{Binding Artikulli}" HorizontalTextAlignment="Center" WidthRequest="175" MinimumHeightRequest="175" LineBreakMode="TailTruncation" FontSize="12" HorizontalOptions="Fill"/>
+                                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                    <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" FontSize="12"/>
+                                        <Label Text="{Binding Cmimi}" HorizontalOptions="CenterAndExpand" Margin="10,0,0,0" FontSize="12"/>
+                                        <Label Text="{Binding Totali,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" FontSize="12"/>
+                                </StackLayout>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+
+
+        <StackLayout BackgroundColor="LightGreen" Orientation="Horizontal" HorizontalOptions="FillAndExpand" HeightRequest="70" Padding="5">
+            <Label Text="Totali:" HorizontalTextAlignment="End" HorizontalOptions="EndAndExpand" FontSize="16"/>
+                <Label Text="{Binding CurrentlySelectedLevizjetHeader.Totali,StringFormat='{0:F2}'}" HorizontalTextAlignment="End" FontSize="16"/>
+        </StackLayout>
+
+        <StackLayout Orientation="Horizontal">
+                <Button Text="Printo" Command="{Binding PrintoLevizjenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
+        </StackLayout>
+    </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

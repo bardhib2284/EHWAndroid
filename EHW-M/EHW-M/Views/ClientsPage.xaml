@@ -63,10 +63,10 @@
                 </ListView.ItemTemplate>
             </ListView>
             <StackLayout Orientation="Horizontal">
-                <Button Text="Vizitat" Clicked="Button_Clicked" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
-                <Button Text="Shitjet" Clicked="Button_Clicked" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
-                <Button Text="Kthimi" Clicked="Button_Clicked" x:Name="Kthimi" WidthRequest="60" FontSize="13"/>
-                <Button Text="Vizualo" Clicked="Button_Clicked" x:Name="Vizualo" WidthRequest="60" FontSize="13"/>
+                <Button Text="Vizitat" Clicked="Button_Clicked" x:Name="Vizitat" WidthRequest="70"/>
+                <Button Text="Shitjet" Clicked="Button_Clicked" x:Name="Shitjet" WidthRequest="70"/>
+                <Button Text="Kthimi" Clicked="Button_Clicked" x:Name="Kthimi" WidthRequest="70"/>
+                <Button Text="Vizualo" Clicked="Button_Clicked" x:Name="Vizualo" WidthRequest="70"/>
             </StackLayout>
         </StackLayout>
     </ContentPage.Content>

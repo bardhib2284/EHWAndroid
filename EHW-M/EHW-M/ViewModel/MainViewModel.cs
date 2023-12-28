@@ -203,6 +203,10 @@ namespace EHWM.ViewModel {
             VizitatFilteredByDate.Remove(SelectedVizita);
             VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderBy(x => x.Klienti));
             VizitatFilteredByDate.Insert(0,SelectedVizita);
+            if(SearchedVizitat!= null) {
+                SearchedVizitat.Remove(SelectedVizita);
+                SearchedVizitat.Insert(0, SelectedVizita);
+            }
             UserDialogs.Instance.Alert("Vizita eshte ndryshuar me sukses");
             await App.Database.UpdateVizitaAsync(SelectedVizita);
             await App.Instance.PopPageAsync();
@@ -411,7 +415,9 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert("Connection Fail", "Not Supported Interface", "OK");
                     return null;
             }
-
+            if(_printSemaphore == null) {
+                _printSemaphore = new SemaphoreSlim(1, 1);
+            }
             await _printSemaphore.WaitAsync();
 
             try {
@@ -441,10 +447,17 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
                     return;
                 }
-                await OnPrintTextClicked(SelectedLiferimetEKryera);
+                await OnPrintTextClicked();
+            }
+            else {
+                if (SelectedLiferimetEKryera == null) {
+                    UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
+                    return;
+                }
+                await OnPrintTextClicked();
             }
         }
-        async Task OnPrintTextClicked(VizualizimiFatures VizualizimiFatures) {
+        async Task OnPrintTextClicked() {
 
             // Prepares to communicate with the printer 
             _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
@@ -498,18 +511,18 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Adresa: AA951IN            9923 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-
-                await _printer.printText("\nKodi / Emri i llojit te fatures : 388 / Fature tatimore");
+                var liferimi = await App.Database.GetLiferimetAsync();
+                var lif = liferimi.FirstOrDefault(x => x.IDLiferimi == SelectedLiferimetEKryera.IDLiferimi);
+                await _printer.printText("\nKodi / Emri i llojit te fatures : " + lif.NumriFisk + " / Fature tatimore");
                 await _printer.printText("\nLloji i procesit:");
                 await _printer.printText("\nP3 Faturimi i dorezimit te porosise se blerjes se rastesishme \n");
                 await _printer.printText(
 "---------------------------------------------------------------------");
-                var liferimi = await App.Database.GetLiferimetAsync();
-                var lif = liferimi.FirstOrDefault(x => x.IDLiferimi == VizualizimiFatures.IDLiferimi);
-                await _printer.printText("\nNumri i fatures: " + VizualizimiFatures.NrFat);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + VizualizimiFatures.Data);
+
+                await _printer.printText("\nNumri i fatures: " + lif.NrLiferimit);
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + lif.KohaLiferimit);
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
-                await _printer.printText("\nMonedha e fatures: ALL" );
+                await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
                 await _printer.printText("\nKodi i operatorit : " + lif.TCROperatorCode);
                 await _printer.printText("\nNIVF:  " + lif.TCRNIVF);
@@ -517,16 +530,19 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText(
 "---------------------------------------------------------------------");
-
-                await _printer.printText("\nBleresi: " + VizualizimiFatures.Klienti + " L02225003J");
-                await _printer.printText("\nAdresa: " + VizualizimiFatures.Kontakt + "      9923 \n");
+                var klientet = await App.Database.GetKlientetAsync();
+                var klienti = klientet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti);
+                var klientetDheLokacionet = await App.Database.GetKlientetDheLokacionetAsync();
+                var klientiDheLokacioni = klientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti);
+                await _printer.printText("\nBleresi: " + klienti.Emri + " L02225003J");
+                await _printer.printText("\nAdresa: " + klientiDheLokacioni.Adresa + "      9923 \n");
 
                 await _printer.printText(
 "---------------------------------------------------------------------");
 
                 await _printer.printText("\nTRANSPORTUESI: e. h. w. j61804031v");
                 await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
-                await _printer.printText("\nData dhe ora e furinizimit: " + VizualizimiFatures.Data + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -536,20 +552,43 @@ namespace EHWM.ViewModel {
                 float teGjithaSasit = 0f;
                 float teGjithaCmimetNjesi = 0f;
                 double teGjitheCmimetTotale = 0f;
-                foreach (var art in VizualizimiFatures.ListaEArtikujve) {
+                var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                var liferimiArt = liferimetArt.Where(x => x.IDLiferimi == lif.IDLiferimi);
+                foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
-                         "\n                     " + art.BUM + "         " + art.Sasia + "       " + art.CmimiNjesi + "    " + art.CmimiNjesi + "       " + "20%  " + "   " + art.CmimiNjesi + "\n");
+        "\n                     " + art.BUM + "      " + art.Sasia + "       " + art.CmimiNjesi + "    " + art.CmimiNjesi + "       " + "20%  " + "   " + art.CmimiNjesi + "\n");
                     teGjithaSasit += (float)art.Sasia;
                     teGjithaCmimetNjesi += (float)art.CmimiNjesi;
                     teGjitheCmimetTotale += (double)art.CmimiTotal;
                 }
 
 
+
                 await _printer.printText("---------------------------------------------------------------------");
                 ;
-                await _printer.printText("\n                    Total    " + teGjithaSasit + "       " + teGjithaCmimetNjesi + "        " + 22.5 + "        " + VizualizimiFatures.Totali, new MPosFontAttribute { Bold = true });
+                await _printer.printText("\n                Total         " + teGjithaSasit + "       " + teGjithaCmimetNjesi + "    " + Math.Round(lif.TotaliPaTVSH, 2) + "   " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "   " + lif.CmimiTotal, new MPosFontAttribute { Bold = true });
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
+
+                if (string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
+                    await _printer.printText("\n");
+
+                    await _printer.printText("\n");
+
+                    await _printer.printText("                       Dokument i pa fiskalizuar");
+                }
+                else {
+                    await _printer.printText("\n");
+                    await _printer.printText("\n");
+
+                    await _printer.printLine(1, 1, 1, 1, 1);
+                    await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(lif.TCRQRCodeLink),
+                                300/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                                (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                                50,                                                 // brightness
+                                true,                                               // Image Dithering
+                                true);
+                }
 
                 // Feed to tear-off position (Manual Cutter Position)
                 await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
@@ -561,9 +600,13 @@ namespace EHWM.ViewModel {
                 // Printer starts printing by calling "setTransaction" function with "MPOS_PRINTER_TRANSACTION_OUT"
                 await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_OUT);
                 // If there's nothing to do with the printer, call "closeService" method to disconnect the communication between Host and Printer.
+                await _printer.closeService();
                 _printSemaphore.Release();
+                _printer = null;
+                _printSemaphore = null;
             }
         }
+
         public string PagesaType { get; set; }
         private async Task PerfundoLiferimin(VizualizimiFatures vizualizimiFatures,Guid idPorosia) {
             var liferimet = await App.Database.GetLiferimetAsync();
@@ -775,6 +818,23 @@ namespace EHWM.ViewModel {
                             }
                         }
 
+                        EvidencaPagesave evidencaPagesave = new EvidencaPagesave
+                        {
+                            Borxhi = 0,
+                            DataPageses = DateTime.Now,
+                            DataPerPagese = DateTime.Now,
+                            DeviceID = LoginData.DeviceID,
+                            ExportStatus = 1,
+                            IDAgjenti = LoginData.IDAgjenti,
+                            IDKlienti = SelectedLiferimetEKryera.IDKlienti,
+                            NrFatures = SelectedLiferimetEKryera.NrFat,
+                            NrPageses = SelectedLiferimetEKryera.NrFisk.ToString(),
+                            PayType = liferimi.PayType,
+                            ShumaPaguar = liferim.ShumaPaguar,
+                            ShumaTotale = liferim.CmimiTotal,
+                            SyncStatus = 1
+                        };
+                        await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         await FiskalizoTCRInvoice(IDLiferimi.ToString());
 
                         var NumriFaturaveList = await App.Database.GetNumriFaturaveAsync();
@@ -934,6 +994,37 @@ namespace EHWM.ViewModel {
 
 
                         ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
+                        if (log == null) {
+                            liferimet = await App.Database.GetLiferimetAsync();
+                            liferimetArt = await App.Database.GetLiferimetArtAsync();
+                            var liferimiToUpdate = liferimet
+                                                .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                            if (liferimiToUpdate != null) {
+                                liferimiToUpdate.TCRSyncStatus = -1;
+                                liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                liferimiToUpdate.TCRQRCodeLink = null;
+                                liferimiToUpdate.TCR = LoginData.TCRCode;
+                                liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                liferimiToUpdate.UUID = null;
+                                liferimiToUpdate.EIC = null;
+                                liferimiToUpdate.TCRNSLF = null;
+                                liferimiToUpdate.TCRNIVF = null;
+                                liferimiToUpdate.Message = "Komunikimi me service ka deshtuar shkaku pajisja nuk ka qen e konektuar me rrjet";
+
+                                await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                var liferimiArtToUpdate = liferimetArt
+                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                foreach (var art in liferimiArtToUpdate) {
+                                    art.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLiferimiArtAsync(art);
+                                }
+                            }
+                            return;
+                        }
                         if (log.Status == StatusPCL.Ok) {
                             liferimet = await App.Database.GetLiferimetAsync();
                             liferimetArt = await App.Database.GetLiferimetArtAsync();
@@ -1371,6 +1462,7 @@ namespace EHWM.ViewModel {
                                 CashRegister = cReg;
                             }
                             else {
+                                UserDialogs.Instance.HideLoading();
                                 CashRegister = new CashRegister
                                 {
                                     ID = Guid.NewGuid(),
@@ -1387,6 +1479,7 @@ namespace EHWM.ViewModel {
                             }
                         }
                         else {
+                            UserDialogs.Instance.HideLoading();
                             CashRegister = new CashRegister
                             {
                                 ID = Guid.NewGuid(),
@@ -1487,6 +1580,7 @@ namespace EHWM.ViewModel {
                                 CashRegister = cReg;
                             }
                             else {
+                                UserDialogs.Instance.HideLoading();
                                 CashRegister = new CashRegister
                                 {
                                     ID = Guid.NewGuid(),
@@ -1503,6 +1597,7 @@ namespace EHWM.ViewModel {
                             }
                         }
                         else {
+                            UserDialogs.Instance.HideLoading();
                             CashRegister = new CashRegister
                             {
                                 ID = Guid.NewGuid(),
@@ -1619,6 +1714,16 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
                 return;
             }
+            foreach (var g in VizitatFilteredByDate) {
+                if (g != null) {
+                    if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+                        if (g.IDStatusiVizites == "0" || g.IDStatusiVizites == "1") {
+                            UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+                            return;
+                        }
+                    }
+                }
+            }
             ShitjaPage page = new ShitjaPage();
             //          SELECT nf.CurrNrFat from NumriFaturave nf where nf.KOD = 'M03'
             //SELECT nf.NRKUFIP from NumriFaturave nf where nf.KOD = 'M03'
@@ -1665,9 +1770,19 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            if (SelectedVizita.IDStatusiVizites == "1") {
+            if (SelectedVizita.IDStatusiVizites == "1" || SelectedVizita.IDStatusiVizites == "1") {
                 UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
                 return;
+            }
+            foreach (var g in VizitatFilteredByDate) {
+                if (g != null) {
+                    if(g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+                        if (g.IDStatusiVizites == "0" || g.IDStatusiVizites == "1") {
+                            UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+                            return;
+                        }
+                    }
+                }
             }
             ShitjaPage page = new ShitjaPage();
             //          SELECT nf.CurrNrFat from NumriFaturave nf where nf.KOD = 'M03'
@@ -1715,6 +1830,16 @@ namespace EHWM.ViewModel {
                 if (!checkOraRealizimit(SelectedVizita.IDVizita)) {
                     UserDialogs.Instance.Alert("Duhet te shtohet vizite e re per kete klient!", "Error", "Ok");
                     return;
+                }
+                foreach (var g in VizitatFilteredByDate) {
+                    if (g != null) {
+                        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+                            if (g.IDStatusiVizites == "0" || g.IDStatusiVizites == "1") {
+                                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+                                return;
+                            }
+                        }
+                    }
                 }
                 var res = VizitatFilteredByDate.FirstOrDefault(x => x.IDVizita == SelectedVizita.IDVizita);
                 if (res != null) {

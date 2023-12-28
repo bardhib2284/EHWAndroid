@@ -12,6 +12,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -116,6 +117,9 @@ namespace EHWM.ViewModel {
 
         }
         public async Task ShkarkoAsync() {
+            if(!App.Instance.DoIHaveInternet()) {
+                return;
+            }
             UserDialogs.Instance.ShowLoading("Duke shkarkuar");
             var getAllLiferimet = await App.Database.GetLiferimetAsync();
             var _getAllLiferimet = (await App.Database.GetLiferimiAsync()).Where(x => x.SyncStatus == 0).OrderByDescending(x => x.NrLiferimit).Take(1).ToList();
@@ -127,9 +131,12 @@ namespace EHWM.ViewModel {
                 double? _kthyer = await SumDataColumn("Malli_Mbetur", "SasiaKthyer");
                 if (_kthyer != null && _shitur != null) {
                     if (_shitur >= 0 && _kthyer <= 0) {
+                        App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                        App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         var malletEMbeturaResult = await App.ApiClient.GetAsync("malli-mbetur/" + Agjendi.Depo);
                         if (!malletEMbeturaResult.IsSuccessStatusCode) {
                             UserDialogs.Instance.Alert("Problem me server, ju lutem provoni me vone!", "Verejtje");
+                            UserDialogs.Instance.HideLoading();
                             return;
                         }
                         var malletEMbeturaResponse = await malletEMbeturaResult.Content.ReadAsStringAsync();
@@ -996,12 +1003,16 @@ namespace EHWM.ViewModel {
 
         private async Task SyncAll() {
             try {
+                if (!App.Instance.DoIHaveInternet()) {
+                    return;
+                }
                 UserDialogs.Instance.ShowLoading("Inicializimi... ");
                 string[] KeyFields = null;//Used in sync
                 string strFilterDwn = "1=1";//Used in sync
                 string strFilterUp = "1=1"; //Used in sync           
                 string strTableName = "";//Used in sync            
-
+                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                 int _CurrNrFat = 0; //used for fixNrKufijt
                 int _CurrNrFatJT = 0;//used for fixNrKufijt
                 int _CurrNrFat_D = 0; //used for fixNrKufijt
@@ -2310,38 +2321,42 @@ namespace EHWM.ViewModel {
                                         }
                                     }
                                     else {
-                                        var EvidencaPagesaveIdResponse = await App.ApiClient.GetAsync("pagesa");
-                                        var EvidencaPagesaveIdResult = await EvidencaPagesaveIdResponse.Content.ReadAsStringAsync();
-                                        if (EvidencaPagesaveIdResponse.IsSuccessStatusCode) {
-                                            var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<EvidencaPagesave>>(EvidencaPagesaveIdResult);
-                                            var currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                            await App.Database.ClearAllEvidencaPagesave();
-                                            currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                            var saved = await App.Database.SaveAllEvidencaPagesaveAsync(listOfClientsWithDepo);
-                                            if (saved != -1) {
+                                        var currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
+
+                                        var jsonRequest = JsonConvert.SerializeObject(currentEvidencaPagesave);
+                                        var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                                        var vizitatPostResponse = await App.ApiClient.PostAsync("pagesa", stringContent);
+                                        if (vizitatPostResponse.IsSuccessStatusCode) {
+                                            var EvidencaPagesaveIdResponse = await App.ApiClient.GetAsync("pagesa");
+                                            var EvidencaPagesaveIdResult = await EvidencaPagesaveIdResponse.Content.ReadAsStringAsync();
+                                            if (EvidencaPagesaveIdResponse.IsSuccessStatusCode) {
+                                                var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<EvidencaPagesave>>(EvidencaPagesaveIdResult);
                                                 currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                                foreach (var vizita in currentEvidencaPagesave) {
-                                                    vizita.SyncStatus = 1;
+                                                await App.Database.ClearAllEvidencaPagesave();
+                                                currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
+                                                var saved = await App.Database.SaveAllEvidencaPagesaveAsync(listOfClientsWithDepo);
+                                                if (saved != -1) {
+                                                    currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
+                                                    foreach (var vizita in currentEvidencaPagesave) {
+                                                        vizita.SyncStatus = 1;
+                                                    }
+                                                    jsonRequest = JsonConvert.SerializeObject(currentEvidencaPagesave);
+                                                    stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                                                    vizitatPostResponse = await App.ApiClient.PostAsync("pagesa", stringContent);
+                                                    if (vizitatPostResponse.IsSuccessStatusCode) {
+                                                        return true;
+                                                    }
+                                                    return false;
                                                 }
-                                                var jsonRequest = JsonConvert.SerializeObject(currentEvidencaPagesave);
-                                                var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                                                var vizitatPostResponse = await App.ApiClient.PostAsync("pagesa", stringContent);
-                                                if (vizitatPostResponse.IsSuccessStatusCode) {
-                                                    return true;
+                                                else {
+                                                    UserDialogs.Instance.HideLoading();
+                                                    UserDialogs.Instance.Alert("Error ne ruajtjen e evidencalokale ne DB Lokale ");
+                                                    return false;
                                                 }
-                                                return false;
-                                            }
-                                            else {
-                                                UserDialogs.Instance.HideLoading();
-                                                UserDialogs.Instance.Alert("Error ne ruajtjen e evidencalokale ne DB Lokale ");
-                                                return false;
                                             }
                                         }
-                                        else {
-                                            UserDialogs.Instance.HideLoading();
-                                            UserDialogs.Instance.Alert("Error ne marrjen e evidencalokale nga serveri : SYNC DOWNLOAD");
-                                            return false;
-                                        }
+                                        return false;
+                                        
                                     }
                                 }
                             }

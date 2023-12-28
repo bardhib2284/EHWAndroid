@@ -37,7 +37,8 @@
             <Setter Property="BorderWidth" Value="1"/>
             <Setter Property="CornerRadius" Value="9"/>
             <Setter Property="TextColor" Value="White"/>
-            <Setter Property="FontFamily" Value="{StaticResource PointDEMOSemiBold}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="{StaticResource PointDEMOLight}"/>
         </Style>
 
         <Style TargetType="Label" x:Key="TitleLabel">
