@@ -21,7 +21,7 @@
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="31" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="31" />
 	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-	<application tools:replace="android:icon,android:label" android:usesCleartextTraffic="true" android:theme="@style/MainTheme" android:requestLegacyExternalStorage="true" android:label="EHW-M">
+	<application android:appComponentFactory="android.support.v4.app.CoreComponentFactory" tools:replace="android:appComponentFactory,android:icon,android:label" android:usesCleartextTraffic="true" android:theme="@style/MainTheme" android:requestLegacyExternalStorage="true" android:label="EHW-M" android:icon="@drawable/logo">
 		<provider android:name="android.support.v4.content.FileProvider" android:authorities="${applicationId}.provider" android:exported="false" android:grantUriPermissions="true">
 			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths" />
 		</provider>

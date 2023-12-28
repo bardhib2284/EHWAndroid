@@ -26,7 +26,7 @@ namespace EHW_M.Droid
             UserDialogs.Init(this);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-
+           
             var platform = DependencyService.Get<IPlatformInfo>();
             if ((platform as PlatformInfo) != null) {
                 platform.AndroidContext = this;

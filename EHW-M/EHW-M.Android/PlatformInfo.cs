@@ -3,12 +3,11 @@ using Android.OS;
 using Xamarin.Forms;
 using System.Threading.Tasks;
 using Android.Graphics;
-using ZXing.QrCode;
-using ZXing;
-using ZXing.Mobile;
-using ZXing.Common;
+
 using static Android.Icu.Text.ListFormatter;
 using System.IO;
+using ZXing.Common;
+using ZXing;
 
 [assembly: Dependency(typeof(EHW_M.Droid.PlatformInfo))]
 namespace EHW_M.Droid {
@@ -29,7 +28,7 @@ namespace EHW_M.Droid {
 
         public object GenerateQRCode(string qrCode) {
             BitMatrix bitmapMatrix = null;
-            
+
             bitmapMatrix = new MultiFormatWriter().encode(qrCode, BarcodeFormat.QR_CODE, 400, 400);
 
             var width = bitmapMatrix.Width;
@@ -46,8 +45,8 @@ namespace EHW_M.Droid {
                 }
             }
 
-            Bitmap bitmap = Bitmap.CreateBitmap(width, height, Bitmap.Config.Argb8888);
-            bitmap.SetPixels(pixelsImage, 0, width, 0, 0, width, height);
+            Bitmap bitmap = Bitmap.CreateBitmap(400, 400, Bitmap.Config.Argb8888);
+            //bitmap.SetPixels(pixelsImage, 0, width, 0, 0, width, height);
             return bitmap;
         }
     }
