@@ -458,23 +458,45 @@ namespace EHWM.ViewModel {
                         //UPDATE EVERYTHING LOCALLY IN ORDER TO SYNC LATER
 
                         //SYNC MALLI MBETUR DIRECTLY SINCE IT DOESN'T EXIST IN SYNC ALL 
-                        EvidencaPagesave evidencaPagesave = new EvidencaPagesave
-                        {
-                            Borxhi = 0,
-                            DataPageses = DateTime.Now,
-                            DataPerPagese = DateTime.Now,
-                            DeviceID = agjendi.DeviceID,
-                            ExportStatus = 1,
-                            IDAgjenti = agjendi.IDAgjenti,
-                            IDKlienti = VizitaESelektuar.IDKlientDheLokacion,
-                            NrFatures = liferimi.NrLiferimit,
-                            NrPageses = liferimi.NumriFisk.ToString(),
-                            PayType = liferimi.PayType,
-                            ShumaPaguar = liferimi.ShumaPaguar,
-                            ShumaTotale = liferimi.CmimiTotal,
-                            SyncStatus = 1
-                        };
-                        await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
+                        if(liferimi.PayType == "KESH") {
+                            EvidencaPagesave evidencaPagesave = new EvidencaPagesave
+                            {
+                                Borxhi = 0,
+                                DataPageses = DateTime.Now,
+                                DataPerPagese = DateTime.Now,
+                                DeviceID = agjendi.DeviceID,
+                                ExportStatus = 1,
+                                IDAgjenti = agjendi.IDAgjenti,
+                                IDKlienti = VizitaESelektuar.IDKlientDheLokacion,
+                                NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
+                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + DateTime.Now.ToString(),
+                                PayType = liferimi.PayType,
+                                ShumaPaguar = liferimi.ShumaPaguar,
+                                ShumaTotale = liferimi.CmimiTotal,
+                                SyncStatus = 1
+                            };
+                            await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
+                        }
+                        else {
+                            EvidencaPagesave evidencaPagesave = new EvidencaPagesave
+                            {
+                                Borxhi = liferimi.ShumaPaguar,
+                                DataPageses = DateTime.Now,
+                                DataPerPagese = DateTime.Now,
+                                DeviceID = agjendi.DeviceID,
+                                ExportStatus = 1,
+                                IDAgjenti = agjendi.IDAgjenti,
+                                IDKlienti = VizitaESelektuar.IDKlientDheLokacion,
+                                NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
+                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + DateTime.Now.ToString(),
+                                PayType = liferimi.PayType,
+                                ShumaPaguar = 0,
+                                ShumaTotale = liferimi.CmimiTotal,
+                                SyncStatus = 1
+                            };
+                            await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
+                        }
+
                         var cashRegisters = await App.Database.GetCashRegisterAsync();
                         var cashRegister = cashRegisters.FirstOrDefault();
 
@@ -1140,22 +1162,81 @@ namespace EHWM.ViewModel {
                     if (lif.CmimiTotal < 0) {
                         tvsh = Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2);
                         tvsh = decimal.Parse(art.CmimiNjesi.ToString()) - tvsh;
-                        await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
-    "\n                     " + art.BUM + "      " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi * art.Sasia + "\n");
-                        teGjithaSasit += (float)art.Sasia;
-                        teGjithaCmimetNjesi += (float)art.CmimiNjesi;
-                        teGjitheCmimetTotale += (double)art.CmimiTotal;
+                        if (art.BUM == "COP") {
+                            if (art.Sasia.ToString().Length >= 3) {
+                                if (tvsh.ToString().Length >= 5) {
+                                    await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+        "\n                     " + art.BUM + "     " + art.Sasia + "     " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "  " + Math.Round((decimal)(art.CmimiNjesi * art.Sasia)) + "\n");
+                                    teGjithaSasit += (float)art.Sasia;
+                                    teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                    teGjitheCmimetTotale += (double)art.CmimiTotal;
+                                }
+                                else {
+                                    await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+        "\n                     " + art.BUM + "     " + art.Sasia + "      " + art.CmimiNjesi + "   -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + Math.Round((decimal)(art.CmimiNjesi * art.Sasia)) + "\n");
+                                    teGjithaSasit += (float)art.Sasia;
+                                    teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                    teGjitheCmimetTotale += (double)art.CmimiTotal;
+                                }
+                            }
+                            else if (tvsh.ToString().Length >= 5) {
+                                await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+    "\n                     " + art.BUM + "     " + art.Sasia + "      " + art.CmimiNjesi + "     -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    -" + Math.Round(tvsh, 2).ToString() + " " + "  " + Math.Round((decimal)(art.CmimiNjesi * art.Sasia)).ToString() + "\n");
+                                teGjithaSasit += (float)art.Sasia;
+                                teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                teGjitheCmimetTotale += (double)art.CmimiTotal;
+                            }
+                            else {
+                                await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+    "\n                     " + art.BUM + "     " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi * art.Sasia + "\n");
+                                teGjithaSasit += (float)art.Sasia;
+                                teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                teGjitheCmimetTotale += (double)art.CmimiTotal;
+                            }
+                        }
+                        else {
+                            if (tvsh.ToString().Length >= 5) {
+                                await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+    "\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "  -" + Math.Round(tvsh, 2) + "" + "   " + art.CmimiNjesi * art.Sasia + "\n");
+                                teGjithaSasit += (float)art.Sasia;
+                                teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                teGjitheCmimetTotale += (double)art.CmimiTotal;
+                            }
+                            else {
+                                await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+    "\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi * art.Sasia + "\n");
+                                teGjithaSasit += (float)art.Sasia;
+                                teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                teGjitheCmimetTotale += (double)art.CmimiTotal;
+                            }
+                        }
+
+
                     }
                     else {
                         tvsh = Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2);
                         tvsh = decimal.Parse(art.CmimiNjesi.ToString()) - tvsh;
                         if (art.BUM == "COP") {
-                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
-"\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            if (art.Sasia.ToString().Length >= 2) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                     " + art.BUM + "       " + art.Sasia + "     " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            }
+                            else {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+                                "\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            }
+
                         }
                         else {
-                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+                            if (art.CmimiNjesi.ToString().Length > 3) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                     " + art.BUM + "        " + art.Sasia + "      " + art.CmimiNjesi + "    " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   " + Math.Round(tvsh, 2) + " " + "  " + art.CmimiNjesi + "\n");
+                            }
+                            else {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
 "\n                     " + art.BUM + "        " + art.Sasia + "      " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            }
+
                         }
 
                         teGjithaSasit += (float)art.Sasia;
@@ -1167,15 +1248,29 @@ namespace EHWM.ViewModel {
 
 
                 await _printer.printText("---------------------------------------------------------------------");
-                ;
+
                 if (lif.TotaliPaTVSH < 0) {
-                    await _printer.printText("\n    Mbyllet me total          " + teGjithaSasit + "         " + "    " + Math.Round(lif.TotaliPaTVSH, 2) + "   " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "   " + lif.CmimiTotal);
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
+                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "          " + "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + " " +
+                           String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + lif.CmimiTotal);
+
+                    }
+                    else
+                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "            " + "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  " + lif.CmimiTotal);
 
                 }
                 else {
-                    await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "      " + "        " + Math.Round(lif.TotaliPaTVSH, 2) + "       " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "      " + lif.CmimiTotal);
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
+                        await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "             " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "  " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + lif.CmimiTotal);
+                    }
+                    else
+                        await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "              " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + lif.CmimiTotal);
 
-                }                //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
+                }
+                //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
 
 
@@ -1184,8 +1279,8 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n");
                 await _printer.printText("\n");
 
-                await _printer.printText("Bleresi                                         Shitesi");
-                await _printer.printText("\n" + klienti.Emri.Trim() + "                                       " + LoginData.Emri);
+                await _printer.printText("Bleresi                                          Shitesi");
+                await _printer.printText("\n" + klienti.Emri.Trim() + "                                         " + LoginData.Emri + LoginData.Mbiemri);
                 await _printer.printText("\n");
                 await _printer.printText("\n");
                 await _printer.printText("\n___________________                              ___________________");
@@ -1205,12 +1300,29 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\nKodi  TVSH-se    Shk. TVSH-se    Vl. tatushme      TVSH        VLERA \n");
                 await _printer.printText("---------------------------------------------------------------------");
                 if (lif.TotaliPaTVSH < 0) {
-                    await _printer.printText("\n   S-VAT             20            " + Math.Round(lif.TotaliPaTVSH, 2) + "        " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "      " + lif.CmimiTotal + "\n");
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 9) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "       " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "    " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
+                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "           " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "       " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
+                    else
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "     " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
                 }
                 else {
-                    await _printer.printText("\n   S-VAT             20             " + Math.Round(lif.TotaliPaTVSH, 2) + "        " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "        " + lif.CmimiTotal + "\n");
-
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 7) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "       " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "     " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
+                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 5) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "          " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "      " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
                 }
+
 
                 if (string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
                     await _printer.printText("\n");
@@ -1233,18 +1345,18 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\n");
                     await _printer.printText("\n");
 
-                    if (lif.PayType == "BANK") {
-                        await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302");
-                        await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616");
-                        await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01");
-                        await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF");
-                    }
                     await _printer.printText("\n");
-                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne kete Kod QR");
+                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne  kete Kod QR");
                     await _printer.printText("\n");
 
                 }
 
+                if (lif.PayType == "BANK") {
+                    await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302 \n");
+                    await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616\n");
+                    await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01\n");
+                    await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF\n");
+                }
                 // Feed to tear-off position (Manual Cutter Position)
                 await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
             }
@@ -1261,6 +1373,8 @@ namespace EHWM.ViewModel {
                 _printSemaphore = null;
             }
         }
+
+
         private double _TotalBillPrice;
         public double TotalBillPrice {
             get { return _TotalBillPrice; }

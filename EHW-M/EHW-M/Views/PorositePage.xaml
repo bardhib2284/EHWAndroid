@@ -25,6 +25,7 @@
                 <Button Text="Krijo liste" Clicked="Button_Clicked" x:Name="Krijo"/>
                 <Button Text="Shto" Clicked="Button_Clicked" x:Name="Shto"/>
             </StackLayout>
+            
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

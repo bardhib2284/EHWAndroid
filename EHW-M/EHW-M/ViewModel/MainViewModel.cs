@@ -63,6 +63,7 @@ namespace EHWM.ViewModel {
         public ICommand LogoutCommand { get; set; }
         public ICommand GoToFiskalizimiCommand { get; set; }
         public ICommand ChangeVizitaStatusCommand { get; set; }
+        public ICommand GoToMbetjaMallitCommand { get; set; }
 
 
         public bool DissapearingFromShitjaPage { get; set; }
@@ -184,6 +185,7 @@ namespace EHWM.ViewModel {
             LogoutCommand = new Command(async () => await LogoutAsync());
             GoToFiskalizimiCommand = new Command(async () => await GoToFiskalizimiAsync());
             ChangeVizitaStatusCommand = new Command(async () => await ChangeVizitaStatusAsync());
+            GoToMbetjaMallitCommand = new Command(async () => await GoToMbetjaMallitAsync());
 
 
             FilterDate = DateTime.Now;
@@ -197,6 +199,51 @@ namespace EHWM.ViewModel {
             FilterMinDate = DateTime.Now.Date.AddDays(-(currentDay - 1));
             FilterMaxDate = dtFisrtDate.AddDays(6);
             al = new AgjendiLogin();
+        }
+
+        public ObservableCollection<Malli_Mbetur> MalliMbetur { get; set; }
+
+        private double pranuarAll;
+        public double PranuarAll {
+            get { return pranuarAll; }
+            set { SetProperty(ref pranuarAll, value); }
+        }
+        private double shiturAll;
+        public double ShiturAll {
+            get { return shiturAll; }
+            set { SetProperty(ref shiturAll, value); }
+        }
+        private double kthyerAll;
+        public double KthyerAll {
+            get { return kthyerAll; }
+            set { SetProperty(ref kthyerAll, value); }
+        }
+        private double _LevizjeAll;
+        public double LevizjeAll {
+            get { return _LevizjeAll; }
+            set { SetProperty(ref _LevizjeAll, value); }
+        }
+        private double mbetjaAll;
+        public double MbetjaAll {
+            get { return mbetjaAll; }
+            set { SetProperty(ref mbetjaAll, value); }
+        }
+        public async Task GoToMbetjaMallitAsync() {
+            UserDialogs.Instance.ShowLoading("Duke mbledhur mallin e mbetur");
+            MalliMbetur = new ObservableCollection<Malli_Mbetur>( await App.Database.GetMalliMbeturAsync());
+            foreach(var mall in MalliMbetur) {
+                PranuarAll += mall.SasiaPranuar;
+                ShiturAll += mall.SasiaShitur;
+                KthyerAll += mall.SasiaKthyer;
+                LevizjeAll += mall.LevizjeStoku;
+                MbetjaAll += mall.SasiaMbetur;
+            }
+            MalliMbetur = new ObservableCollection<Malli_Mbetur>(MalliMbetur.Where(x => x.SasiaPranuar > 0));
+            await App.Instance.MainPage.Navigation.PopPopupAsync();
+
+            await App.Instance.PushAsyncNewPage(new VizualizoMalliMbeturPage() { BindingContext = this });
+            UserDialogs.Instance.HideLoading();
+
         }
 
         public async Task ChangeVizitaStatusAsync() {
@@ -443,6 +490,12 @@ namespace EHWM.ViewModel {
             if (_printer == null) {
                 // Prepares to communicate with the printer 
                 _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
+                if(App.Instance.MainPage is NavigationPage np) {
+                        if(np.Navigation.NavigationStack[np.Navigation.NavigationStack.Count -2] is VizualizoMalliMbeturPage) {
+                            await OnPrintTextClickedMalliMbetur();
+                            return;
+                    }
+                }
                 if(SelectedLiferimetEKryera == null) {
                     UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
                     return;
@@ -450,6 +503,14 @@ namespace EHWM.ViewModel {
                 await OnPrintTextClicked();
             }
             else {
+                if (App.Instance.MainPage is FlyoutPage fp) {
+                    if (fp.Detail is NavigationPage np) {
+                        if (np.Navigation.NavigationStack[np.Navigation.NavigationStack.Count - 1] is VizualizoMalliMbeturPage) {
+                            await OnPrintTextClickedMalliMbetur();
+                            return;
+                        }
+                    }
+                }
                 if (SelectedLiferimetEKryera == null) {
                     UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
                     return;
@@ -536,7 +597,6 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\nKodi i operatorit : " + lif.TCROperatorCode);
                 await _printer.printText("\nNIVF:  " + lif.TCRNIVF);
                 await _printer.printText("\nNSLF:  \n" + lif.TCRNSLF);
-
                 await _printer.printText(
 "---------------------------------------------------------------------");
                 var klientet = await App.Database.GetKlientetAsync();
@@ -569,23 +629,39 @@ namespace EHWM.ViewModel {
                         tvsh = Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2);
                         tvsh = decimal.Parse(art.CmimiNjesi.ToString()) - tvsh;
                         if(art.BUM == "COP") {
-                            if (tvsh.ToString().Length > 6) {
+                            if (art.Sasia.ToString().Length >= 3) {
+                                if (tvsh.ToString().Length >= 5) {
+                                    await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+        "\n                     " + art.BUM + "     " + art.Sasia + "     " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "  " + Math.Round((decimal)(art.CmimiNjesi * art.Sasia)) + "\n");
+                                    teGjithaSasit += (float)art.Sasia;
+                                    teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                    teGjitheCmimetTotale += (double)art.CmimiTotal;
+                                }
+                                else {
+                                    await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
+        "\n                     " + art.BUM + "     " + art.Sasia + "      " + art.CmimiNjesi + "   -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + Math.Round((decimal)(art.CmimiNjesi * art.Sasia)) + "\n");
+                                    teGjithaSasit += (float)art.Sasia;
+                                    teGjithaCmimetNjesi += (float)art.CmimiNjesi;
+                                    teGjitheCmimetTotale += (double)art.CmimiTotal;
+                                }
+                            }
+                            else if (tvsh.ToString().Length >= 5) {
                                 await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
-    "\n                     " + art.BUM + "      " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "  -" + Math.Round(tvsh, 2) + " " + " " + art.CmimiNjesi * art.Sasia + "\n");
+    "\n                     " + art.BUM + "     " + art.Sasia + "      " + art.CmimiNjesi + "     -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    -" + Math.Round(tvsh, 2).ToString() + " " + "  " + Math.Round((decimal)(art.CmimiNjesi * art.Sasia)).ToString() + "\n");
                                 teGjithaSasit += (float)art.Sasia;
                                 teGjithaCmimetNjesi += (float)art.CmimiNjesi;
                                 teGjitheCmimetTotale += (double)art.CmimiTotal;
                             }
                             else {
                                 await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
-    "\n                     " + art.BUM + "      " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi * art.Sasia + "\n");
+    "\n                     " + art.BUM + "     " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "   -" + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi * art.Sasia + "\n");
                                 teGjithaSasit += (float)art.Sasia;
                                 teGjithaCmimetNjesi += (float)art.CmimiNjesi;
                                 teGjitheCmimetTotale += (double)art.CmimiTotal;
                             }
                         }
                         else {
-                            if (tvsh.ToString().Length >= 6) {
+                            if (tvsh.ToString().Length >= 5) {
                                 await _printer.printText("\n" + art.IDArtikulli + " " + art.Emri + "   " +
     "\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "    -" + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "  -" + Math.Round(tvsh, 2) + "" + "   " + art.CmimiNjesi * art.Sasia + "\n");
                                 teGjithaSasit += (float)art.Sasia;
@@ -607,8 +683,15 @@ namespace EHWM.ViewModel {
                         tvsh = Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2);
                         tvsh = decimal.Parse(art.CmimiNjesi.ToString()) - tvsh;
                         if (art.BUM == "COP") {
-                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
-"\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            if(art.Sasia.ToString().Length >= 2) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                     " + art.BUM + "       " + art.Sasia + "     " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            }
+                            else {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+                                "\n                     " + art.BUM + "       " + art.Sasia + "      " + art.CmimiNjesi + "     " + Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2) + "    " + Math.Round(tvsh, 2) + " " + "   " + art.CmimiNjesi + "\n");
+                            }
+                                
                         }
                         else {
                             if(art.CmimiNjesi.ToString().Length > 3) {
@@ -631,17 +714,26 @@ namespace EHWM.ViewModel {
 
 
                 await _printer.printText("---------------------------------------------------------------------");
-                ;
-                if(lif.TotaliPaTVSH < 0) {
-                    await _printer.printText("\n    Mbyllet me total          " + teGjithaSasit + "         "  + "    " + Math.Round(lif.TotaliPaTVSH, 2) + "   " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "   " + lif.CmimiTotal);
+
+                if (lif.TotaliPaTVSH < 0) {
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
+                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "          " + "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + " " +
+                           String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + lif.CmimiTotal);
+
+                    }
+                    else
+                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "            " + "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  " + lif.CmimiTotal);
 
                 }
                 else {
-                    if(double.Parse(lif.TotaliPaTVSH.ToString()).ToString().Length > 3) {
-                        await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "      " + "        " + Math.Round(double.Parse(lif.TotaliPaTVSH.ToString()), 2) + "      " + Math.Round(double.Parse((lif.CmimiTotal - lif.TotaliPaTVSH).ToString()), 2) + "     " + lif.CmimiTotal);
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
+                        await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "             " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "  " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + lif.CmimiTotal);
                     }
                     else
-                        await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "      " + "        " + Math.Round(double.Parse(lif.TotaliPaTVSH.ToString()), 2) + "    " + Math.Round(double.Parse((lif.CmimiTotal - lif.TotaliPaTVSH).ToString()), 2) + "   " + lif.CmimiTotal);
+                        await _printer.printText("\n    Mbyllet me total           " + teGjithaSasit + "              " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " + 
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + lif.CmimiTotal);
 
                 }
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
@@ -653,8 +745,8 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n");
                 await _printer.printText("\n");
 
-                await _printer.printText("Bleresi                                        Shitesi");
-                await _printer.printText("\n"+klienti.Emri.Trim()+"                                       "+ LoginData.Emri );
+                await _printer.printText("Bleresi                                          Shitesi");
+                await _printer.printText("\n"+klienti.Emri.Trim()+"                                         "+ LoginData.Emri  + LoginData.Mbiemri);
                 await _printer.printText("\n");
                 await _printer.printText("\n");
                 await _printer.printText("\n___________________                              ___________________");
@@ -673,13 +765,30 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\nKodi  TVSH-se    Shk. TVSH-se    Vl. tatushme      TVSH        VLERA \n");
                 await _printer.printText("---------------------------------------------------------------------");
-                if(lif.TotaliPaTVSH< 0) {
-                    await _printer.printText("\n   S-VAT             20            " + Math.Round(lif.TotaliPaTVSH, 2) + "        " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "      " + lif.CmimiTotal + "\n");
+                if (lif.TotaliPaTVSH < 0) {
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 9) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "       " + 
+                            String.Format("{0:0.00}",  Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "    " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
+                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "           " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2))  + "       " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
+                    else
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2))  + "     " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
                 }
                 else {
-                    await _printer.printText("\n   S-VAT             20             " + Math.Round(lif.TotaliPaTVSH, 2) + "           " + Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2) + "         " + lif.CmimiTotal + "\n");
-
+                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 7) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "       " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "     " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
+                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 5) {
+                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "          " +
+                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "      " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                    }
                 }
+
 
                 if (string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
                     await _printer.printText("\n");
@@ -702,17 +811,146 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\n");
                     await _printer.printText("\n");
 
-                    if(lif.PayType == "BANK") {
-                        await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302");
-                        await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616");
-                        await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01");
-                        await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF");
-                    }
                     await _printer.printText("\n");
-                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne kete Kod QR");
+                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne  kete Kod QR");
                     await _printer.printText("\n");
 
                 }
+
+                if (lif.PayType == "BANK") {
+                    await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302 \n");
+                    await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616\n");
+                    await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01\n");
+                    await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF\n");
+                }
+                // Feed to tear-off position (Manual Cutter Position)
+                await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
+            }
+            catch (Exception ex) {
+                UserDialogs.Instance.Alert("Exception", ex.Message, "OK");
+            }
+            finally {
+                // Printer starts printing by calling "setTransaction" function with "MPOS_PRINTER_TRANSACTION_OUT"
+                await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_OUT);
+                // If there's nothing to do with the printer, call "closeService" method to disconnect the communication between Host and Printer.
+                await _printer.closeService();
+                _printSemaphore.Release();
+                _printer = null;
+                _printSemaphore = null;
+            }
+        }
+        async Task OnPrintTextClickedMalliMbetur() {
+
+            // Prepares to communicate with the printer 
+            _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
+
+            if (_printer == null)
+                return;
+
+            try {
+                await _printSemaphore.WaitAsync();
+
+                uint textCount = 0;
+                string printText = "_Hola Xamarin\n";
+
+
+                //sd.AddToPreview();
+                // sd.Preview();
+                //lRet = await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_WPC1252 });
+
+                // note : Page mode and transaction mode cannot be used together between IN and OUT.
+                // When "setTransaction" function called with "MPOS_PRINTER_TRANSACTION_IN", print data are stored in the buffer.
+                //await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
+                // Printer Setting Initialize
+                await _printer.directIO(new byte[] { 0x1b, 0x40 });
+
+                // Code Pages for the contries in east Asia. Please note that the font data downloading is required to print characters for Korean, Japanese and Chinese.
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_KSC5601 });   // Korean
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_SHIFTJIS });  // Japanese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_GB2312 });    // Simplifies Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_BIG5 });      // Traditional Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI });     // Persian 
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI_II });  // Persian 
+
+                await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
+
+
+                await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GetImgResource(),
+                            100/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                            (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                            50,                                                 // brightness
+                            true,                                               // Image Dithering
+                            true);
+                await _printer.printLine(1, 1, 1, 1, 1);
+                await _printer.printText("\nR A P O R T I  I  M A L L I T  T E  M B E T U R \n");
+                await _printer.printLine(0, 0, 1, 1, 1);
+                await _printer.printText(
+"---------------------------------------------------------------------\n");
+
+
+                await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+
+                await _printer.printText(LoginData.Emri + LoginData.Mbiemri + "    " +DateTime.Now.ToString() + "    " + LoginData.Depo +"\n" ,new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                
+
+                await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
+
+                await _printer.printText("\nKodi  Artikulli  S.Pranuar   S.Shitur   S.Kthyer   Levizje   S.Mbetur\n");
+                await _printer.printText("---------------------------------------------------------------------");
+                ;
+
+                foreach (var art in MalliMbetur) {
+                    if(art.SasiaPranuar > 10) {
+                        if(art.SasiaShitur > 10) {
+                            if (art.SasiaKthyer >= 0) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "    " +
+"  " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "    " + "  " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+
+                            }
+                            else if(art.SasiaKthyer < 0) {
+                                if(art.SasiaKthyer < -10) {
+                                    await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "     " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                                }
+                                else {
+                                    await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "     " + String.Format("{0:0.00}", art.LevizjeStoku) + "    " + "  " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                                }
+                            }
+                        }
+                        else if(art.SasiaShitur < 10 && art.SasiaShitur > 0) {
+                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "      " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                        }
+                        else {
+                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+    "\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                        }
+                    }
+                    else {
+                        await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "      " + String.Format("{0:0.00}", art.LevizjeStoku) + "    " + "    " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    }
+
+
+                }
+                    
+                
+
+
+                await _printer.printText("---------------------------------------------------------------------");
+                await _printer.printText("                 " + String.Format("{0:0.00}", PranuarAll) + "      " + String.Format("{0:0.00}", ShiturAll) + "    " + String.Format("{0:0.00}", KthyerAll )+ "      " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+                await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
+                //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
+
 
                 // Feed to tear-off position (Manual Cutter Position)
                 await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
@@ -942,23 +1180,45 @@ namespace EHWM.ViewModel {
                             }
                         }
 
-                        EvidencaPagesave evidencaPagesave = new EvidencaPagesave
-                        {
-                            Borxhi = 0,
-                            DataPageses = DateTime.Now,
-                            DataPerPagese = DateTime.Now,
-                            DeviceID = LoginData.DeviceID,
-                            ExportStatus = 1,
-                            IDAgjenti = LoginData.IDAgjenti,
-                            IDKlienti = SelectedLiferimetEKryera.IDKlienti,
-                            NrFatures = SelectedLiferimetEKryera.NrFat,
-                            NrPageses = SelectedLiferimetEKryera.NrFisk.ToString(),
-                            PayType = liferimi.PayType,
-                            ShumaPaguar = liferim.ShumaPaguar,
-                            ShumaTotale = liferim.CmimiTotal,
-                            SyncStatus = 1
-                        };
-                        await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
+                        //SYNC MALLI MBETUR DIRECTLY SINCE IT DOESN'T EXIST IN SYNC ALL 
+                        if (liferimi.PayType == "KESH") {
+                            EvidencaPagesave evidencaPagesave = new EvidencaPagesave
+                            {
+                                Borxhi = 0,
+                                DataPageses = DateTime.Now,
+                                DataPerPagese = DateTime.Now,
+                                DeviceID = agjendi.DeviceID,
+                                ExportStatus = 1,
+                                IDAgjenti = agjendi.IDAgjenti,
+                                IDKlienti = SelectedLiferimetEKryera.IDKlienti,
+                                NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
+                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + DateTime.Now.ToString(),
+                                PayType = liferimi.PayType,
+                                ShumaPaguar = liferimi.ShumaPaguar,
+                                ShumaTotale = liferimi.CmimiTotal,
+                                SyncStatus = 1
+                            };
+                            await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
+                        }
+                        else {
+                            EvidencaPagesave evidencaPagesave = new EvidencaPagesave
+                            {
+                                Borxhi = liferimi.ShumaPaguar,
+                                DataPageses = DateTime.Now,
+                                DataPerPagese = DateTime.Now,
+                                DeviceID = agjendi.DeviceID,
+                                ExportStatus = 1,
+                                IDAgjenti = agjendi.IDAgjenti,
+                                IDKlienti = SelectedLiferimetEKryera.IDKlienti,
+                                NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
+                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + DateTime.Now.ToString(),
+                                PayType = liferimi.PayType,
+                                ShumaPaguar = 0,
+                                ShumaTotale = liferimi.CmimiTotal,
+                                SyncStatus = 1
+                            };
+                            await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
+                        }
                         await FiskalizoTCRInvoice(IDLiferimi.ToString());
 
                         var NumriFaturaveList = await App.Database.GetNumriFaturaveAsync();

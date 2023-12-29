@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.VizualizoMalliMbeturPage" Title="Malli Mbetur">
+    <ContentPage.Content>
+        <StackLayout>
+
+            <StackLayout Orientation="Horizontal" HeightRequest="40" MinimumHeightRequest="40" Padding="10">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="StartAndExpand">
+                    <Label Text="Shitesi: "/>
+                    <Label Text="{Binding LoginData.Emri}"/>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
+                    <Label Text="Depo: "/>
+                    <Label Text="{Binding LoginData.Depo}"/>
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout>
+                <Frame Padding="0" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="40" MinimumHeightRequest="40">
+                    <Grid HeightRequest="30" Padding="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="12" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="11" VerticalTextAlignment="Center" Text="Pranuar" Grid.Row="0" Grid.Column="1" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="12" VerticalTextAlignment="Center" Text="Shitur" Grid.Row="0" Grid.Column="2" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="12" VerticalTextAlignment="Center" Text="Kthyer" Grid.Row="0" Grid.Column="3" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="12" VerticalTextAlignment="Center" Text="Levizje" Grid.Row="0" Grid.Column="4" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="12" VerticalTextAlignment="Center" Text="Mbetur" Grid.Row="0" Grid.Column="5" />
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" FontSize="12" VerticalTextAlignment="Center" Text="Seri" Grid.Row="0" Grid.Column="6" />
+                    </Grid>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout>
+                <ListView x:Name="SearchedClientsList" ItemsSource="{Binding MalliMbetur}" RowHeight="70" SelectionMode="Single" HorizontalScrollBarVisibility="Always"  >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center" Padding="0,0,10,0">
+                                    <Label Text="{Binding Emri}"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="95" MinimumHeightRequest="145" LineBreakMode="WordWrap" FontSize="10" HorizontalOptions="Fill"/>
+                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                        <Label Text="{Binding SasiaPranuar,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="Start" HorizontalTextAlignment="Start" WidthRequest="30" MinimumWidthRequest="30" FontSize="10"/>
+                                        <Label Text="{Binding SasiaShitur,StringFormat='{0:F2}'}"  VerticalTextAlignment="Center" HorizontalTextAlignment="Start" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="StartAndExpand" FontSize="10"/>
+                                        <Label Text="{Binding SasiaKthyer,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalTextAlignment="Start"  WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="StartAndExpand" FontSize="10"/>
+                                        <Label Text="{Binding LevizjeStoku,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
+                                        <Label Text="{Binding SasiaMbetur,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
+                                        <Label Text="{Binding Seri,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand" FontSize="10" WidthRequest="30" MinimumWidthRequest="30"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <BoxView HeightRequest="1" WidthRequest="1000" BackgroundColor="Black"/>
+                <StackLayout VerticalOptions="End" Orientation="Horizontal" HeightRequest="40" HorizontalOptions="Center">
+                    <Label Text="{Binding PranuarAll}"/>
+                    <BoxView />
+                    <Label Text="{Binding ShiturAll}"/>
+                    <BoxView />
+                    <Label Text="{Binding KthyerAll}"/>
+                    <BoxView />
+                    <Label Text="{Binding LevizjeAll}"/>
+                    <BoxView />
+                    <Label Text="{Binding MbetjaAll}"/>
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
+                <Button Text="Kthimi" Command="{Binding KthePorosineAutomatikishtCommand}" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
+            </StackLayout>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

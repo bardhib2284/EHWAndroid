@@ -92,15 +92,6 @@ namespace EHWM.ViewModel {
                     //                ep.NrPageses
                     //            };
                     var nrFatures = string.Empty;
-                    if(EvidencaEPagesave.Count < 1) {
-                        //getting them from api 
-                        var apiResult = await App.ApiClient.GetAsync("pagesa");
-                        if(apiResult.IsSuccessStatusCode) {
-                            var apiResponse = await apiResult.Content.ReadAsStringAsync();
-                            EvidencaEPagesave = JsonConvert.DeserializeObject<List<EvidencaPagesave>>(apiResponse);
-                            await App.Database.SaveAllEvidencaPagesaveAsync(EvidencaEPagesave);
-                        }
-                    }
                     if(EvidencaEPagesave.Count > 1) {
                         await App.Database.DeleteEvidencaPagesave(EvidencaEPagesave.FirstOrDefault(x => x.NrFatures == ""));
                         var query = EvidencaEPagesave

@@ -67,7 +67,7 @@ namespace EHWM.Views {
                 bc.KthimMalli();
                 return;
             }            
-            if((sender as Button).Text == "Vizualo") {
+            if((sender as Button).Text == "Vizualizo") {
                 VizualizoShitjetPopup VizualizoShitjetPopup = new VizualizoShitjetPopup();
                 VizualizoShitjetPopup.BindingContext = this.BindingContext;
                 await Navigation.PushPopupAsync(VizualizoShitjetPopup);

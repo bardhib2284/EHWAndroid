@@ -511,6 +511,13 @@ namespace EHWM.ViewModel {
                 await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetails);
                 await App.Database.SaveLevizjeHeaderAsync(levizjaHeader);
                 LevizjetHeader.Add(levizjaHeader);
+                var currNumriFaturave = numriFaturave.FirstOrDefault(x => x.KOD == Agjendi.IDAgjenti);
+                if(currNumriFaturave != null) {
+                    currNumriFaturave.CurrNrFat_D = currNumriFaturave.CurrNrFat_D + 1;
+                    await App.Database.UpdateNumriFaturave(currNumriFaturave);
+                }
+                SelectedArikujt = null;
+                TotalPrice = 0;
                 await App.Database.UpdateNumriFiskalAsync(topLevizjeIDN);
                 UserDialogs.Instance.Alert("Levizja u regjistrua me sukses");
                 await App.Instance.PopPageAsync();

@@ -27,7 +27,7 @@
             <Button Text="Faturat" Command="{Binding HapFaturatEShituraCommand}"/>
             <Button Text="Inkasimet" Command="{Binding HapFaturatEShituraCommand}"/>
             <Button Text="Stoku"/>
-            <Button Text="Mbetja"/>
+            <Button Text="Mbetja" Command="{Binding GoToMbetjaMallitCommand}"/>
         </StackLayout>
 
     </Frame>
