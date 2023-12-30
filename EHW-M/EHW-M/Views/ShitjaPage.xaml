@@ -79,7 +79,7 @@
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center">
-                                        <Label Text="{Binding Emri}" WidthRequest="175" MinimumHeightRequest="175" LineBreakMode="TailTruncation" FontSize="12" HorizontalOptions="Fill"/>
+                                        <Label Text="{Binding Emri}" WidthRequest="165" MinimumHeightRequest="165" LineBreakMode="TailTruncation" FontSize="11" HorizontalOptions="Fill"/>
                                         <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                                             <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" FontSize="12"/>
                                             <Label Text="{Binding CmimiNjesi}" HorizontalOptions="StartAndExpand" Margin="0,0,0,0" FontSize="12"/>

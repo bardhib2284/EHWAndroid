@@ -47,22 +47,17 @@ namespace EHWM.Views {
 
         private void checkNga_CheckedChanged(object sender, CheckedChangedEventArgs e) {
             var bc = (LevizjetViewModel)BindingContext;
-            if (checkNga.IsChecked) {
-                checkNe.IsEnabled = false;
-                checkNe.IsChecked = false;
-                bc.Nga =true;
-                bc.Ne =false;
-            }
-            if(checkNe.IsChecked) {
-                checkNga.IsEnabled = false;
-                checkNga.IsChecked = false;
-                bc.Ne = true;
-                bc.Nga = false;
-            }
-            if(checkNe.IsChecked == false && checkNga.IsChecked == false) {
-                checkNe.IsEnabled = true;
-                checkNga.IsEnabled = true;
-            }
+            checkNe.IsChecked = false;
+            bc.Nga = true;
+            bc.Ne = false;
+        }
+        
+        private void checkNga_CheckedChangedi(object sender, CheckedChangedEventArgs e) {
+            var bc = (LevizjetViewModel)BindingContext;
+            checkNga.IsChecked = false;
+            bc.Ne = true;
+            bc.Nga = false;
+
         }
 
         private void Picker_SelectedIndexChanged(object sender, EventArgs e) {

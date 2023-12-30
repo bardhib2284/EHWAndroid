@@ -16,10 +16,12 @@ namespace EHWM.Views {
 
         protected override void OnAppearing() {
             base.OnAppearing();
-            serveri.Text = "http://84.22.42.59:8188/ehwapi/";
-            //serveri.Text = "http://95.107.161.233:4448/ehwapi/";
-            fiskalizimi.Text = "http://84.22.42.59:5010/FiscalisationService.asmx";
-            //fiskalizimi.Text = "http://95.107.161.233:4446/FiscalisationService.asmx";
+            if(string.IsNullOrEmpty(serveri.Text)) {
+                serveri.Text = "http://84.22.42.59:8188/ehwapi/";
+                //serveri.Text = "http://95.107.161.233:4448/ehwapi/";
+                fiskalizimi.Text = "http://84.22.42.59:5010/FiscalisationService.asmx";
+                //fiskalizimi.Text = "http://95.107.161.233:4446/FiscalisationService.asmx";
+            }
         }
     }
 }

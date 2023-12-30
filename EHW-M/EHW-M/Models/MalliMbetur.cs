@@ -23,7 +23,7 @@ namespace EHWM.Models {
         [JsonIgnore]
         [PrimaryKey,AutoIncrement]
         public int? ID { get; set; }
-        public Single LevizjeStoku { get; set; }
+        public float LevizjeStoku { get; set; }
         public string Seri { get; set; }
     }
 }

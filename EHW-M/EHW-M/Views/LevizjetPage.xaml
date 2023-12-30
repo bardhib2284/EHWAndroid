@@ -16,7 +16,7 @@
                         </StackLayout>
 
                         <StackLayout Orientation="Horizontal">
-                            <CheckBox x:Name="checkNe" IsChecked="False" CheckedChanged="checkNga_CheckedChanged"/>
+                            <CheckBox x:Name="checkNe" IsChecked="False" CheckedChanged="checkNga_CheckedChangedi"/>
                             <Label Text="Transfer ne" VerticalTextAlignment="Center"/>
                             <Label Text="{Binding Agjendi.Depo}" VerticalTextAlignment="Center"/>
                         </StackLayout>
@@ -36,7 +36,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Label Text="Transfer nga" Grid.Row="0" Grid.Column="0" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
+                        <Label Text="{Binding LevizjeText}" Grid.Row="0" Grid.Column="0" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
                         <Label Text="M03-770" Grid.Row="0" Grid.Column="1" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
                         <Label Text="Seri" Grid.Row="0" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
 

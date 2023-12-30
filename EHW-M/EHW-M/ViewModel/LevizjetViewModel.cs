@@ -51,6 +51,11 @@ namespace EHWM.ViewModel {
             get { return _SelectedKlientet; }
             set { SetProperty(ref _SelectedKlientet, value); }
         }
+        private string _LevizjeText;
+        public string LevizjeText {
+            get { return _LevizjeText; }
+            set { SetProperty(ref _LevizjeText, value); }
+        }
         public ICommand ZgjedhArtikullinCommand { get; set; }
         public ICommand AddArtikulliCommand { get; set; }
         public ICommand RegjistroCommand { get; set; }
@@ -67,12 +72,12 @@ namespace EHWM.ViewModel {
         private bool _nga;
         public bool Nga {
             get { return _nga; }
-            set { SetProperty(ref _nga, value); }
+            set { LevizjeText = "Transfer nga"; SetProperty(ref _nga, value); }
         }
         private bool _Ne;
         public bool Ne {
             get { return _Ne; }
-            set { SetProperty(ref _Ne, value); }
+            set { LevizjeText = "Transfer ne"; SetProperty(ref _Ne, value); }
         }
 
         private double _totalPrice;
@@ -99,6 +104,7 @@ namespace EHWM.ViewModel {
             PrintoLevizjenCommand = new Command(async () => await PrintoFaturenAsync());
 
             LevizjaEPerfunduar = false;
+            LevizjeText = "Levizje nga";
         }
         async Task<MPosControllerDevices> OpenPrinterService(MposConnectionInformation connectionInfo) {
             if (connectionInfo == null)
@@ -254,16 +260,117 @@ namespace EHWM.ViewModel {
                 double teGjitheCmimetTotale = 0f;
                 decimal vleraTVSH = 0m;
                 var artikujt = await App.Database.GetArtikujtAsync();
-
+                int maxLength = 69;
+                string builderToPrint = string.Empty;
                 foreach (var ld in CurrentlySelectedLevizjetDetails) {
                     foreach(var art in Artikujt) {
                         if(art.IDArtikulli == ld.IDArtikulli) {
-                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
-     "\n                     " + art.BUM + "         " + ld.Sasia + "       " + ld.Cmimi + "    " + Math.Round((decimal)(ld.Cmimi / 1.2m),2) + "       " + "20%  " + "   " + art.CmimiNjesi + "\n");
+                            //BUM
+                            builderToPrint += "\n" + art.IDArtikulli + "   " + art.Emri + "   "  + art.Seri +
+"\n                     ";
+                            if (art.BUM == "COP") {
+                                builderToPrint += art.BUM + "    ";
+                            }
+                            else {
+                                builderToPrint += art.BUM + "     ";
+                            }
+                            //SASIA
+                            if (ld.Sasia >= 100) {
+                                builderToPrint += ld.Sasia + "      ";
+                            }
+                            else if (ld.Sasia >= 10) {
+                                builderToPrint += ld.Sasia + "       ";
+                            }
+                            else if(ld.Sasia > 0 && ld.Sasia < 10) {
+                                builderToPrint += ld.Sasia + "        ";
+                            }
+                            else if (ld.Sasia < 100) {
+                                builderToPrint += ld.Sasia + "      ";
+                            }
+                            else{
+                                builderToPrint += ld.Sasia + "        ";
+                            }
+
+                            //CMIMI
+                            if(ld.Cmimi >= 1000) {
+                                builderToPrint += ld.Cmimi + "     ";
+                            }
+                            else if(ld.Cmimi >=100) {
+                                builderToPrint += ld.Cmimi + "      ";
+                            }
+                            else {
+                                builderToPrint += ld.Cmimi + "       ";
+                            }
+
+                            //v.pa tvsh
+                            var vpaTvsh = Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
+                            if(vpaTvsh.ToString().Length >= 6) 
+                            {
+                                builderToPrint += vpaTvsh + "   ";
+                            }
+                            else if(vpaTvsh.ToString().Length >= 5) {
+                                builderToPrint += vpaTvsh + "    ";
+                            }
+                            else if(vpaTvsh.ToString().Length >= 4) {
+                                builderToPrint += vpaTvsh + "     ";
+                            }
+                            else if(vpaTvsh.ToString().Length >= 3) {
+                                builderToPrint += vpaTvsh + "        ";
+                            }
+                            else if(vpaTvsh.ToString().Length >= 2) {
+                                builderToPrint += vpaTvsh + "         ";
+                            }
+                            else {
+                                builderToPrint += vpaTvsh + "          ";
+                            }
+
+                            var tvsh = (decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2));
+
+                            //TVSH 
+                            if (tvsh.ToString().Length >= 6) {
+                                builderToPrint += tvsh + "  ";
+                            }
+                            else if (tvsh.ToString().Length >= 5) {
+                                builderToPrint += tvsh + "   ";
+                            }
+                            else if (tvsh.ToString().Length >= 4) {
+                                builderToPrint += tvsh + "    ";
+                            }
+                            else if(tvsh.ToString().Length >= 3){
+                                builderToPrint += tvsh + "     ";
+                            }
+                            else if(tvsh.ToString().Length >= 2){
+                                builderToPrint += tvsh + "      ";
+                            }
+                            else
+                                builderToPrint += tvsh + "       ";
+
+                            builderToPrint += ld.Cmimi * ld.Sasia + "\n";
+
+                            await _printer.printText(builderToPrint);
                             teGjithaSasit += (float)ld.Sasia;
                             teGjithaCmimetNjesi += (float)ld.Cmimi;
                             teGjitheCmimetTotale += (double)ld.Totali;
-                            vleraTVSH = decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
+                            vleraTVSH += decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
+                            builderToPrint = string.Empty;
+//                            if (art.BUM == "COP") {
+//                                builderToPrint += art.BUM + "      ";
+//                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+//"\n                     " + art.BUM + "      " + ld.Sasia + "       " + ld.Cmimi + "      " + Math.Round((decimal)(ld.Cmimi / 1.2m), 2) + "       " + (decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2)) + "  " + "  " + ld.Cmimi * ld.Sasia + "\n");
+//                                teGjithaSasit += (float)ld.Sasia;
+//                                teGjithaCmimetNjesi += (float)ld.Cmimi;
+//                                teGjitheCmimetTotale += (double)ld.Totali;
+//                                vleraTVSH = decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
+//                            }
+//                            else {
+//                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " +
+//    "\n                     " + art.BUM + "      " + ld.Sasia + "       " + ld.Cmimi + "      " + Math.Round((decimal)(ld.Cmimi / 1.2m), 2) + "       " + (decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2)) + "  " + "  " + ld.Cmimi * ld.Sasia + "\n");
+//                                teGjithaSasit += (float)ld.Sasia;
+//                                teGjithaCmimetNjesi += (float)ld.Cmimi;
+//                                teGjitheCmimetTotale += (double)ld.Totali;
+//                                vleraTVSH = decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
+//                            }
+
                         }
                     }
                 }
@@ -271,13 +378,97 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("---------------------------------------------------------------------");
                 ;
-                await _printer.printText("\n                    Total    " + teGjithaSasit + "       " + teGjithaCmimetNjesi + "        " + vleraTVSH + "        " + CurrentlySelectedLevizjetHeader.Totali, new MPosFontAttribute { Bold = true });
+                builderToPrint = string.Empty;
+                builderToPrint += "\n                    Total   ";
+
+
+                if (teGjithaSasit.ToString().Length >= 3) {
+                    builderToPrint += teGjithaSasit + "      ";
+                }
+                else if (teGjithaSasit.ToString().Length >= 2) {
+                    builderToPrint += teGjithaSasit + "       ";
+                }
+                else if (teGjithaSasit.ToString().Length >= 1) {
+                    builderToPrint += teGjithaSasit + "        ";
+                }
+
+                if (teGjithaCmimetNjesi.ToString().Length >= 5) {
+                    builderToPrint += teGjithaCmimetNjesi + "    ";
+                }
+                else if (teGjithaCmimetNjesi.ToString().Length >= 4) {
+                    builderToPrint += teGjithaCmimetNjesi + "     ";
+                }
+                else if (teGjithaCmimetNjesi.ToString().Length >= 3) {
+                    builderToPrint += teGjithaCmimetNjesi + "      ";
+                }
+                    var tegjithaCmimetTvsh = Math.Round((decimal)(teGjithaCmimetNjesi / 1.2f), 2);
+
+                //vlera pa tvsh
+                if(tegjithaCmimetTvsh.ToString().Length >= 8) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + " ";
+                }
+                else if(tegjithaCmimetTvsh.ToString().Length >= 7) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "  ";
+                }
+                else if(tegjithaCmimetTvsh.ToString().Length >= 6) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "   ";
+                }
+                else if(tegjithaCmimetTvsh.ToString().Length >= 5) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "    ";
+                }
+                else if(tegjithaCmimetTvsh.ToString().Length >= 4) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "     ";
+                }
+                else if(tegjithaCmimetTvsh.ToString().Length >= 3) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "        ";
+                }                
+                else if(tegjithaCmimetTvsh.ToString().Length >= 2) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "         ";
+                }                
+                else if(tegjithaCmimetTvsh.ToString().Length >= 1) 
+                {
+                    builderToPrint += tegjithaCmimetTvsh + "          ";
+                }
+
+                if(vleraTVSH.ToString().Length >= 7) {
+                    builderToPrint += vleraTVSH + " " + "";
+                }
+                else if(vleraTVSH.ToString().Length >= 6) {
+                    builderToPrint += vleraTVSH + "  " + "";
+                }
+                else if(vleraTVSH.ToString().Length >= 5) {
+                    builderToPrint += vleraTVSH + "  " + " ";
+                }
+                else if(vleraTVSH.ToString().Length >= 4) {
+                    builderToPrint += vleraTVSH + "  " + "  ";
+                }
+                else if(vleraTVSH.ToString().Length >= 3) {
+                    builderToPrint += vleraTVSH + "  " + "   ";
+                }
+                else if(vleraTVSH.ToString().Length >= 2) {
+                    builderToPrint += vleraTVSH + "  " + "    ";
+                }
+                else if(vleraTVSH.ToString().Length >= 1) {
+                    builderToPrint += vleraTVSH + "  " + "    ";
+                }
+
+                builderToPrint += teGjitheCmimetTotale;
+
+                await _printer.printText(builderToPrint);
                 await _printer.printText("\n");
 
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
                 await _printer.printText("\nNisesi:" + "             Transportuesi:" + "               Pritesi:");
-                await _printer.printText("\n" + currAgjendi.Emri  + " "+ currAgjendi.Mbiemri + "          " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "        " + depo.TAGNR + "      ");
+
+                await _printer.printText("\n" + currAgjendi.Emri  + " "+ currAgjendi.Mbiemri + "          " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "                 " + depo.TAGNR + "      ");
 
 
 
@@ -302,6 +493,8 @@ namespace EHWM.ViewModel {
                                 true,                                               // Image Dithering
                                 true);
                 }
+
+                await _printer.printText("\n");
 
                 // Feed to tear-off position (Manual Cutter Position)
                 await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
@@ -331,10 +524,15 @@ namespace EHWM.ViewModel {
                 SelectedArikujt = new ObservableCollection<Artikulli>();
             }
             if (CurrentlySelectedArtikulli == null) return;
-            if(CurrentlySelectedArtikulli.Sasia < Sasia) {
-                UserDialogs.Instance.Alert("Sasia e shenuar eshte me e madhe se sasia aktuale, ju lutemi ta permiresoni", "Verejtje", "Ok");
+            if (Sasia == 0)
                 return;
+            if(Nga) {
+                if (CurrentlySelectedArtikulli.Sasia < Sasia) {
+                    UserDialogs.Instance.Alert("Sasia e shenuar eshte me e madhe se sasia aktuale, ju lutemi ta permiresoni", "Verejtje", "Ok");
+                    return;
+                }
             }
+
             var tempArts = Artikujt;
             CurrentlySelectedArtikulli.Sasia = Sasia;
             SelectedArikujt.Add(CurrentlySelectedArtikulli);
@@ -349,16 +547,6 @@ namespace EHWM.ViewModel {
             await Task.Delay(20);
             //await App.Database.UpdateStoqetAsync(stoku);
             //update malli i mbetur
-            var malliIMbetur = MalliMbetur.FirstOrDefault( x=> x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli && x.Depo == Agjendi.IDAgjenti);
-            decimal SasiaShiturUpdate = Math.Round(decimal.Parse(CurrentlySelectedArtikulli.Sasia.ToString()), 3);
-            decimal SasiaShiturAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaShitur.ToString()), 3);
-
-            malliIMbetur.SasiaShitur = float.Parse(Math.Round(SasiaShiturUpdate + SasiaShiturAktuale, 3).ToString());
-
-            //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
-            var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku;
-            malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
-            malliIMbetur.SyncStatus = 0;
             //await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
             CurrentlySelectedArtikulli = null;
 
@@ -433,7 +621,39 @@ namespace EHWM.ViewModel {
                 var agjendet = await App.Database.GetAgjendetAsync();
                 var FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
                 var numriFiskal = await App.Database.GetNumratFiskalAsync();
-                
+                foreach (var artikull in SelectedArikujt) {
+
+                    if(Ne) {
+                        //update malli i mbetur
+                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
+                        decimal SasiaLevizurUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
+                        decimal SasiaLevizurAktuale = Math.Round(decimal.Parse(malliIMbetur.LevizjeStoku.ToString()), 3);
+
+                        malliIMbetur.LevizjeStoku = float.Parse(Math.Round(SasiaLevizurUpdate + SasiaLevizurAktuale, 3).ToString());
+
+                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) + malliIMbetur.LevizjeStoku;
+                        malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
+                        malliIMbetur.SyncStatus = 0;
+                        var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
+                    }
+                        
+                    if(Nga) {
+                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
+                        decimal SasiaLevizurUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
+                        decimal SasiaLevizurAktuale = Math.Round(decimal.Parse(malliIMbetur.LevizjeStoku.ToString()), 3);
+
+                        malliIMbetur.LevizjeStoku = float.Parse(Math.Round(SasiaLevizurAktuale - SasiaLevizurUpdate, 3).ToString());
+
+                        //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
+                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) + malliIMbetur.LevizjeStoku;
+                        malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
+                        malliIMbetur.SyncStatus = 0;
+                        var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
+                    }
+                        
+                }
+
+
                 if (numriFiskal.Count < 1) {
                     var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk" );
                     if(numratFiskalResult.IsSuccessStatusCode) {
@@ -506,7 +726,6 @@ namespace EHWM.ViewModel {
                         Totali = decimal.Parse(artikulli.CmimiTotal.ToString())
                     };
                     levizjetDetails.Add(levizjaDetails);
-                    await App.Database.SaveMalliMbeturAsync(MalliMbetur.FirstOrDefault(x => x.IDArtikulli == artikulli.IDArtikulli && x.Depo == Agjendi.Depo));
                 }
                 await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetails);
                 await App.Database.SaveLevizjeHeaderAsync(levizjaHeader);
@@ -537,10 +756,8 @@ namespace EHWM.ViewModel {
         public async Task ZgjedhArtikullinAsync() {
             try {
                 UserDialogs.Instance.ShowLoading("Duka shfaqur artikujt");
-                if(MalliMbetur == null) {
-                    var malliMbetur = await App.Database.GetMalliMbeturAsync();
-                    MalliMbetur = new ObservableCollection<Malli_Mbetur>(malliMbetur);
-                }
+                var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                MalliMbetur = new ObservableCollection<Malli_Mbetur>(malliMbetur);
                 if(SalesPrices == null) {
                     SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
                 }
@@ -559,7 +776,9 @@ namespace EHWM.ViewModel {
                         artikulli.Seri = MalliiMbetur.Seri;
                     }
                 }
-                Artikujt = new ObservableCollection<Artikulli>(Artikujt.Where(x => x.Sasia >= 1).OrderBy(x=> x.Emri));
+                if(Nga) {
+                    Artikujt = new ObservableCollection<Artikulli>(Artikujt.Where(x => x.Sasia >= 1).OrderBy(x => x.Emri));
+                }
 
                 await App.Instance.PushAsyncNewModal(zgjidhArtikullinModalPage);
                 UserDialogs.Instance.HideLoading();

@@ -45,12 +45,12 @@
                         <DataTemplate>
                             <ViewCell>
                                 <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center" Padding="0,0,10,0">
-                                    <Label Text="{Binding Emri}"  VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="95" MinimumHeightRequest="145" LineBreakMode="WordWrap" FontSize="10" HorizontalOptions="Fill"/>
+                                    <Label Text="{Binding Emri}"   VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="95" MinimumHeightRequest="145" LineBreakMode="WordWrap" FontSize="10" HorizontalOptions="Fill"/>
                                     <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                                         <Label Text="{Binding SasiaPranuar,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="Start" HorizontalTextAlignment="Start" WidthRequest="30" MinimumWidthRequest="30" FontSize="10"/>
                                         <Label Text="{Binding SasiaShitur,StringFormat='{0:F2}'}"  VerticalTextAlignment="Center" HorizontalTextAlignment="Start" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="StartAndExpand" FontSize="10"/>
                                         <Label Text="{Binding SasiaKthyer,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalTextAlignment="Start"  WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="StartAndExpand" FontSize="10"/>
-                                        <Label Text="{Binding LevizjeStoku,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
+                                        <Label Text="{Binding LevizjeStoku}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
                                         <Label Text="{Binding SasiaMbetur,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
                                         <Label Text="{Binding Seri,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand" FontSize="10" WidthRequest="30" MinimumWidthRequest="30"/>
                                     </StackLayout>
