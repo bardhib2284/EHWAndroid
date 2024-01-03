@@ -795,7 +795,7 @@ namespace EHWM.ViewModel {
                                 }
                             }
                         }
-                        if (log.Status == StatusPCL.TCRAlreadyRegistered) {
+                        else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
                             liferimet = await App.Database.GetLiferimetAsync();
                             liferimetArt = await App.Database.GetLiferimetArtAsync();
                             var liferimiToUpdate = liferimet
@@ -1130,6 +1130,8 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\nLloji i procesit:");
                     await _printer.printText("\nP3 Faturimi i dorezimit te porosise se blerjes se rastesishme \n");
                 }
+                await _printer.printText("\nLloji i procesit:");
+                await _printer.printText("\nP3 Faturimi i dorezimit te porosise se blerjes se rastesishme \n");
                 await _printer.printText(
 "---------------------------------------------------------------------");
 
@@ -1140,7 +1142,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
                 await _printer.printText("\nKodi i operatorit : " + lif.TCROperatorCode);
                 await _printer.printText("\nNIVF:  " + lif.TCRNIVF);
-                await _printer.printText("\nNSLF:  " + lif.TCRNSLF+ "\n");
+                await _printer.printText("\nNSLF:  " + lif.TCRNSLF + "\n");
                 await _printer.printText(
 "---------------------------------------------------------------------");
                 var klientet = await App.Database.GetKlientetAsync();
@@ -1201,46 +1203,54 @@ namespace EHWM.ViewModel {
                     }
 
                     //cmimiNjesi
-                    var cmimiNjesi = String.Format("{0:0.00}", art.CmimiNjesi);
-                    if (cmimiNjesi.Length >= 9) {
-                        prntBuilder += art.CmimiNjesi + " ";
+                    if (art.Sasia < 0) {
+                        art.CmimiNjesi = art.CmimiNjesi * -1;
                     }
-                    else if (cmimiNjesi.Length >= 8) {
+                    var cmimiNjesi = String.Format("{0:0.00}", art.CmimiNjesi);
+                    if (cmimiNjesi.Contains("-")) {
+                        cmimiNjesi = cmimiNjesi.Remove(0, 1);
+                    }
+                    if (cmimiNjesi.Length >= 9) {
                         prntBuilder += art.CmimiNjesi + "  ";
                     }
-                    else if (cmimiNjesi.Length >= 7) {
+                    else if (cmimiNjesi.Length >= 8) {
                         prntBuilder += art.CmimiNjesi + "   ";
                     }
-                    else if (cmimiNjesi.Length >= 6) {
+                    else if (cmimiNjesi.Length >= 7) {
                         prntBuilder += art.CmimiNjesi + "    ";
                     }
-                    else if (cmimiNjesi.Length >= 5) {
+                    else if (cmimiNjesi.Length >= 6) {
                         prntBuilder += art.CmimiNjesi + "     ";
                     }
-                    else if (cmimiNjesi.Length >= 4) {
+                    else if (cmimiNjesi.Length >= 5) {
                         prntBuilder += art.CmimiNjesi + "      ";
                     }
-                    else if (cmimiNjesi.Length >= 3) {
+                    else if (cmimiNjesi.Length >= 4) {
                         prntBuilder += art.CmimiNjesi + "       ";
                     }
-
+                    else if (cmimiNjesi.Length >= 3) {
+                        prntBuilder += art.CmimiNjesi + "        ";
+                    }
+                    if (art.Sasia < 0) {
+                        art.CmimiNjesi = art.CmimiNjesi * -1;
+                    }
                     //vlera pa tvsh
                     var vleraPaTVSH = String.Format("{0:0.00}", Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2));
 
                     if (vleraPaTVSH.Length >= 8) {
-                        prntBuilder += vleraPaTVSH + "   ";
+                        prntBuilder += vleraPaTVSH + "  ";
                     }
                     else if (vleraPaTVSH.Length >= 7) {
-                        prntBuilder += vleraPaTVSH + "    ";
+                        prntBuilder += vleraPaTVSH + "   ";
                     }
                     else if (vleraPaTVSH.Length >= 6) {
-                        prntBuilder += vleraPaTVSH + "     ";
+                        prntBuilder += vleraPaTVSH + "    ";
                     }
                     else if (vleraPaTVSH.Length >= 5) {
-                        prntBuilder += vleraPaTVSH + "      ";
+                        prntBuilder += vleraPaTVSH + "     ";
                     }
                     else if (vleraPaTVSH.Length >= 4) {
-                        prntBuilder += vleraPaTVSH + "       ";
+                        prntBuilder += vleraPaTVSH + "      ";
                     }
 
                     tvsh = decimal.Parse(art.CmimiNjesi.ToString()) - decimal.Parse(vleraPaTVSH);
@@ -1251,13 +1261,20 @@ namespace EHWM.ViewModel {
                         prntBuilder += tvshstring;
                     }
                     else if (tvshstring.Length >= 7) {
-                        prntBuilder += tvshstring + " ";
+                        if (vleraPaTVSH.Length == 8) {
+                            prntBuilder += " " + tvshstring + "";
+                        }
+                        else
+                            prntBuilder += tvshstring + "";
                     }
                     else if (tvshstring.Length >= 6) {
-                        prntBuilder += tvshstring + "   ";
+                        if (vleraPaTVSH.Length == 7) {
+                            prntBuilder += " " + tvshstring + "   ";
+                        }
+                        prntBuilder += tvshstring + "  ";
                     }
                     else if (tvshstring.Length >= 5) {
-                        prntBuilder += tvshstring + "    ";
+                        prntBuilder += "  " + tvshstring + "    ";
                     }
                     else if (tvshstring.Length >= 4) {
                         prntBuilder += tvshstring + "     ";
@@ -1283,37 +1300,81 @@ namespace EHWM.ViewModel {
 
 
                 await _printer.printText("---------------------------------------------------------------------");
-
-                if (lif.TotaliPaTVSH < 0) {
-                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 9) {
-                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "      " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "  " +
-                           String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " " + String.Format("{0:0.00}", lif.CmimiTotal));
-
-                    }
-                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
-                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "       " + "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "  " +
-                           String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " " + String.Format("{0:0.00}", lif.CmimiTotal));
-
-                    }
-                    else
-                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "            " + "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  " + String.Format("{0:0.00}", lif.CmimiTotal));
+                var totalBuilder = string.Empty;
+                totalBuilder += "\n    Mbyllet me total      ";
+                if (teGjithaSasit.ToString().Length >= 5) {
+                    totalBuilder += "   " + teGjithaSasit + "    ";
 
                 }
-                else {
-                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
-                        await _printer.printText("\n    Mbyllet me total         " + teGjithaSasit + "        " + "" + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " +
-                           String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  " + String.Format("{0:0.00}", lif.CmimiTotal));
-                    }
-                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 6) {
-                        await _printer.printText("\n    Mbyllet me total        " + teGjithaSasit + "    " + "" + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "     " +
-                           String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  " + String.Format("{0:0.00}", lif.CmimiTotal));
-                    }
-                    else
-                        await _printer.printText("\n    Mbyllet me total        " + teGjithaSasit + "         " + String.Format("{0:0.00}", lif.TotaliPaTVSH) + "    " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   " + String.Format("{0:0.00}", lif.CmimiTotal));
+                else if (teGjithaSasit.ToString().Length >= 4) {
+                    totalBuilder += "   " + teGjithaSasit + "     ";
 
                 }
+                else if (teGjithaSasit.ToString().Length >= 3) {
+                    totalBuilder += "   " + teGjithaSasit + "      ";
+
+                }
+                else if (teGjithaSasit.ToString().Length >= 2) {
+                    totalBuilder += "   " + teGjithaSasit + "         ";
+                }
+                else if (teGjithaSasit.ToString().Length >= 1) {
+                    totalBuilder += "   " + teGjithaSasit + "          ";
+                }
+
+
+                //v.patvsh
+                var vptvsh = String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                if (vptvsh.Length >= 10) {
+                    totalBuilder += "" + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                }
+                else if (vptvsh.Length >= 9) {
+                    totalBuilder += " " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                }
+                else if (vptvsh.Length >= 8) {
+                    totalBuilder += "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                }
+                else if (vptvsh.Length >= 7) {
+                    totalBuilder += "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                }
+                else if (vptvsh.Length >= 6) {
+                    totalBuilder += "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                }
+                else if (vptvsh.Length >= 5) {
+                    totalBuilder += "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                }
+
+                var tvshAll = String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
+                if (tvshAll.ToString().Length >= 9) {
+                    totalBuilder += "" + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
+                }
+                else if (tvshAll.ToString().Length >= 8) {
+                    totalBuilder += "  " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
+                }
+                else if (tvshAll.ToString().Length >= 7) {
+                    if (vptvsh.Length == 8) {
+                        totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
+                    }
+                    else if (vptvsh.Length == 7) {
+                        totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
+                    }
+                    else
+                        totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
+                }
+                else if (tvshAll.ToString().Length >= 6) {
+                    if (vptvsh.Length == 6) {
+                        totalBuilder += "      " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
+                    }
+                    else
+                        totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
+                }
+                else if (tvshAll.ToString().Length >= 5) {
+                    totalBuilder += "      " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "    ";
+                }
+
+                totalBuilder += String.Format("{0:0.00}", lif.CmimiTotal);
+                await _printer.printText(totalBuilder);
+
+
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
 
@@ -1352,30 +1413,56 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\nKodi  TVSH-se    Shk. TVSH-se    Vl. tatushme      TVSH        VLERA \n");
                 await _printer.printText("---------------------------------------------------------------------");
+                totalBuilder = String.Empty;
+                var TotaliPaTVSH = String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2));
+                if (TotaliPaTVSH.ToString().Length >= 10) {
+                    totalBuilder += "\n   S-VAT             20        " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "      ";
+                }
+                else if (TotaliPaTVSH.ToString().Length >= 9) {
+                    totalBuilder += "\n   S-VAT             20         " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "       ";
+                }
+                else if (TotaliPaTVSH.ToString().Length >= 8) {
+                    totalBuilder += "\n   S-VAT             20          " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        ";
+                }
+                else if (TotaliPaTVSH.ToString().Length >= 7) {
+                    totalBuilder += "\n   S-VAT             20           " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        ";
+                }
+                else if (TotaliPaTVSH.ToString().Length >= 6) {
+                    totalBuilder += "\n   S-VAT             20             " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "           ";
+                }
+                else if (TotaliPaTVSH.ToString().Length >= 5) {
+                    totalBuilder += "\n   S-VAT             20              " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "           ";
+                }
 
-                if (lif.TotaliPaTVSH < 0) {
-                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 9) {
-                        await _printer.printText("\n   S-VAT             20         " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "      " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "    " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
-                    }
-                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 8) {
-                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "       " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "     " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+
+                if (tvshAll.ToString().Length >= 9) {
+                    totalBuilder += tvshAll + " ";
+                }
+                else if (tvshAll.ToString().Length >= 8) {
+                    totalBuilder += tvshAll + "  ";
+                }
+                else if (tvshAll.ToString().Length >= 7) {
+                    if (TotaliPaTVSH.Length == 7) {
+                        totalBuilder += "  " + tvshAll + "    ";
                     }
                     else
-                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "     " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                        totalBuilder += tvshAll + "   ";
                 }
-                else {
-                    if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 7) {
-                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "      " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "    " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
+                else if (tvshAll.ToString().Length >= 6) {
+                    if (TotaliPaTVSH.Length == 7) {
+                        totalBuilder += "  " + tvshAll + "    ";
                     }
-                    else if (lif.TotaliPaTVSH.ToString("0:F2").Length >= 5) {
-                        await _printer.printText("\n   S-VAT             20            " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "          " +
-                            String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "      " + String.Format("{0:0.00}", lif.CmimiTotal) + "\n");
-                    }
+                    else
+                        totalBuilder += tvshAll + "   ";
                 }
+                else if (tvshAll.ToString().Length >= 5) {
+                    totalBuilder += tvshAll + "     ";
+                }
+                totalBuilder += String.Format("{0:0.00}", lif.CmimiTotal) + "\n";
+                await _printer.printText(totalBuilder);
+
+
+
 
                 if (string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
                     await _printer.printText("\n");
@@ -1389,12 +1476,19 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\n");
 
                     await _printer.printLine(1, 1, 1, 1, 1);
+
+                    if (lif.PayType == "BANK") {
+                        await _printer.printText("\n");
+                        await _printer.printText("\n");
+
+                        await _printer.printText("                 Afati per pagese : " + DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy"));
+                    }
                     await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(lif.TCRQRCodeLink),
-                                300/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
-                                (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
-                                50,                                                 // brightness
-                                true,                                               // Image Dithering
-                                true);
+                            300/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                            (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                            50,                                                 // brightness
+                            true,                                               // Image Dithering
+                            true);
                     await _printer.printText("\n");
                     await _printer.printText("\n");
 

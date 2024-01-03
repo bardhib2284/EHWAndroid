@@ -1,5 +1,6 @@
 ﻿using Acr.UserDialogs;
 using EHW_M;
+using EHWM.DependencyInjections.FiskalizationExtraModels;
 using EHWM.Models;
 using EHWM.Services;
 using EHWM.Views;
@@ -34,6 +35,11 @@ namespace EHWM.ViewModel {
             set { SetProperty(ref _artikujt, value); }
         }
 
+        private ObservableCollection<LevizjetDetails> _LevizjetDetails;
+        public ObservableCollection<LevizjetDetails> LevizjetDetails {
+            get { return _LevizjetDetails; }
+            set { SetProperty(ref _LevizjetDetails, value); }
+        }
         private ObservableCollection<LevizjetHeader> _LevizjetHeader;
         public ObservableCollection<LevizjetHeader> LevizjetHeader {
             get { return _LevizjetHeader; }
@@ -219,7 +225,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Adresa: AA951IN            9923 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-
+                
                 await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
                 await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
                 await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data);
@@ -269,26 +275,29 @@ namespace EHWM.ViewModel {
                             builderToPrint += "\n" + art.IDArtikulli + "   " + art.Emri + "   "  + art.Seri +
 "\n                     ";
                             if (art.BUM == "COP") {
+                                builderToPrint += art.BUM + "     ";
+                            }
+                            else if(art.BUM == "PAKO") {
                                 builderToPrint += art.BUM + "    ";
                             }
-                            else {
-                                builderToPrint += art.BUM + "     ";
+                            else { 
+                                builderToPrint += art.BUM + "      ";
                             }
                             //SASIA
                             if (ld.Sasia >= 100) {
-                                builderToPrint += ld.Sasia + "      ";
+                                builderToPrint += ld.Sasia + "     ";
                             }
                             else if (ld.Sasia >= 10) {
-                                builderToPrint += ld.Sasia + "       ";
-                            }
-                            else if(ld.Sasia > 0 && ld.Sasia < 10) {
-                                builderToPrint += ld.Sasia + "        ";
-                            }
-                            else if (ld.Sasia < 100) {
                                 builderToPrint += ld.Sasia + "      ";
                             }
+                            else if(ld.Sasia > 0 && ld.Sasia < 10) {
+                                builderToPrint += ld.Sasia + "       ";
+                            }
+                            else if (ld.Sasia < 100) {
+                                builderToPrint += ld.Sasia + "     ";
+                            }
                             else{
-                                builderToPrint += ld.Sasia + "        ";
+                                builderToPrint += ld.Sasia + "       ";
                             }
 
                             //CMIMI
@@ -296,17 +305,17 @@ namespace EHWM.ViewModel {
                                 builderToPrint += ld.Cmimi + "     ";
                             }
                             else if(ld.Cmimi >=100) {
-                                builderToPrint += ld.Cmimi + "      ";
+                                builderToPrint += ld.Cmimi + "     ";
                             }
                             else {
                                 builderToPrint += ld.Cmimi + "       ";
                             }
 
                             //v.pa tvsh
-                            var vpaTvsh = Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
+                            var vpaTvsh = String.Format("{0:0.00}", Math.Round((decimal)(ld.Cmimi / 1.2m), 2));
                             if(vpaTvsh.ToString().Length >= 6) 
                             {
-                                builderToPrint += vpaTvsh + "   ";
+                                builderToPrint += vpaTvsh + "     ";
                             }
                             else if(vpaTvsh.ToString().Length >= 5) {
                                 builderToPrint += vpaTvsh + "    ";
@@ -324,28 +333,28 @@ namespace EHWM.ViewModel {
                                 builderToPrint += vpaTvsh + "          ";
                             }
 
-                            var tvsh = (decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2));
+                            var tvsh = String.Format("{0:0.00}", (decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2)));
 
                             //TVSH 
                             if (tvsh.ToString().Length >= 6) {
-                                builderToPrint += tvsh + "  ";
+                                builderToPrint += tvsh + " ";
                             }
                             else if (tvsh.ToString().Length >= 5) {
-                                builderToPrint += tvsh + "   ";
+                                builderToPrint += tvsh + " ";
                             }
                             else if (tvsh.ToString().Length >= 4) {
-                                builderToPrint += tvsh + "    ";
+                                builderToPrint += tvsh + "   ";
                             }
                             else if(tvsh.ToString().Length >= 3){
-                                builderToPrint += tvsh + "     ";
+                                builderToPrint += tvsh + "    ";
                             }
                             else if(tvsh.ToString().Length >= 2){
-                                builderToPrint += tvsh + "      ";
+                                builderToPrint += tvsh + "     ";
                             }
                             else
-                                builderToPrint += tvsh + "       ";
+                                builderToPrint += tvsh + "      ";
 
-                            builderToPrint += ld.Cmimi * ld.Sasia + "\n";
+                            builderToPrint += String.Format("{0:0.00}", ld.Cmimi * ld.Sasia) + "\n";
 
                             await _printer.printText(builderToPrint);
                             teGjithaSasit += (float)ld.Sasia;
@@ -379,29 +388,31 @@ namespace EHWM.ViewModel {
                 await _printer.printText("---------------------------------------------------------------------");
                 ;
                 builderToPrint = string.Empty;
-                builderToPrint += "\n                    Total   ";
+                builderToPrint += "\n                    Total    ";
 
 
                 if (teGjithaSasit.ToString().Length >= 3) {
-                    builderToPrint += teGjithaSasit + "      ";
+                    builderToPrint += teGjithaSasit + "     ";
                 }
                 else if (teGjithaSasit.ToString().Length >= 2) {
-                    builderToPrint += teGjithaSasit + "       ";
+                    builderToPrint += teGjithaSasit + "      ";
                 }
                 else if (teGjithaSasit.ToString().Length >= 1) {
-                    builderToPrint += teGjithaSasit + "        ";
+                    builderToPrint += teGjithaSasit + "       ";
                 }
 
                 if (teGjithaCmimetNjesi.ToString().Length >= 5) {
-                    builderToPrint += teGjithaCmimetNjesi + "    ";
+                    builderToPrint += teGjithaCmimetNjesi + "   ";
                 }
                 else if (teGjithaCmimetNjesi.ToString().Length >= 4) {
-                    builderToPrint += teGjithaCmimetNjesi + "     ";
+                    builderToPrint += teGjithaCmimetNjesi + "    ";
                 }
                 else if (teGjithaCmimetNjesi.ToString().Length >= 3) {
-                    builderToPrint += teGjithaCmimetNjesi + "      ";
+                    builderToPrint += teGjithaCmimetNjesi + "     ";
                 }
-                    var tegjithaCmimetTvsh = Math.Round((decimal)(teGjithaCmimetNjesi / 1.2f), 2);
+
+
+                var tegjithaCmimetTvsh = String.Format("{0:0.00}", Math.Round((decimal)(teGjithaCmimetNjesi / 1.2f), 2));
 
                 //vlera pa tvsh
                 if(tegjithaCmimetTvsh.ToString().Length >= 8) 
@@ -436,30 +447,30 @@ namespace EHWM.ViewModel {
                 {
                     builderToPrint += tegjithaCmimetTvsh + "          ";
                 }
-
-                if(vleraTVSH.ToString().Length >= 7) {
-                    builderToPrint += vleraTVSH + " " + "";
+                var vleraTVSHs = String.Format("{0:0.00}", vleraTVSH);
+                if (vleraTVSHs.ToString().Length >= 7) {
+                    builderToPrint += vleraTVSHs + " " + "";
                 }
-                else if(vleraTVSH.ToString().Length >= 6) {
-                    builderToPrint += vleraTVSH + "  " + "";
+                else if(vleraTVSHs.ToString().Length >= 6) {
+                    builderToPrint += vleraTVSHs + "  " + "";
                 }
-                else if(vleraTVSH.ToString().Length >= 5) {
-                    builderToPrint += vleraTVSH + "  " + " ";
+                else if(vleraTVSHs.ToString().Length >= 5) {
+                    builderToPrint += "  " + vleraTVSHs +  " ";
                 }
-                else if(vleraTVSH.ToString().Length >= 4) {
-                    builderToPrint += vleraTVSH + "  " + "  ";
+                else if(vleraTVSHs.ToString().Length >= 4) {
+                    builderToPrint += vleraTVSHs + "  " + "  ";
                 }
-                else if(vleraTVSH.ToString().Length >= 3) {
-                    builderToPrint += vleraTVSH + "  " + "   ";
+                else if(vleraTVSHs.ToString().Length >= 3) {
+                    builderToPrint += vleraTVSHs + "  " + "   ";
                 }
-                else if(vleraTVSH.ToString().Length >= 2) {
-                    builderToPrint += vleraTVSH + "  " + "    ";
+                else if(vleraTVSHs.ToString().Length >= 2) {
+                    builderToPrint += vleraTVSHs + "  " + "    ";
                 }
-                else if(vleraTVSH.ToString().Length >= 1) {
-                    builderToPrint += vleraTVSH + "  " + "    ";
+                else if(vleraTVSHs.ToString().Length >= 1) {
+                    builderToPrint += vleraTVSHs + "  " + "    ";
                 }
-
-                builderToPrint += teGjitheCmimetTotale;
+                var teGjitheCmimetTotales = String.Format("{0:0.00}", teGjitheCmimetTotale);
+                builderToPrint += teGjitheCmimetTotales;
 
                 await _printer.printText(builderToPrint);
                 await _printer.printText("\n");
@@ -517,13 +528,21 @@ namespace EHWM.ViewModel {
         public async Task ShtoLevizjenAsync() {
             LevizjetPage LevizjetPage = new LevizjetPage();
             LevizjetPage.BindingContext = this;
+            var ld = await App.Database.GetLevizjeDetailsAsync();
+            LevizjetDetails = new ObservableCollection<LevizjetDetails>(ld.ToList());
             await App.Instance.PushAsyncNewPage(LevizjetPage);
         }
         public async Task AddArtikulliAsync() {
+
+            
             if (SelectedArikujt == null) {
                 SelectedArikujt = new ObservableCollection<Artikulli>();
             }
             if (CurrentlySelectedArtikulli == null) return;
+            if (string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
+                UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
+                return;
+            }
             if (Sasia == 0)
                 return;
             if(Nga) {
@@ -596,6 +615,12 @@ namespace EHWM.ViewModel {
         }
         public async Task RegjistroLevizjenAsync() {
             try {
+                UserDialogs.Instance.ShowLoading("Duke perfunduar levizjen");
+                if(SelectedKlientet == null) {
+                    UserDialogs.Instance.Alert("Zgjedhni Depon para se te perfundoni levizjen", "Error", "Ok");
+                    UserDialogs.Instance.HideLoading();
+                    return;
+                }
                 var levizjet = await App.Database.GetLevizjetHeaderAsync();
                 if (levizjet.Count < 1) {
                     var levizjetApiResult = await App.ApiClient.GetAsync("levizje-header/" + Agjendi.DeviceID);
@@ -671,7 +696,7 @@ namespace EHWM.ViewModel {
                                     .Where(v => v.Depo == App.Instance.MainViewModel.LoginData.Depo)
                                     .OrderBy(v => v.LevizjeIDN)
                                     .FirstOrDefault();
-                topLevizjeIDN.IDN = topLevizjeIDN.IDN + 1;
+                topLevizjeIDN.LevizjeIDN = topLevizjeIDN.LevizjeIDN + 1;
                 //TODO : FIX FISKALIZIMI KONFIGURIMET FROM API
                 var query = from a in agjendet
                             join d in depot on a.Depo equals d.Depo
@@ -706,7 +731,7 @@ namespace EHWM.ViewModel {
                     Longitude = geoLocation.Longitude.ToString(),
                     Message = "Levizja ka perfunduar",
                     NumriDaljes = "0",
-                    NumriFisk = topLevizjeIDN.IDN,
+                    NumriFisk = topLevizjeIDN.LevizjeIDN,
                     SyncStatus = 0,
                     TCR = Agjendi.TCRCode,
                     TCRBusinessUnitCode = query.FirstOrDefault().BusinessUnitCode,
@@ -744,15 +769,252 @@ namespace EHWM.ViewModel {
                 SelectedArikujt = null;
                 TotalPrice = 0;
                 await App.Database.UpdateNumriFiskalAsync(topLevizjeIDN);
+                if(Nga) {
+                    await RegisterTCRWTN(levizjaHeader.NumriLevizjes);
+                }
                 UserDialogs.Instance.Alert("Levizja u regjistrua me sukses");
                 await App.Instance.PopPageAsync();
-
+                UserDialogs.Instance.HideLoading();
             }
             catch (Exception e) {
+                UserDialogs.Instance.HideLoading();
                 UserDialogs.Instance.Alert("Levizja nuk u regjistrua me sukses errori : " + e.Message + " stack trace : " + e.StackTrace);
             }
-            
+            UserDialogs.Instance.HideLoading();
+
         }
+
+
+        public async Task RegisterTCRWTN(string nrLevizjes) {
+            var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+            var depot = await App.Database.GetDepotAsync();
+            var result = from lh in levizjetHeader
+                         join d_ne in depot on lh.LevizjeNe equals d_ne.Depo
+                         join d_nga in depot on lh.LevizjeNga equals d_nga.Depo
+                         where (lh.TCRSyncStatus == null || lh.TCRSyncStatus == 0)
+                               && lh.NumriLevizjes == nrLevizjes
+                               && lh.LevizjeNga.Trim() == Agjendi.IDAgjenti
+                         orderby lh.Data descending
+                         select new EHWM.Models.WTNModels.MapperHeader
+                         {
+                             Numri_Levizjes = lh.NumriLevizjes,
+                             InvOrdNum = (int)lh.NumriFisk,
+                             InvNum = lh.NumriFisk + "/" + DateTime.Now.Year,
+                             ValueOfGoods = Math.Round((decimal)lh.Totali, 2),
+                             FromDevice = d_nga.TAGNR,
+                             ToDevice = d_ne.TAGNR,
+                             ImpStatus = (int)lh.ImpStatus
+                         };
+
+
+            List<EHWM.Models.WTNModels.MapperHeader> mapperHeaderList = result.ToList();
+            var levizjetDetails = await App.Database.GetLevizjeDetailsAsync();
+            var query = from h in levizjetHeader
+                        join l in levizjetDetails on h.NumriLevizjes equals l.NumriLevizjes
+                        where (h.TCRSyncStatus == null || h.TCRSyncStatus == 0)
+                              && h.NumriLevizjes == nrLevizjes
+                              && h.LevizjeNga.Trim() == Agjendi.IDAgjenti
+                              && Math.Round((decimal)l.Sasia, 2) >= 0.1m
+                        select new EHWM.Models.WTNModels.MapperLines
+                        {
+                            Numri_Levizjes = h.NumriLevizjes,
+                            DeviceID = h.Depo,
+                            OperatorCode = "OperatorCode",
+                            InvOrdNum = (int)h.NumriFisk,
+                            InvNum = h.NumriFisk + "/" + DateTime.Now.Year,
+                            SendDatetime = (DateTime)h.Data,
+                            ValueOfGoods = Math.Round((decimal)h.Totali, 2),
+                            StartPointSType = "SALE",
+                            DestinPointSType = "SALE",
+                            Item_N = l.Artikulli,
+                            Item_C = l.IDArtikulli,
+                            Item_U = l.Njesia_matese,
+                            Item_Q = Math.Round((decimal)l.Sasia, 2),
+                            MobileRefId = "M-06"
+                        };
+
+            List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
+
+            if (mapperHeaderList.Count > 0) {
+
+
+                List<TCRLevizjetPCL> invoiceObject = Models.WTNModels.ClassMapper.MapHeadersAndLines(mapperHeaderList, mapperLinesList);
+                foreach (TCRLevizjetPCL inv in invoiceObject) {
+                    RegisterWTNInputRequestPCL req = new RegisterWTNInputRequestPCL();
+
+                    req.TransferItems = inv.Items.ToList();
+                    req.InvOrdNum = inv.InvOrdNum.ToString();
+                    req.InvNum = inv.InvNum.ToString();
+                    req.DeviceID = inv.DeviceID;
+                    req.MobileRefId = inv.InvOrdNum.ToString();
+                    req.OperatorCode = Agjendi.OperatorCode;
+                    req.TCRCode = Agjendi.TCRCode;
+                    req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                    req.SendDatetime = inv.SendDatetime;
+                    req.SubseqDelivTypeSType = -1; //ONLINE
+                    req.ValueOfGoods = (decimal)inv.ValueOfGoods;
+
+                    req.DestinPointSType = inv.DestinPointSType;
+                    req.DestinPointSTypeSpecified = true;
+                    req.StartPointSType = inv.StartPointSType;
+                    req.StartPointSTypeSpecified = true;
+                    req.FromDeviceId = inv.FromDevice;
+                    req.ToDeviceId = inv.ToDevice;
+
+                    ResultLogPCL log = App.Instance.FiskalizationService.RegisterWTN(req);
+                    if (log == null) {
+                        var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                        if (levizjaHeader != null) {
+                            levizjaHeader.TCRSyncStatus = -1;
+                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRQRCodeLink = null;
+                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                            levizjaHeader.UUID = null;
+                            levizjaHeader.TCRNSLFSH = null;
+                            levizjaHeader.TCRNIVFSH = null;
+                            levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                        }
+
+                        var levizjetDetailsToUpdate = levizjetDetails
+                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                    .ToList();
+
+                        foreach (var detail in levizjetDetailsToUpdate) {
+                            detail.TCRSyncStatus = -1;
+                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                        }
+                        return;
+                    }
+                    if (log.Status == StatusPCL.Ok) {
+                        var levizjaHeader = levizjetHeader
+                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                        if (levizjaHeader != null) {
+                            levizjaHeader.TCRSyncStatus = 1;
+                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                            levizjaHeader.UUID = log.ResponseUUIDSH;
+                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                            levizjaHeader.Message = log.Message.Replace("'", "");
+
+                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                        }
+
+                        var levizjetDetailsToUpdate = levizjetDetails
+                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                    .ToList();
+
+                        foreach (var detail in levizjetDetailsToUpdate) {
+                            detail.TCRSyncStatus = 1;
+                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                        }
+                    }
+                    else if (log.Status == StatusPCL.FaultCode) {
+                        try {
+                            if (String.IsNullOrEmpty(log.Message)) {
+                                var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                if (levizjaHeader != null) {
+                                    levizjaHeader.TCRSyncStatus = -1;
+                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                    levizjaHeader.TCR = Agjendi.TCRCode;
+                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                    levizjaHeader.UUID = log.ResponseUUIDSH;
+                                    levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                    levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                    levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                                    await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                }
+
+                                var levizjetDetailsToUpdate = levizjetDetails
+                                            .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                            .ToList();
+
+                                foreach (var detail in levizjetDetailsToUpdate) {
+                                    detail.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                }
+                            }
+                            else {
+                                var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                if (levizjaHeader != null) {
+                                    levizjaHeader.TCRSyncStatus = -1;
+                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                    levizjaHeader.TCR = Agjendi.TCRCode;
+                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                    levizjaHeader.UUID = log.ResponseUUIDSH;
+                                    levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                    levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                    levizjaHeader.Message = log.Message.Replace("'", "");
+
+                                    await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                }
+
+                                var levizjetDetailsToUpdate = levizjetDetails
+                                            .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                            .ToList();
+
+                                foreach (var detail in levizjetDetailsToUpdate) {
+                                    detail.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                }
+                            }
+                        }
+                        catch (Exception ex) {
+                        }
+                    }
+                    else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
+                        var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                        if (levizjaHeader != null) {
+                            levizjaHeader.TCRSyncStatus = 4;
+                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                            levizjaHeader.UUID = log.ResponseUUIDSH;
+                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                            levizjaHeader.Message = log.Message.Replace("'", "");
+
+                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                        }
+
+                        var levizjetDetailsToUpdate = levizjetDetails
+                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                    .ToList();
+
+                        foreach (var detail in levizjetDetailsToUpdate) {
+                            detail.TCRSyncStatus = 4;
+                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                        }
+                    }
+                }
+
+            }
+
+        }
+
 
         public void FshijArtikullinAsync() {
             SelectedArikujt.Remove(CurrentlySelectedArtikulli);

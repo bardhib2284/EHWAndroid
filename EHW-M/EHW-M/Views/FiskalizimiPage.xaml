@@ -33,6 +33,29 @@
                 </Frame>
             </StackLayout>
 
+            <StackLayout x:Name="LevizjetStackList">
+                <Frame>
+                    <StackLayout>
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                            <Label Text="Numri Levizjes" HorizontalOptions="FillAndExpand"/>
+                            <Label Text="Mesazhi" HorizontalOptions="FillAndExpand"/>
+                        </StackLayout>
+
+                        <ListView ItemsSource="{Binding LevizjetList}" ItemTapped="ListView_ItemTapped">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Orientation="Horizontal">
+                                            <Label Text="{Binding NumriLevizjes}" WidthRequest="150" VerticalOptions="Center" VerticalTextAlignment="Center" TextColor="Black" HorizontalOptions="FillAndExpand"/>
+                                            <Label Text="{Binding Message}" HorizontalOptions="FillAndExpand" />
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
             <StackLayout x:Name="CashRegisterStackList">
                 <Frame>
                     <StackLayout>

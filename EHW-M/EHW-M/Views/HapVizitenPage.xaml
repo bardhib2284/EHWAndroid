@@ -18,7 +18,7 @@
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Data dhe koha : " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
-                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.DataPlanifikimit,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
+                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.DataPlanifikimit,StringFormat='{}{0:dd-MM-yyyy}',Mode=OneWay}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
                 </StackLayout>
                 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
@@ -28,7 +28,7 @@
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Statusi i ri: " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
-                    <Picker x:Name="statusiVizites" SelectedItem="{Binding SelectedVizita.IDStatusiVizites,Converter={StaticResource VizitaStatusToInt},Mode=TwoWay}"  TextColor="Black" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170" ItemDisplayBinding="{Binding Gjendja}" />
+                    <Picker x:Name="statusiVizites" SelectedItem="{Binding SelectedVizita.IDStatusiVizites,Converter={StaticResource VizitaStatusToInt},Mode=TwoWay}"  TextColor="Black" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" SelectedIndex="{Binding SelectedVizita.IDStatusiVizites}" WidthRequest="170" ItemDisplayBinding="{Binding Gjendja}" />
                 </StackLayout>
             </StackLayout>
 

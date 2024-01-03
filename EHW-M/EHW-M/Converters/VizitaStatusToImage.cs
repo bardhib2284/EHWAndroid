@@ -9,19 +9,16 @@ using Xamarin.Forms;
 namespace EHWM.Converters {
     public class VizitaStatusToImage : IValueConverter {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            if((string)value == "2") {
+            if((string)value == "1") {
                 return ImageSource.FromFile("inProgressTick.png");
             }
-            if((string)value == "0") {
-                return ImageSource.FromFile("inProgressTick.png");
-            }
-            if ((string)value == "1" ) {
+            if ((string)value == "0" ) {
                 return ImageSource.FromFile("notStartedIcon.png");
             }
             if ((string)value == "6" ) {
                 return ImageSource.FromFile("tickIcon.png");
             }
-            return ImageSource.FromFile("notStartedIcon.png");
+            return ImageSource.FromFile("tickIcon.png");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {

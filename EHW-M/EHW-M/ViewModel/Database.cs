@@ -105,6 +105,9 @@ namespace EHWM.ViewModel
             return await _database.DeleteAllAsync<Konfigurimi>();
         }     
         
+        public async Task<int> ClearAllSalesPrice() {
+            return await _database.DeleteAllAsync<SalesPrice>();
+        } 
         public async Task<int> ClearAllStoqetAsync() {
             return await _database.DeleteAllAsync<Stoqet>();
         }     
@@ -804,7 +807,11 @@ namespace EHWM.ViewModel
 
         public async Task<int> SaveVizitatAsync(List<Vizita> Vizita) {
             try {
-                return await _database.InsertAllAsync(Vizita);
+                int ind = 0;
+                foreach(var viz in Vizita) {
+                    ind += await _database.InsertOrReplaceAsync(viz);
+                }
+                return ind;
 
             }
             catch (Exception e) {

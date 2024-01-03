@@ -14,9 +14,8 @@ namespace EHWM.Views {
     public partial class FiskalizimiPage : ContentPage {
         public FiskalizimiPage() {
             InitializeComponent();
-            pickerItemSource.ItemsSource = new List<string> { "REGJISTRIMI I ARKES", "SHITJET" };
+            pickerItemSource.ItemsSource = new List<string> { "REGJISTRIMI I ARKES", "SHITJET" ,"LEVIZJET"};
             pickerItemSource.SelectedIndexChanged += PickerItemSource_SelectedIndexChanged;
-
         }
 
         private void PickerItemSource_SelectedIndexChanged(object sender, EventArgs e) {
@@ -25,13 +24,21 @@ namespace EHWM.Views {
             if (pickerItemSource.SelectedIndex == 0) {
                 ShitjetStackList.IsVisible = false;
                 CashRegisterStackList.IsVisible = true;
+                LevizjetStackList.IsVisible = false;
                 bc.SelectedIndex = 0;
             }
 
             if (pickerItemSource.SelectedIndex == 1) {
                 ShitjetStackList.IsVisible = true;
                 CashRegisterStackList.IsVisible = false;
+                LevizjetStackList.IsVisible = false;
                 bc.SelectedIndex = 1;
+            }
+            if (pickerItemSource.SelectedIndex == 2) {
+                ShitjetStackList.IsVisible = false;
+                CashRegisterStackList.IsVisible = false;
+                LevizjetStackList.IsVisible = true;
+                bc.SelectedIndex = 2;
             }
         }
 
@@ -43,6 +50,9 @@ namespace EHWM.Views {
             }
             else if(e.Item is CashRegister cr) {
                 bc.SelectedCashRegister = cr;
+            }
+            else if(e.Item is LevizjetHeader lh) {
+                bc.SelectedLevizja = lh;
             }
         }
     }

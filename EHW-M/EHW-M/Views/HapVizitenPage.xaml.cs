@@ -18,8 +18,6 @@ namespace EHWM.Views {
 
         protected override void OnAppearing() {
             base.OnAppearing();
-            statusiVizites.SelectedIndex = 1;
-
         }
     }
 }

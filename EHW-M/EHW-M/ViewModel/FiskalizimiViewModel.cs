@@ -40,9 +40,10 @@ namespace EHWM.ViewModel {
             set { SetProperty(ref _levizjet, value); }
         }
 
-
+        public Agjendet Agjendi { get; set; }
         public CashRegister SelectedCashRegister { get; set; }
         public Liferimi SelectedLiferimi { get; set; }
+        public LevizjetHeader SelectedLevizja { get; set; }
         public int SelectedIndex { get; set; }
         public ICommand FiskalizoItemEZgjedhurCommand { get; set; }
         public FiskalizimiViewModel(FiskalizimiViewModelNavigationParams fiskalizimiViewModelNavigationParams) {
@@ -51,7 +52,7 @@ namespace EHWM.ViewModel {
                 CashRegisterList = new ObservableCollection<CashRegister>(fiskalizimiViewModelNavigationParams.CashRegisters);
                 LevizjetList = new ObservableCollection<LevizjetHeader>(fiskalizimiViewModelNavigationParams.Levizjet);
             }
-
+            Agjendi = App.Instance.MainViewModel.LoginData;
             FiskalizoItemEZgjedhurCommand = new Command(async () => await FiskalizoItemEZgjedhurAsync());
 
         }
@@ -63,6 +64,10 @@ namespace EHWM.ViewModel {
             if(SelectedIndex == 0) {
                 if (SelectedCashRegister == null) {
                     UserDialogs.Instance.Alert("Nuk ka element te selektuar per te fiskalizuar, ju lutem selektoni njerin nga elementet ne liste", "Verejtje");
+                    return;
+                }
+                if (SelectedCashRegister.TCRSyncStatus == 1) {
+                    UserDialogs.Instance.Alert("Cash register eshte e fiskalizuar, ju lutem provoni levizje tjeter", "Verejtje");
                     return;
                 }
                 RegisterCashDepositInputRequestPCL registerCashDepositInputRequestPCL = new RegisterCashDepositInputRequestPCL
@@ -97,8 +102,26 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert("Nuk ka element te selektuar per te fiskalizuar, ju lutem selektoni njerin nga elementet ne liste", "Verejtje");
                     return;
                 }
+                if (SelectedLiferimi.TCRSyncStatus == 1) {
+                    UserDialogs.Instance.Alert("Fatura eshte e fiskalizuar, ju lutem provoni levizje tjeter", "Verejtje");
+                    return;
+                }
                 UserDialogs.Instance.ShowLoading("Filloi procesi i fiskalizimit");
                 await FiskalizoTCRInvoice(SelectedLiferimi.IDLiferimi.ToString());
+                UserDialogs.Instance.Alert("Procesi mbaroi");
+                UserDialogs.Instance.HideLoading();
+            }
+            else if(SelectedIndex == 2) {
+                if (SelectedLevizja == null) {
+                    UserDialogs.Instance.Alert("Nuk ka element te selektuar per te fiskalizuar, ju lutem selektoni njerin nga elementet ne liste", "Verejtje");
+                    return;
+                }
+                if(SelectedLevizja.TCRSyncStatus == 1) {
+                    UserDialogs.Instance.Alert("Levizja eshte e fiskalizuar, ju lutem provoni levizje tjeter", "Verejtje");
+                    return;
+                }
+                UserDialogs.Instance.ShowLoading("Filloi procesi i fiskalizimit");
+                await RegisterTCRWTN(SelectedLevizja.NumriLevizjes);
                 UserDialogs.Instance.Alert("Procesi mbaroi");
                 UserDialogs.Instance.HideLoading();
             }
@@ -339,7 +362,7 @@ namespace EHWM.ViewModel {
                                 }
                             }
                         }
-                        if (log.Status == StatusPCL.TCRAlreadyRegistered) {
+                        else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
                             liferimet = await App.Database.GetLiferimetAsync();
                             liferimetArt = await App.Database.GetLiferimetArtAsync();
                             var liferimiToUpdate = liferimet
@@ -438,6 +461,235 @@ namespace EHWM.ViewModel {
             }
         }
 
+        public async Task RegisterTCRWTN(string nrLevizjes) {
+            var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+            var depot = await App.Database.GetDepotAsync();
+            var result = from lh in levizjetHeader
+                         join d_ne in depot on lh.LevizjeNe equals d_ne.Depo
+                         join d_nga in depot on lh.LevizjeNga equals d_nga.Depo
+                         where (lh.TCRSyncStatus == null || lh.TCRSyncStatus == 0)
+                               && lh.NumriLevizjes == nrLevizjes
+                               && lh.LevizjeNga.Trim() == Agjendi.IDAgjenti
+                         orderby lh.Data descending
+                         select new EHWM.Models.WTNModels.MapperHeader
+                         {
+                             Numri_Levizjes = lh.NumriLevizjes,
+                             InvOrdNum = (int)lh.NumriFisk,
+                             InvNum = lh.NumriFisk + "/" + DateTime.Now.Year,
+                             ValueOfGoods = Math.Round((decimal)lh.Totali, 2),
+                             FromDevice = d_nga.TAGNR,
+                             ToDevice = d_ne.TAGNR,
+                             ImpStatus = (int)lh.ImpStatus
+                         };
+
+
+            List<EHWM.Models.WTNModels.MapperHeader> mapperHeaderList = result.ToList();
+            var levizjetDetails = await App.Database.GetLevizjeDetailsAsync();
+            var query = from h in levizjetHeader
+                        join l in levizjetDetails on h.NumriLevizjes equals l.NumriLevizjes
+                        where (h.TCRSyncStatus == null || h.TCRSyncStatus == 0)
+                              && h.NumriLevizjes == nrLevizjes
+                              && h.LevizjeNga.Trim() == Agjendi.IDAgjenti
+                              && Math.Round((decimal)l.Sasia, 2) >= 0.1m
+                        select new EHWM.Models.WTNModels.MapperLines
+                        {
+                            Numri_Levizjes = h.NumriLevizjes,
+                            DeviceID = h.Depo,
+                            OperatorCode = "OperatorCode",
+                            InvOrdNum = (int)h.NumriFisk,
+                            InvNum = h.NumriFisk + "/" + DateTime.Now.Year,
+                            SendDatetime = (DateTime)h.Data,
+                            ValueOfGoods = Math.Round((decimal)h.Totali, 2),
+                            StartPointSType = "SALE",
+                            DestinPointSType = "SALE",
+                            Item_N = l.Artikulli,
+                            Item_C = l.IDArtikulli,
+                            Item_U = l.Njesia_matese,
+                            Item_Q = Math.Round((decimal)l.Sasia, 2),
+                            MobileRefId = "M-06"
+                        };
+
+            List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
+
+            if (mapperHeaderList.Count > 0) {
+
+
+                List<TCRLevizjetPCL> invoiceObject = Models.WTNModels.ClassMapper.MapHeadersAndLines(mapperHeaderList, mapperLinesList);
+                foreach (TCRLevizjetPCL inv in invoiceObject) {
+                    RegisterWTNInputRequestPCL req = new RegisterWTNInputRequestPCL();
+
+                    req.TransferItems = inv.Items.ToList();
+                    req.InvOrdNum = inv.InvOrdNum.ToString();
+                    req.InvNum = inv.InvNum.ToString();
+                    req.DeviceID = inv.DeviceID;
+                    req.MobileRefId = inv.InvOrdNum.ToString();
+                    req.OperatorCode = Agjendi.OperatorCode;
+                    req.TCRCode = Agjendi.TCRCode;
+                    req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                    req.SendDatetime = inv.SendDatetime;
+                    req.SubseqDelivTypeSType = -1; //ONLINE
+                    req.ValueOfGoods = (decimal)inv.ValueOfGoods;
+
+                    req.DestinPointSType = inv.DestinPointSType;
+                    req.DestinPointSTypeSpecified = true;
+                    req.StartPointSType = inv.StartPointSType;
+                    req.StartPointSTypeSpecified = true;
+                    req.FromDeviceId = inv.FromDevice;
+                    req.ToDeviceId = inv.ToDevice;
+
+                    ResultLogPCL log = App.Instance.FiskalizationService.RegisterWTN(req);
+                    if (log == null) {
+                        var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                        if (levizjaHeader != null) {
+                            levizjaHeader.TCRSyncStatus = -1;
+                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRQRCodeLink = null;
+                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                            levizjaHeader.UUID = null;
+                            levizjaHeader.TCRNSLFSH = null;
+                            levizjaHeader.TCRNIVFSH = null;
+                            levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                        }
+
+                        var levizjetDetailsToUpdate = levizjetDetails
+                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                    .ToList();
+
+                        foreach (var detail in levizjetDetailsToUpdate) {
+                            detail.TCRSyncStatus = -1;
+                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                        }
+                        return;
+                    }
+                    if (log.Status == StatusPCL.Ok) {
+                        var levizjaHeader = levizjetHeader
+                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                        if (levizjaHeader != null) {
+                            levizjaHeader.TCRSyncStatus = 1;
+                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                            levizjaHeader.UUID = log.ResponseUUIDSH;
+                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                            levizjaHeader.Message = log.Message.Replace("'", "");
+
+                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                        }
+
+                        var levizjetDetailsToUpdate = levizjetDetails
+                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                    .ToList();
+
+                        foreach (var detail in levizjetDetailsToUpdate) {
+                            detail.TCRSyncStatus = 1;
+                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                        }
+                    }
+                    else if (log.Status == StatusPCL.FaultCode) {
+                        try {
+                            if (String.IsNullOrEmpty(log.Message)) {
+                                var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                if (levizjaHeader != null) {
+                                    levizjaHeader.TCRSyncStatus = -1;
+                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                    levizjaHeader.TCR = Agjendi.TCRCode;
+                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                    levizjaHeader.UUID = log.ResponseUUIDSH;
+                                    levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                    levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                    levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                                    await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                }
+
+                                var levizjetDetailsToUpdate = levizjetDetails
+                                            .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                            .ToList();
+
+                                foreach (var detail in levizjetDetailsToUpdate) {
+                                    detail.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                }
+                            }
+                            else {
+                                var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                if (levizjaHeader != null) {
+                                    levizjaHeader.TCRSyncStatus = -1;
+                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                    levizjaHeader.TCR = Agjendi.TCRCode;
+                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                    levizjaHeader.UUID = log.ResponseUUIDSH;
+                                    levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                    levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                    levizjaHeader.Message = log.Message.Replace("'", "");
+
+                                    await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                }
+
+                                var levizjetDetailsToUpdate = levizjetDetails
+                                            .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                            .ToList();
+
+                                foreach (var detail in levizjetDetailsToUpdate) {
+                                    detail.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                }
+                            }
+                        }
+                        catch (Exception ex) {
+                        }
+                    }
+                    else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
+                        var levizjaHeader = levizjetHeader
+                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                        if (levizjaHeader != null) {
+                            levizjaHeader.TCRSyncStatus = 4;
+                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                            levizjaHeader.UUID = log.ResponseUUIDSH;
+                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                            levizjaHeader.Message = log.Message.Replace("'", "");
+
+                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                        }
+
+                        var levizjetDetailsToUpdate = levizjetDetails
+                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                    .ToList();
+
+                        foreach (var detail in levizjetDetailsToUpdate) {
+                            detail.TCRSyncStatus = 4;
+                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                        }
+                    }
+                }
+
+            }
+
+        }
 
     }
 }

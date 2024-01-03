@@ -414,7 +414,7 @@ namespace EHWM.ViewModel {
                             MobileRefId = "M-06"
                         };
 
-            List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
+            List<Models.WTNModels.MapperLines> mapperLinesList = query.Distinct().ToList();
 
             if (mapperHeaderList.Count > 0) {
 
@@ -828,7 +828,7 @@ namespace EHWM.ViewModel {
                             }
                         }
                     }
-                    if (log.Status == StatusPCL.TCRAlreadyRegistered) {
+                    else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
                         var liferimet = await App.Database.GetLiferimetAsync();
                         var liferimetArt = await App.Database.GetLiferimetArtAsync();
                         var liferimiToUpdate = liferimet
@@ -1196,13 +1196,6 @@ namespace EHWM.ViewModel {
                                                         break;
                                                     }
                                                 case "LEVIZJET_DETAILS": {
-                                                        var levizjetHeader = await App.Database.GetLevizjeDetailsAsync();
-                                                        var levizjetHeaderJson = JsonConvert.SerializeObject(levizjetHeader);
-                                                        var stringContent = new StringContent(levizjetHeaderJson, Encoding.UTF8, "application/json");
-                                                        var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
-                                                        if (!result.IsSuccessStatusCode) {
-                                                            SyncSuccesful = false;
-                                                        }
                                                         await App.Database.ClearAllLevizjetDetailsAsync();
                                                         break;
                                                     }
@@ -2184,10 +2177,10 @@ namespace EHWM.ViewModel {
                                         if (vizitatWithDeviceIdResponse.IsSuccessStatusCode) {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<Vizita>>(vizitatWithDeviceIdResult);
                                             var currentVizitat = await App.Database.GetVizitatAsync();
+                                            var res = await App.Database.ClearAllVizitat();
                                             currentVizitat = await App.Database.GetVizitatAsync();
                                             foreach(var viz in listOfClientsWithDepo) {
                                                 viz.IDStatusiVizites = "0";
-                                                viz.SyncStatus = 1;
                                             }
                                             var saved = await App.Database.SaveVizitatAsync(listOfClientsWithDepo);
 
@@ -2689,6 +2682,8 @@ namespace EHWM.ViewModel {
 
                             //SALESPRICE
                             if(tableName == "SalesPrice") {
+                                var clear = await App.Database.ClearAllSalesPrice();
+
                                 var klientetDheLokacionet = await App.Database.GetKlientetDheLokacionetAsync();
                                 var salesPrices = new List<SalesPrice>();
                                 foreach (var klient in klientetDheLokacionet) {
@@ -3215,11 +3210,8 @@ namespace EHWM.ViewModel {
         private async Task UpdateStatusFieldsMalli_Mbetur(List<Malli_Mbetur> tables) {
             int index = 0;
             foreach (var table in tables) {
-                if(table.Depo == "M06" && table.IDArtikulli == "A3054") {
-
-                }
                 table.SyncStatus = 1;
-                await App.Database.SaveMalliMbeturAsync(table);
+                await App.Database.UpdateMalliMbeturAsync(table);
                 index++;
             }
         }
@@ -3283,7 +3275,7 @@ namespace EHWM.ViewModel {
             int index = 0;
             foreach (var table in tables) {
                 table.SyncStatus = 1;
-                await App.Database.SaveLevizjeDetailsAsync(table);
+                await App.Database.UpdateLevizjeDetailsAsync(table);
                 index++;
             }
         }
@@ -3305,7 +3297,7 @@ namespace EHWM.ViewModel {
                 if (levizjeDetail.NumriLevizjes == null) {
                     levizjeDetail.NumriLevizjes = "1";
                 }
-                await App.Database.SaveLevizjeDetailsAsync(levizjeDetail);
+                await App.Database.UpdateLevizjeDetailsAsync(levizjeDetail);
             }
             var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
             var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
@@ -3316,7 +3308,7 @@ namespace EHWM.ViewModel {
             }
             foreach (var porosia in OrderDetails) {
                 porosia.SyncStatus = 0;
-                await App.Database.SaveLevizjeDetailsAsync(porosia);
+                await App.Database.UpdateLevizjeDetailsAsync(porosia);
             }
             return false;
         }       
@@ -3350,6 +3342,7 @@ namespace EHWM.ViewModel {
         private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
             foreach(var mall in OrderDetasails) {
                 mall.Data = DateTime.Now;
+                mall.Export_Status = 0;
             }
             var OrderDetailsJson = JsonConvert.SerializeObject(OrderDetasails);
             var stringContent = new StringContent(OrderDetailsJson, Encoding.UTF8, "application/json");

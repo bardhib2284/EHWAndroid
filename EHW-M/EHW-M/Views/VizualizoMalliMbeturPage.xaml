@@ -61,17 +61,18 @@
                 </ListView>
 
                 <BoxView HeightRequest="1" WidthRequest="1000" BackgroundColor="Black"/>
-                <StackLayout VerticalOptions="End" Orientation="Horizontal" HeightRequest="40" HorizontalOptions="Center">
-                    <Label Text="{Binding PranuarAll}"/>
-                    <BoxView />
-                    <Label Text="{Binding ShiturAll}"/>
-                    <BoxView />
-                    <Label Text="{Binding KthyerAll}"/>
-                    <BoxView />
-                    <Label Text="{Binding LevizjeAll}"/>
-                    <BoxView />
-                    <Label Text="{Binding MbetjaAll}"/>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <StackLayout WidthRequest="100" HorizontalOptions="Start"></StackLayout>
+                    <StackLayout VerticalOptions="Center" Spacing="28" Orientation="Horizontal" HeightRequest="40" HorizontalOptions="FillAndExpand">
+                        <Label Text="{Binding PranuarAll}" HorizontalOptions="FillAndExpand"/>
+                        <Label Text="{Binding ShiturAll}" HorizontalOptions="FillAndExpand"/>
+                        <Label Text="{Binding KthyerAll}" HorizontalOptions="FillAndExpand"/>
+                        <Label Text="{Binding LevizjeAll}" HorizontalOptions="FillAndExpand"/>
+                        <Label Text="{Binding MbetjaAll}" HorizontalOptions="FillAndExpand"/>
+                    </StackLayout>
+                    <StackLayout WidthRequest="50" HorizontalOptions="Start"></StackLayout>
                 </StackLayout>
+
             </StackLayout>
 
             <StackLayout Orientation="Horizontal">
