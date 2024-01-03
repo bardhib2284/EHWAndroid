@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.VizualizoPorosinePage" Title="Vizualizimi i porosise">
+    <ContentPage.Content>
+        <StackLayout >
+            <StackLayout Padding="10" Orientation="Horizontal" BackgroundColor="LightBlue">
+                <Label Text="Shifra" WidthRequest="50" HorizontalOptions="FillAndExpand"/>
+                <Label Text="Artikulli" WidthRequest="165" HorizontalOptions="FillAndExpand"/>
+                <Label Text="Sasia" HorizontalOptions="FillAndExpand"/>
+                <Label Text="Njesia" HorizontalOptions="FillAndExpand"/>
+            </StackLayout>
+
+            <ListView ItemsSource="{Binding Artikujt}" SelectionMode="None"> 
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal" Padding="10">
+                                <Label Text="{Binding IDArtikulli}" WidthRequest="30" HorizontalOptions="FillAndExpand"/>
+                                <Label Text="{Binding Emri}" WidthRequest="165" HorizontalOptions="FillAndExpand"/>
+                                <Label Text="{Binding Sasia}" HorizontalOptions="FillAndExpand"/>
+                                <Label Text="{Binding BUM}" HorizontalOptions="FillAndExpand"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

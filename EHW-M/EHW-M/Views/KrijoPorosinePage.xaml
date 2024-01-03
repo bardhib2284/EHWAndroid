@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.KrijoPorosinePage" Title="Krijo Porosine">
+    <ContentPage.Content>
+        <StackLayout Padding="10">
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                <Label Text="Nr.Porosise" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
+                <Label Text="{Binding NrPorosise}" HorizontalOptions="EndAndExpand" VerticalOptions="Center"/>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                <Label Text="Klienti" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
+                <Picker ItemsSource="{Binding Klientet}" SelectedItem="{Binding SelectedKlient}" WidthRequest="250" ItemDisplayBinding="{Binding Emri}" HorizontalOptions="EndAndExpand"/>
+            </StackLayout>
+
+            <StackLayout>
+                <Button Text="Zgjedh Artikullin" Margin="0,10" Command="{Binding ZgjedhArtikullinCommand}" WidthRequest="150" VerticalOptions="CenterAndExpand" HorizontalOptions="Center"/>
+                <StackLayout Orientation="Horizontal" Margin="0,0,0,0">
+                    <Label Text="Artikulli"/>
+                    <Label Text="{Binding CurrentlySelectedArtikulli.Emri}"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Porosi" VerticalOptions="Center"/>
+                    <Image Source="https://cdn.icon-icons.com/icons2/1919/PNG/512/minussigncircularbutton_122018.png" WidthRequest="20" HeightRequest="20" >
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding DecreaseSasiaCommand}"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Entry Text="{Binding Sasia}" Keyboard="Numeric" WidthRequest="90" HorizontalTextAlignment="Center"/>
+                    <Image Source="https://cdn-icons-png.flaticon.com/512/16/16057.png" WidthRequest="20" HeightRequest="20" >
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding IncreaseSasiaCommand}"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Button Margin="0,0,0,5" Text="Shto" BackgroundColor="Transparent" BorderColor="Black" BorderWidth="1" HorizontalOptions="EndAndExpand" Command="{Binding AddArtikulliCommand}"/>
+                </StackLayout>
+            </StackLayout>
+            <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue">
+                <Grid HeightRequest="50" Padding="0" ColumnSpacing="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="6*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackLayout Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalOptions="Start">
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Text="Shifra" />
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="0,0,0,0" VerticalTextAlignment="Center" Text="Emri" />
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Start" HorizontalOptions="Center" VerticalTextAlignment="Center" Text="Sasi" />
+                    </StackLayout>
+                </Grid>
+            </Frame>
+
+            <Frame Padding="5" BorderColor="Black">
+                <StackLayout>
+                    <ListView x:Name="testList" ItemsSource="{Binding SelectedArikujt}" CachingStrategy="RetainElement" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center">
+                                        <Label Text="{Binding IDArtikulli}" WidthRequest="40" MinimumHeightRequest="40" LineBreakMode="TailTruncation" FontSize="11" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding Emri}" HorizontalOptions="Start" FontSize="12" HorizontalTextAlignment="Start"/>
+                                            <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" FontSize="12"/>
+                                        </StackLayout>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackLayout Orientation="Horizontal">
+                        <Button x:Name="fshijButton" Command="{Binding FshijArtikullinCommand}" Clicked="fshijButton_Clicked" IsVisible="False" Text="Fshije" BackgroundColor="Red" Background="red" HorizontalOptions="End"/>
+                        <Button Text="Regjistro" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

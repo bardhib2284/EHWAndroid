@@ -1062,7 +1062,9 @@ namespace EHWM.ViewModel {
 
                             if (strFilterDwn.Trim() == "")
                                 strFilterDwn = "1=1";
+                            if(strTableName == "Krijimi_Porosive") {
 
+                            }
                             switch (strTableName) {
 
                                 case "KlientDheLokacion":
@@ -1205,72 +1207,18 @@ namespace EHWM.ViewModel {
                                                         break;
                                                     }
                                                 case "Krijimi_Porosive": {
-                                                        //SafeDelete("Krijimi_Porosive", "KPID");
-                                                        //TODO UPDATE ORDERS MAYBE SEND ONLY THE CHANGES ??
-                                                        var orders = await App.Database.GetKrijimiPorosiveAsync();
-                                                        foreach (var order in orders) {
-                                                            order.SyncStatus = 1;
-                                                            await App.Database.UpdateKrijimiPorosiveAsync(order);
-                                                        }
-                                                        orders = await App.Database.GetKrijimiPorosiveAsync();
-                                                        var ordersJson = JsonConvert.SerializeObject(orders);
-                                                        var stringContent = new StringContent(ordersJson, Encoding.UTF8, "application/json");
-                                                        var result = await App.ApiClient.PostAsync("krijimi-porosive ", stringContent);
-                                                        //Snc.ExecuteServerQuery("UPDATE Orders set ImpStatus = 0 where De= viceID '" + SyncParams.DeviceID + "' AND ImpStatus =2 ");
-                                                        if (result.IsSuccessStatusCode) {
-                                                            SyncSuccesful = true;
-                                                        }
-                                                        else {
-                                                            SyncSuccesful = false;
-                                                            foreach (var order in orders) {
-                                                                order.SyncStatus = 0;
-                                                                await App.Database.UpdateKrijimiPorosiveAsync(order);
-                                                            }
-                                                        }
+                                                        await App.Database.ClearAllKrijimiPorosive();
                                                         break;
                                                     }
                                                 case "Orders": {
-                                                        //TODO UPDATE ORDERS MAYBE SEND ONLY THE CHANGES ??
-                                                        var orders = await App.Database.GetOrdersAsync();
-                                                        foreach (var order in orders) {
-                                                            if (order.DeviceID == Agjendi.DeviceID && order.ImpStatus == 2) {
-                                                                order.ImpStatus = 0;
-                                                            }
-                                                            await App.Database.UpdateOrderAsync(order);
-                                                        }
-                                                        orders = await App.Database.GetOrdersAsync();
-                                                        var ordersJson = JsonConvert.SerializeObject(orders);
-                                                        var stringContent = new StringContent(ordersJson, Encoding.UTF8, "application/json");
-                                                        var result = await App.ApiClient.PutAsync("orders", stringContent);
                                                         await App.Database.ClearAllOrdersAsync();
-                                                        //Snc.ExecuteServerQuery("UPDATE Orders set ImpStatus = 0 where De= viceID '" + SyncParams.DeviceID + "' AND ImpStatus =2 ");
                                                         break;
                                                     }
                                                 case "Order_Details": {
                                                         //TODO UPDATE ORDER DETAILS
-                                                        var orderDetails = await App.Database.GetOrderDetailsAsync();
-                                                        var orders = await App.Database.GetOrdersAsync();
-                                                        var query = from detail in orderDetails
-                                                                    join order in orders on detail.IDOrder equals order.IDOrder
-                                                                    where order.DeviceID == Agjendi.DeviceID && detail.ImpStatus == 2
-                                                                    select detail;
-
-                                                        foreach (var detail in query) {
-                                                            detail.ImpStatus = 0;
-                                                            await App.Database.SaveOrderDetailsAsync(detail);
-                                                        }
-                                                        orderDetails = await App.Database.GetOrderDetailsAsync();
-                                                        var ordersJson = JsonConvert.SerializeObject(orderDetails);
-                                                        var stringContent = new StringContent(ordersJson, Encoding.UTF8, "application/json");
-                                                        var result = await App.ApiClient.PutAsync("orders/details", stringContent);
-                                                        //Snc.ExecuteServerQuery("UPDATE d set ImpStatus = 0 from Order_Details d inner join Orders o on o.IDOrder = d.IDOrder where o.DeviceID = '" + SyncParams.DeviceID + "' AND d.ImpStatus =2");\
+                                                        
                                                         await App.Database.ClearAllOrderDetailsAsync();
-
-                                                        if (!result.IsSuccessStatusCode) {
-                                                            SyncSuccesful = false;
-                                                        }
-                                                        else
-                                                            SyncSuccesful = true;
+                                                        SyncSuccesful = true;
 
                                                         break;
                                                     }
@@ -2237,7 +2185,12 @@ namespace EHWM.ViewModel {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<Vizita>>(vizitatWithDeviceIdResult);
                                             var currentVizitat = await App.Database.GetVizitatAsync();
                                             currentVizitat = await App.Database.GetVizitatAsync();
+                                            foreach(var viz in listOfClientsWithDepo) {
+                                                viz.IDStatusiVizites = "0";
+                                                viz.SyncStatus = 1;
+                                            }
                                             var saved = await App.Database.SaveVizitatAsync(listOfClientsWithDepo);
+
                                             if (saved != -1) {
                                                 return true;
                                             }
@@ -2461,9 +2414,9 @@ namespace EHWM.ViewModel {
                                 break;
                             }                            
                             if (tableName == "Krijimi_Porosive") {
-                                var LEVIZJET_HEADEREUpdatuara = await CreateInsertScriptOrderDetails(tableName, KeyFields, SqlCondition, StatusField);
+                                var LEVIZJET_HEADEREUpdatuara = await CreateInsertScriptKrijimiPorosive(tableName, KeyFields, SqlCondition, StatusField);
                                 if (LEVIZJET_HEADEREUpdatuara != null && LEVIZJET_HEADEREUpdatuara.Count >= 1) {
-                                    result = await CreateUpdateScriptOrderDetails(LEVIZJET_HEADEREUpdatuara);
+                                    result = await CreateUpdateScriptKrijimiPorosive(LEVIZJET_HEADEREUpdatuara);
                                     break;
                                 }
                                 result = false;
@@ -3041,6 +2994,30 @@ namespace EHWM.ViewModel {
 
             return null;
         }
+
+        private async Task<List<KrijimiPorosive>> CreateInsertScriptKrijimiPorosive(string tableName, string[] KeyFields, string sqlCondition, string StatusField) {
+            if (tableName == "Krijimi_Porosive") {
+                StringBuilder strScriptBuilder = new StringBuilder();
+                var OrderDetailsUpdatedSync = new List<KrijimiPorosive>();
+                if (sqlCondition != null && sqlCondition.Contains("1=1")) {
+                    var KrijimiPorosive = await App.Database.GetKrijimiPorosiveAsync();
+                    int rows = 0;
+                    // Create insert script with records that have not been sent StatusField=0
+                    if (StatusField == "SyncStatus") {
+                        var KrijimiPorosive0 = KrijimiPorosive.Where(x => x.SyncStatus == 0).ToList();
+                        OrderDetailsUpdatedSync = KrijimiPorosive0;
+                        if (StatusField != "0") {
+                            // Assuming you have a method to update the status
+                            await UpdateStatusFieldsKrijimiPorosive(KrijimiPorosive0);
+                        }
+                    }
+                    return OrderDetailsUpdatedSync;
+                }
+                return null;
+            }
+            return null;
+        }
+
         private async Task<List<OrderDetails>> CreateInsertScriptOrderDetails(string tableName, string[] KeyFields, string sqlCondition, string StatusField) {
             if (tableName == "Order_Details") {
                 StringBuilder strScriptBuilder = new StringBuilder();
@@ -3246,6 +3223,14 @@ namespace EHWM.ViewModel {
                 index++;
             }
         }
+        private async Task UpdateStatusFieldsKrijimiPorosive(List<KrijimiPorosive> tables) {
+            int index = 0;
+            foreach (var table in tables) {
+                table.SyncStatus = 1;
+                await App.Database.SaveKrijimiPorosiveAsync(table);
+                index++;
+            }
+        }
         private async Task UpdateStatusFieldsOrderDetails(List<OrderDetails> tables) {
             int index = 0;
             foreach (var table in tables) {
@@ -3382,13 +3367,27 @@ namespace EHWM.ViewModel {
 
             var OrderDetailsJson = JsonConvert.SerializeObject(OrderDetails);
             var stringContent = new StringContent(OrderDetailsJson, Encoding.UTF8, "application/json");
-            var result = await App.ApiClient.PutAsync("orders/details", stringContent);
+            var result = await App.ApiClient.PostAsync("orders/details", stringContent);
             if (result.IsSuccessStatusCode) {
                 return true;
             }
             foreach (var porosia in OrderDetails) {
                 porosia.SyncStatus = 0;
-                await App.Database.SaveOrderDetailsAsync(porosia);
+                await App.Database.UpdateOrderDetailsAsync(porosia);
+            }
+            return false;
+        }
+        private async Task<bool> CreateUpdateScriptKrijimiPorosive(List<KrijimiPorosive> OrderDetails) {
+
+            var OrderDetailsJson = JsonConvert.SerializeObject(OrderDetails);
+            var stringContent = new StringContent(OrderDetailsJson, Encoding.UTF8, "application/json");
+            var result = await App.ApiClient.PostAsync("krijimi-porosive", stringContent);
+            if (result.IsSuccessStatusCode) {
+                return true;
+            }
+            foreach (var porosia in OrderDetails) {
+                porosia.SyncStatus = 0;
+                await App.Database.UpdateKrijimiPorosiveAsync(porosia);
             }
             return false;
         }
@@ -3396,7 +3395,7 @@ namespace EHWM.ViewModel {
 
             var porositeArtJson = JsonConvert.SerializeObject(porositeArt);
             var stringContent = new StringContent(porositeArtJson, Encoding.UTF8, "application/json");
-            var result = await App.ApiClient.PutAsync("orders", stringContent);
+            var result = await App.ApiClient.PostAsync("orders", stringContent);
             if (result.IsSuccessStatusCode) {
                 return true;
             }

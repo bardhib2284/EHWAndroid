@@ -1,5 +1,6 @@
 ﻿using EHWM.Models;
 using EHWM.ViewModel;
+using EHWM.Views.Popups;
 using Rg.Plugins.Popup.Extensions;
 using System;
 using System.Collections.Generic;
@@ -21,15 +22,17 @@ namespace EHWM.Views {
         private async void Button_Clicked(object sender, EventArgs e) {
             // Open a PopupPage
             if ((sender as Button).Text == "Vizualizo") {
-                VizitatOptionsPopup VizitatOptionsPopup = new VizitatOptionsPopup();
-                VizitatOptionsPopup.BindingContext = this.BindingContext;
-                await Navigation.PushPopupAsync(VizitatOptionsPopup);
+                VizualizoPorositePage VizualizoPorositePage = new VizualizoPorositePage();
+                VizualizoPorositePage.BindingContext = this.BindingContext;
+                await Navigation.PushPopupAsync(VizualizoPorositePage);
                 return;
             }
             if ((sender as Button).Text == "Faturo") {
-                VizitatOptionsPopup VizitatOptionsPopup = new VizitatOptionsPopup();
-                VizitatOptionsPopup.BindingContext = this.BindingContext;
-                await Navigation.PushPopupAsync(VizitatOptionsPopup);
+                var bc = (PorositeViewModel )BindingContext;
+                if(bc!=null) {
+                    bc.KonvertoPorosine();
+                }
+                
                 return;
             }            
             if ((sender as Button).Text == "Krijo liste") {
@@ -40,16 +43,21 @@ namespace EHWM.Views {
                 }
             }            
             if ((sender as Button).Text == "Shto") {
-                VizitatOptionsPopup VizitatOptionsPopup = new VizitatOptionsPopup();
-                VizitatOptionsPopup.BindingContext = this.BindingContext;
-                await Navigation.PushPopupAsync(VizitatOptionsPopup);
+                var bc = (PorositeViewModel)BindingContext; if(bc != null) { await bc.GoToKrijoPorosineAsync(); }
+                //KrijoPorosinePage kpPorosia = new KrijoPorosinePage();
+                //kpPorosia.BindingContext = this.BindingContext;
+                //await Navigation.PushPopupAsync(kpPorosia);
                 return;
             }
             ClientOptionsPopup page = new ClientOptionsPopup();
             await Navigation.PushPopupAsync(page);
         }
 
-
-
+        private void ListView_ItemTapped(object sender, ItemTappedEventArgs e) {
+            var bc = (PorositeViewModel)BindingContext;
+            if(bc!=null) {
+                bc.CurrentlySelectedOrder = e.Item as Orders;
+            }
+        }
     }
 }

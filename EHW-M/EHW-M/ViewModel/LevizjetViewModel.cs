@@ -549,6 +549,7 @@ namespace EHWM.ViewModel {
             //update malli i mbetur
             //await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
             CurrentlySelectedArtikulli = null;
+            KrijoPorosine = false;
 
         }        
         private ObservableCollection<SalesPrice> _salesPrices;
@@ -588,6 +589,11 @@ namespace EHWM.ViewModel {
             set { SetProperty(ref _sasia, value); }
         }
 
+        private bool _krijoPorosine;
+        public bool KrijoPorosine {
+            get { return _krijoPorosine; }
+            set { SetProperty(ref _krijoPorosine, value); }
+        }
         public async Task RegjistroLevizjenAsync() {
             try {
                 var levizjet = await App.Database.GetLevizjetHeaderAsync();

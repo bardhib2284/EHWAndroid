@@ -4,62 +4,108 @@
              x:Class="EHWM.Views.ZgjidhArtikullinModalPage">
     <ContentPage.Content>
         <StackLayout Spacing="0">
-            <Entry Placeholder="Kerko" TextChanged="Entry_TextChanged"/>
-            <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="100" MinimumHeightRequest="100" VerticalOptions="Fill">
-                <Grid HeightRequest="50" Padding="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="8*"/>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="10,0" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
-                    <BoxView BackgroundColor="Black" Grid.Column="0"  HorizontalOptions="End" WidthRequest="1"/>
-                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Sasia" Grid.Row="0" Grid.Column="1" />
-                    <BoxView BackgroundColor="Black" Grid.Column="1" HorizontalOptions="End" WidthRequest="1"/>
-                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Cmimi" Grid.Row="0" Grid.Column="2" />
-                    <BoxView BackgroundColor="Black" Grid.Column="2" HorizontalOptions="End" WidthRequest="1"/>
-                    <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Seri" Grid.Row="0" Grid.Column="3" />
-                </Grid>
-            </Frame>
+            
+            <StackLayout IsVisible="{Binding KrijoPorosine}">
+                <Entry Placeholder="Kerko" TextChanged="Entry_TextChanged"/>
+                <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="100" MinimumHeightRequest="100" VerticalOptions="Fill">
+                    <Grid HeightRequest="50" Padding="0">
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="10,0" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
+                    </Grid>
+                </Frame>
 
-            <Frame Padding="10" BorderColor="Black" x:Name="allArtikujt">
-                <ListView x:Name="testList" ItemsSource="{Binding Artikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <ViewCell>
-                                <StackLayout Orientation="Horizontal" Spacing="40">
-                                    <Label Text="{Binding Emri}" WidthRequest="165" MinimumHeightRequest="165" FontSize="12" VerticalTextAlignment="Center" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
-                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                                        <Label Text="{Binding Sasia}" HorizontalOptions="Start" WidthRequest="30" MinimumHeightRequest="30" VerticalTextAlignment="Center"/>
-                                        <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0" VerticalTextAlignment="Center"/>
-                                        <Label Text="{Binding Seri}" HorizontalOptions="EndAndExpand" VerticalTextAlignment="Center"/>
+                <Frame Padding="10" BorderColor="Black" x:Name="allKrijoArtikujt">
+                    <ListView x:Name="testKrijoList" ItemsSource="{Binding Artikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="40">
+                                        <Label Text="{Binding Emri}" FontSize="12" VerticalTextAlignment="Center" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
                                     </StackLayout>
-                                </StackLayout>
-                            </ViewCell>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </Frame>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
 
-            <Frame Padding="10" BorderColor="Black" IsVisible="false" x:Name="searchedArtikujt">
-                <ListView  ItemsSource="{Binding SearchedArtikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <ViewCell>
-                                <StackLayout Orientation="Horizontal" Spacing="40">
-                                    <Label Text="{Binding Emri}" WidthRequest="180" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
-                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                                        <Label Text="{Binding Sasia}" HorizontalOptions="StartAndExpand"/>
-                                        <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0"/>
-                                        <Label Text="{Binding Seri}" HorizontalOptions="EndAndExpand"/>
+                <Frame Padding="10" BorderColor="Black" IsVisible="false" x:Name="searchedKrijoArtikujt">
+                    <ListView  ItemsSource="{Binding SearchedArtikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="40">
+                                        <Label Text="{Binding Emri}" WidthRequest="180" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding Sasia}" HorizontalOptions="StartAndExpand"/>
+                                            <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0"/>
+                                            <Label Text="{Binding Seri}" HorizontalOptions="EndAndExpand"/>
+                                        </StackLayout>
                                     </StackLayout>
-                                </StackLayout>
-                            </ViewCell>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </Frame>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+            </StackLayout>
+            
+            <StackLayout IsVisible="{Binding KrijoPorosine,Converter={StaticResource NegateBooleanConverter}}">
+                <Entry Placeholder="Kerko" TextChanged="Entry_TextChanged"/>
+                <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="100" MinimumHeightRequest="100" VerticalOptions="Fill">
+                    <Grid HeightRequest="50" Padding="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="8*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="10,0" VerticalTextAlignment="Center" Text="Artikulli" Grid.Row="0" Grid.Column="0" />
+                        <BoxView BackgroundColor="Black" Grid.Column="0"  HorizontalOptions="End" WidthRequest="1"/>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Sasia" Grid.Row="0" Grid.Column="1" />
+                        <BoxView BackgroundColor="Black" Grid.Column="1" HorizontalOptions="End" WidthRequest="1"/>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Cmimi" Grid.Row="0" Grid.Column="2" />
+                        <BoxView BackgroundColor="Black" Grid.Column="2" HorizontalOptions="End" WidthRequest="1"/>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="Seri" Grid.Row="0" Grid.Column="3" />
+                    </Grid>
+                </Frame>
+
+                <Frame Padding="10" BorderColor="Black" x:Name="allArtikujt">
+                    <ListView x:Name="testList" ItemsSource="{Binding Artikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="40">
+                                        <Label Text="{Binding Emri}" WidthRequest="165" MinimumHeightRequest="165" FontSize="12" VerticalTextAlignment="Center" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding Sasia}" HorizontalOptions="Start" WidthRequest="30" MinimumHeightRequest="30" VerticalTextAlignment="Center"/>
+                                            <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0" VerticalTextAlignment="Center"/>
+                                            <Label Text="{Binding Seri}" HorizontalOptions="EndAndExpand" VerticalTextAlignment="Center"/>
+                                        </StackLayout>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Frame Padding="10" BorderColor="Black" IsVisible="false" x:Name="searchedArtikujt">
+                    <ListView  ItemsSource="{Binding SearchedArtikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="40">
+                                        <Label Text="{Binding Emri}" WidthRequest="180" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding Sasia}" HorizontalOptions="StartAndExpand"/>
+                                            <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0"/>
+                                            <Label Text="{Binding Seri}" HorizontalOptions="EndAndExpand"/>
+                                        </StackLayout>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+            </StackLayout>
+            
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

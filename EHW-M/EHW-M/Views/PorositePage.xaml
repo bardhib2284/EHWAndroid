@@ -19,11 +19,27 @@
                     <Label Text="Sync" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center"/>
                 </StackLayout>
             </Frame>
+            <StackLayout>
+                <ListView ItemsSource="{Binding OrdersList}" ItemTapped="ListView_ItemTapped">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout VerticalOptions="FillAndExpand" Orientation="Horizontal" Padding="10">
+                                    <Label Text="{Binding IDOrder}" VerticalTextAlignment="Center" WidthRequest="140" VerticalOptions="CenterAndExpand"/>
+                                    <Label Text="{Binding Data,StringFormat='{}{0:dd-MM-yyyy}'}" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="150"/>
+                                    <Label Text="{Binding SyncStatus}" VerticalTextAlignment="Center" WidthRequest="50" HorizontalTextAlignment="Center"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="EndAndExpand">
-                <Button Text="Vizualizo" Clicked="Button_Clicked"  x:Name="Vizualizo"/>
-                <Button Text="Faturo" Clicked="Button_Clicked" x:Name="Faturo"/>
-                <Button Text="Krijo liste" Clicked="Button_Clicked" x:Name="Krijo"/>
-                <Button Text="Shto" Clicked="Button_Clicked" x:Name="Shto"/>
+                <Button Text="Vizualizo" Clicked="Button_Clicked"  x:Name="Vizualizo" WidthRequest="70"/>
+                <Button Text="Faturo" Clicked="Button_Clicked" x:Name="Faturo" WidthRequest="70"/>
+                <Button Text="Krijo liste" Clicked="Button_Clicked" x:Name="Krijo" WidthRequest="70"/>
+                <Button Text="Shto" Clicked="Button_Clicked" x:Name="Shto" WidthRequest="70"/>
             </StackLayout>
             
         </StackLayout>

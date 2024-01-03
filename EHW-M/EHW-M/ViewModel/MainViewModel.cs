@@ -1970,12 +1970,12 @@ namespace EHWM.ViewModel {
         }
 
         public async Task GoToShtoVizitenPageAsync() {
-            //foreach(var viz in VizitatFilteredByDate) {
-            //    if (viz.IDStatusiVizites == "0") {
-            //        UserDialogs.Instance.Alert("Nuk mund te shtohet vizite e re pa perfunduar viziten e hapur");
-            //        return;
-            //    }
-            //}
+            foreach (var viz in VizitatFilteredByDate) {
+                if (viz.IDStatusiVizites == "1") {
+                    UserDialogs.Instance.Alert("Nuk mund te shtohet vizite e re pa perfunduar viziten e hapur");
+                    return;
+                }
+            }
             var klientet = await App.Database.GetKlientetAsync();
             if (klientet != null) {
                 if (klientet.Count > 0) {
@@ -2395,36 +2395,36 @@ namespace EHWM.ViewModel {
                 }
                 if (!checkOraRealizimit(SelectedVizita.IDVizita)) {
                     UserDialogs.Instance.Alert("Duhet te shtohet vizite e re per kete klient!", "Error", "Ok");
-                    return;
+                    return;             
                 }
-                //foreach (var g in VizitatFilteredByDate) {
-                //    if (g != null) {
-                //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
-                //            if (g.IDStatusiVizites == "0") {
-                //                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
-                //                return;
-                //            }
-                //        }
-                //    }
-                //}
+                foreach (var g in VizitatFilteredByDate) {
+                    if (g != null) {
+                        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+                            if (g.IDStatusiVizites == "1") {
+                                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+                                return;
+                            }
+                        }
+                    }
+                }
                 var res = VizitatFilteredByDate.FirstOrDefault(x => x.IDVizita == SelectedVizita.IDVizita);
                 if (res != null) {
                     switch (res.IDStatusiVizites) {
-                        case "2":
+                        case "0":
+                            break;
+                        case "1":
                             UserDialogs.Instance.Alert("Vizita veqse eshte e hapur", "Error", "Ok");
                             return;
-                            break;
-                        case "0":
-                        case "1":
-                            break;
+                        case "2":
+                        case "3":
+                        case "4":
+                        case "5":
                         case "6":
                             UserDialogs.Instance.Alert("Vizita veqse ka perfunduar, ju lutemi selektoni nje vizite tjeter", "Verejtje", "Ok");
                             return;
-                            break;
                         default:
                             UserDialogs.Instance.Alert("Vizita ka perfunduar", "Error", "Ok");
                             return;
-                            break;
                     }
                     await App.Current.MainPage.Navigation.PopPopupAsync();
                     await App.Instance.PushAsyncNewPage(new HapVizitenPage() { BindingContext = this });
@@ -2554,7 +2554,9 @@ namespace EHWM.ViewModel {
             PorositePage PorositePage = new PorositePage();
             var klientet = await App.Database.GetKlientetAsync();
             var krijimiPorosive = await App.Database.GetKrijimiPorosiveAsync();
-            PorositeViewModelNavigationParameters porositeViewModelNavigationParameters = new PorositeViewModelNavigationParameters { Agjendi = LoginData, Klientet = klientet, KrijimiPorosives = krijimiPorosive };
+            var orders = await App.Database.GetOrdersAsync();
+            var nrRendor = orders.Where(x => x.Data.Year == DateTime.Now.Year && x.Data.Month == DateTime.Now.Month && x.Data.Date == DateTime.Now.Date);
+            PorositeViewModelNavigationParameters porositeViewModelNavigationParameters = new PorositeViewModelNavigationParameters { Agjendi = LoginData, Klientet = klientet, KrijimiPorosives = krijimiPorosive, NrRendor = nrRendor.Count() + 1, Orders = orders};
             PorositePage.BindingContext = new PorositeViewModel(porositeViewModelNavigationParameters);
             await App.Instance.PushAsyncNewPage(PorositePage);
             UserDialogs.Instance.HideLoading();

@@ -43,6 +43,16 @@ namespace EHWM.Views {
                         levizjetViewModel.Sasia = 0;
                     }
                 }
+                else if (BindingContext is PorositeViewModel porositeViewModel) {
+                    if (porositeViewModel != null) {
+                        porositeViewModel.CurrentlySelectedArtikulli = e.Item as Artikulli;
+                        if (string.IsNullOrEmpty(porositeViewModel.CurrentlySelectedArtikulli.Seri)) {
+                            //viewModel.EnableSeri = true;
+                        }
+                        App.Instance.PopAsyncModal();
+                        porositeViewModel.Sasia = 0;
+                    }
+                }
             }
         }
 

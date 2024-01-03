@@ -116,6 +116,10 @@ namespace EHWM.ViewModel
             return await _database.DeleteAllAsync<Klientet>();
         }    
         
+        public async Task<int> ClearAllKrijimiPorosive() {
+            return await _database.DeleteAllAsync<KrijimiPorosive>();
+        }    
+        
         public async Task<int> ClearAllVendetAsync() {
             return await _database.DeleteAllAsync<Vendet>();
         }        
@@ -489,9 +493,18 @@ namespace EHWM.ViewModel
             }
         }
 
+        public async Task<int> UpdateOrderDetailsAsync(OrderDetails cr) {
+            try {
+                return await _database.UpdateAsync(cr);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+        }
+
         public async Task<int> SaveOrderDetailsAsync(OrderDetails cr) {
             try {
-                return await _database.InsertOrReplaceAsync(cr);
+                return await _database.InsertAsync(cr);
             }
             catch (Exception e) {
                 return -1;
@@ -661,7 +674,7 @@ namespace EHWM.ViewModel
         }
         public async Task<int> SaveKrijimiPorosiveAsync(KrijimiPorosive a) {
             try {
-                return await _database.InsertOrReplaceAsync(a);
+                return await _database.InsertAsync(a);
             }
             catch(Exception e) {
                 return -1;

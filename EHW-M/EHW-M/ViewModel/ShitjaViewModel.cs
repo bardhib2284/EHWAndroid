@@ -36,7 +36,11 @@ namespace EHWM.ViewModel {
         public Agjendet Agjendi { get; set; }
     }
     public class ShitjaViewModel : BaseViewModel {
-
+        private bool _krijoPorosine;
+        public bool KrijoPorosine {
+            get { return _krijoPorosine; }
+            set { SetProperty(ref _krijoPorosine, value); }
+        }
         public Vizita VizitaESelektuar { get; set; }
         public static Guid NAV = new Guid("10000000-0000-0000-0000-000000000000");
         public static Guid IDPorosi = NAV, IDLiferimi = NAV, LfrStat = NAV, ListaNePritje = NAV, CurrIDV = NAV;
@@ -140,6 +144,7 @@ namespace EHWM.ViewModel {
             FshijArtikullinCommand = new Command(FshijArtikullinAsync);
             DataEPageses = DateTime.Now;
             SearchedArtikujt = new ObservableCollection<Artikulli>();
+            KrijoPorosine = false;
         }
         private bool _kthimMalli;
 
