@@ -62,13 +62,13 @@
 
                 <BoxView HeightRequest="1" WidthRequest="1000" BackgroundColor="Black"/>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                    <StackLayout WidthRequest="100" HorizontalOptions="Start"></StackLayout>
-                    <StackLayout VerticalOptions="Center" Spacing="28" Orientation="Horizontal" HeightRequest="40" HorizontalOptions="FillAndExpand">
-                        <Label Text="{Binding PranuarAll}" HorizontalOptions="FillAndExpand"/>
-                        <Label Text="{Binding ShiturAll}" HorizontalOptions="FillAndExpand"/>
-                        <Label Text="{Binding KthyerAll}" HorizontalOptions="FillAndExpand"/>
-                        <Label Text="{Binding LevizjeAll}" HorizontalOptions="FillAndExpand"/>
-                        <Label Text="{Binding MbetjaAll}" HorizontalOptions="FillAndExpand"/>
+                    <StackLayout WidthRequest="90" HorizontalOptions="Start"></StackLayout>
+                    <StackLayout VerticalOptions="Center" Spacing="0" Orientation="Horizontal" HeightRequest="40" HorizontalOptions="FillAndExpand">
+                        <Label Text="{Binding PranuarAll}" HorizontalOptions="FillAndExpand" WidthRequest="50" MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding ShiturAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding KthyerAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding LevizjeAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding MbetjaAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
                     </StackLayout>
                     <StackLayout WidthRequest="50" HorizontalOptions="Start"></StackLayout>
                 </StackLayout>
@@ -77,7 +77,6 @@
 
             <StackLayout Orientation="Horizontal">
                 <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
-                <Button Text="Kthimi" Command="{Binding KthePorosineAutomatikishtCommand}" x:Name="Shitjet" WidthRequest="60" FontSize="13"/>
             </StackLayout>
         </StackLayout>
     </ContentPage.Content>

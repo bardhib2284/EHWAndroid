@@ -642,41 +642,37 @@ namespace EHWM.ViewModel {
                 var tvsh = 0m;
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     string prntBuilder = string.Empty;
-                    if (art.Sasia < 0) {
-                        art.CmimiNjesi = art.CmimiNjesi * -1;
-                    }
+
                     prntBuilder += "\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri;
 
+                    
                     //BUM
                     if (art.BUM.Length >= 4) {
-                        prntBuilder += "\n                     " + art.BUM + "    ";
+                        prntBuilder += "\n                    " + art.BUM + "    ";
                     }
                     else if (art.BUM.Length >= 3) {
-                        prntBuilder += "\n                     " + art.BUM + "     ";
+                        prntBuilder += "\n                    " + art.BUM + "     ";
                     }
                     else if (art.BUM.Length >= 2) {
-                        prntBuilder += "\n                     " + art.BUM + "      ";
+                        prntBuilder += "\n                    " + art.BUM + "      ";
                     }
 
-                    //SASIA
+                    //SASIA-
 
                     if (art.Sasia.ToString().Length >= 4) {
-                        prntBuilder += +art.Sasia + " ";
-                    }
-                    else if (art.Sasia.ToString().Length >= 3) {
                         prntBuilder += +art.Sasia + "  ";
                     }
-                    else if (art.Sasia.ToString().Length >= 2) {
+                    else if (art.Sasia.ToString().Length >= 3) {
                         prntBuilder += +art.Sasia + "   ";
                     }
-                    else if (art.Sasia.ToString().Length >= 1) {
+                    else if (art.Sasia.ToString().Length >= 2) {
                         prntBuilder += +art.Sasia + "    ";
+                    }
+                    else if (art.Sasia.ToString().Length >= 1) {
+                        prntBuilder += +art.Sasia + "     ";
                     }
 
                     //cmimiNjesi
-                    if (art.Sasia < 0) {
-                        art.CmimiNjesi = art.CmimiNjesi * -1;
-                    }
                     var cmimiNjesi = String.Format("{0:0.00}", art.CmimiNjesi);
                     if (cmimiNjesi.Contains("-")) {
                         cmimiNjesi = cmimiNjesi.Remove(0, 1);
@@ -702,17 +698,32 @@ namespace EHWM.ViewModel {
                     else if (cmimiNjesi.Length >= 3) {
                         prntBuilder += art.CmimiNjesi + "        ";
                     }
-                    if (art.Sasia < 0) {
-                        art.CmimiNjesi = art.CmimiNjesi * -1;
-                    }
                     //vlera pa tvsh
-                    var vleraPaTVSH = String.Format("{0:0.00}", Math.Round(decimal.Parse(art.CmimiNjesi.ToString()) / 1.2m, 2));
+                    var vleraPaTVSH = String.Format("{0:0.00}", Math.Round(decimal.Parse((art.CmimiNjesi * art.Sasia).ToString()) / 1.2m, 2));
+                    tvsh = decimal.Parse((art.CmimiNjesi * art.Sasia).ToString()) - decimal.Parse(vleraPaTVSH);
+                    var tvshstring = String.Format("{0:0.00}", tvsh);
 
-                    if (vleraPaTVSH.Length >= 8) {
+                    var total = art.CmimiNjesi * art.Sasia;
+
+                    var vlera = String.Format("{0:0.00}", total);
+                    if (vleraPaTVSH.Length >= 9) {
+                        prntBuilder = prntBuilder.Remove(prntBuilder.Length-1, 1);
                         prntBuilder += vleraPaTVSH + "  ";
                     }
+                    else if (vleraPaTVSH.Length >= 8) {
+                        if(tvshstring.Length == 7 && vlera.Length == 8) {
+                            prntBuilder += vleraPaTVSH + "   ";
+                        }
+                        else
+                            prntBuilder += vleraPaTVSH + "  ";
+                    }
                     else if (vleraPaTVSH.Length >= 7) {
-                        prntBuilder += vleraPaTVSH + "   ";
+                        if (tvshstring.Length == 7 && vlera.Length == 8) {
+                            prntBuilder += vleraPaTVSH + "   ";
+                        }
+                        else {
+                            prntBuilder += vleraPaTVSH + "   ";
+                        }
                     }
                     else if (vleraPaTVSH.Length >= 6) {
                         prntBuilder += vleraPaTVSH + "    ";
@@ -724,24 +735,36 @@ namespace EHWM.ViewModel {
                         prntBuilder += vleraPaTVSH + "      ";
                     }
 
-                    tvsh = decimal.Parse(art.CmimiNjesi.ToString()) - decimal.Parse(vleraPaTVSH);
-                    var tvshstring = String.Format("{0:0.00}", tvsh);
+
                     //TVSH
                     if (tvshstring.Length >= 8) {
-                        prntBuilder.Remove(prntBuilder.Length - 1, 1);
-                        prntBuilder += tvshstring;
+                        if(vlera.Length > tvshstring.Length) {
+                            prntBuilder += tvshstring + "";
+                        }
+                        else
+                            prntBuilder += tvshstring + " ";
                     }
                     else if (tvshstring.Length >= 7) {
-                        if(vleraPaTVSH.Length == 8) {
-                            prntBuilder += " " + tvshstring + "";
-                        }else
-                        prntBuilder += tvshstring + "";
+                        if (vleraPaTVSH.Length == 8) {
+                            prntBuilder += "" + tvshstring + " ";
+                        }
+                        else if(vleraPaTVSH.Length == 7) {
+                            if(vlera.Length == 7) {
+                                prntBuilder += " " + tvshstring + "  ";
+                            }
+                            else
+                                prntBuilder += " " + tvshstring + " ";
+                        }
+                        else {
+                            prntBuilder += tvshstring + "  ";
+                        }
                     }
                     else if (tvshstring.Length >= 6) {
                         if (vleraPaTVSH.Length == 7) {
                             prntBuilder += " " + tvshstring + "   ";
                         }
-                        prntBuilder += tvshstring + "  ";
+                        else
+                            prntBuilder += tvshstring + "  ";
                     }
                     else if (tvshstring.Length >= 5) {
                         prntBuilder += "  " + tvshstring + "    ";
@@ -755,13 +778,10 @@ namespace EHWM.ViewModel {
                     else if (tvshstring.Length >= 2) {
                         prntBuilder += tvshstring + "       ";
                     }
-
                     //vlera
-                    var total = art.CmimiNjesi * art.Sasia;
                     if (art.Sasia < 0 && total > 0) {
                         total = total * -1;
                     }
-                    var vlera = String.Format("{0:0.00}", total);
 
                     prntBuilder += vlera + "\n";
                     await _printer.printText(prntBuilder);
@@ -771,7 +791,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("---------------------------------------------------------------------");
                 var totalBuilder = string.Empty;
-                totalBuilder += "\n    Mbyllet me total      ";
+                totalBuilder += "\n    Mbyllet me total     ";
                 if (teGjithaSasit.ToString().Length >= 5) {
                     totalBuilder += "   " + teGjithaSasit + "    ";
 
@@ -781,14 +801,14 @@ namespace EHWM.ViewModel {
 
                 }
                 else if (teGjithaSasit.ToString().Length >= 3) {
-                    totalBuilder += "   " + teGjithaSasit + "      ";
+                    totalBuilder += "   " + teGjithaSasit + "         ";
 
                 }
                 else if (teGjithaSasit.ToString().Length >= 2) {
-                    totalBuilder += "   " + teGjithaSasit + "         ";
+                    totalBuilder += "   " + teGjithaSasit + "          ";
                 }
                 else if (teGjithaSasit.ToString().Length >= 1) {
-                    totalBuilder += "   " + teGjithaSasit + "          ";
+                    totalBuilder += "   " + teGjithaSasit + "           ";
                 }
 
 
@@ -814,15 +834,28 @@ namespace EHWM.ViewModel {
                 }
 
                 var tvshAll = String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
+                var cmimTotal = String.Format("{0:0.00}", lif.CmimiTotal);
+
                 if (tvshAll.ToString().Length >= 9) {
                     totalBuilder += "" + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
                 }
                 else if (tvshAll.ToString().Length >= 8) {
+                    if(tvshAll.ToString().Length < cmimTotal.Length) {
+                        if (cmimTotal.Length == 9 && vptvsh.Length == 9&& teGjithaSasit.ToString().Length > 3) {
+                            totalBuilder += "  " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
+                        }
+                        else
+                        totalBuilder += "  " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
+                    }else
                     totalBuilder += "  " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
                 }
                 else if (tvshAll.ToString().Length >= 7) {
                     if(vptvsh.Length == 8) {
-                        totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
+                        if(cmimTotal.Length == 8) {
+                            totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
+                        }
+                        else
+                            totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
                     }
                     else if (vptvsh.Length == 7) {
                         totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
@@ -831,7 +864,10 @@ namespace EHWM.ViewModel {
                         totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
                 }
                 else if (tvshAll.ToString().Length >= 6) {
-                    if(vptvsh.Length == 6) {
+                    if (vptvsh.Length == 7) {
+                        totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
+                    }
+                    else if (vptvsh.Length == 6) {
                         totalBuilder += "      " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
                     }
                     else
@@ -841,7 +877,12 @@ namespace EHWM.ViewModel {
                     totalBuilder += "      " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "    ";
                 }
 
-                totalBuilder += String.Format("{0:0.00}", lif.CmimiTotal);
+                if(tvshAll.Length == 8 && cmimTotal.Length == 8) {
+                    totalBuilder += "" + cmimTotal;
+                }
+                else {
+                    totalBuilder += cmimTotal;
+                }
                 await _printer.printText(totalBuilder);
 
                     
@@ -895,7 +936,7 @@ namespace EHWM.ViewModel {
                     totalBuilder += "\n   S-VAT             20          " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        ";
                 }
                 else if (TotaliPaTVSH.ToString().Length >= 7) {
-                    totalBuilder += "\n   S-VAT             20           " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        ";
+                    totalBuilder += "\n   S-VAT             20           " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "         ";
                 }
                 else if (TotaliPaTVSH.ToString().Length >= 6) {
                     totalBuilder += "\n   S-VAT             20             " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "           ";
@@ -915,6 +956,9 @@ namespace EHWM.ViewModel {
                     if(TotaliPaTVSH.Length == 7) {
                         totalBuilder += "  " + tvshAll + "    ";
                     }
+                    else if(TotaliPaTVSH.Length == 8 && cmimTotal.Length == 8) {
+                        totalBuilder += tvshAll + "     ";
+                    }
                     else
                         totalBuilder += tvshAll + "   ";
                 }
@@ -927,7 +971,16 @@ namespace EHWM.ViewModel {
                 else if (tvshAll.ToString().Length >= 5) {
                     totalBuilder += tvshAll + "     ";
                 }
-                totalBuilder += String.Format("{0:0.00}", lif.CmimiTotal) + "\n";
+
+                if (tvshAll.Length == 8 && cmimTotal.Length == 9) {
+                    totalBuilder += "  " + cmimTotal;
+                }
+                else if (tvshAll.Length == 8 && cmimTotal.Length == 8) {
+                    totalBuilder += " " + cmimTotal;
+                }
+                else {
+                    totalBuilder += cmimTotal;
+                }
                 await _printer.printText(totalBuilder);
 
                 
@@ -950,9 +1003,9 @@ namespace EHWM.ViewModel {
                         await _printer.printText("\n");
                         await _printer.printText("\n");
 
-                        await _printer.printText("                 Afati per pagese : " + DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy"));
+                        await _printer.printText("                     Afati per pagese : " + DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy") + "\n");
                     }
-                        await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(lif.TCRQRCodeLink),
+                    await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(lif.TCRQRCodeLink),
                                 300/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
                                 (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
                                 50,                                                 // brightness
@@ -1210,12 +1263,32 @@ namespace EHWM.ViewModel {
 
 
                 }
-                    
-                
-
 
                 await _printer.printText("---------------------------------------------------------------------");
-                await _printer.printText("                 " + String.Format("{0:0.00}", PranuarAll) + "      " + String.Format("{0:0.00}", ShiturAll) + "    " + String.Format("{0:0.00}", KthyerAll )+ "      " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+
+                if (PranuarAll > 100) {
+                    if(ShiturAll > 10) {
+                        if(KthyerAll < -100) {
+                            if(LevizjeAll < 10) {
+                                await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "     " + String.Format("{0:0.00}", KthyerAll) + "    " + String.Format("{0:0.00}", LevizjeAll) + "      " + String.Format("{0:0.00}", MbetjaAll));
+                            }
+                            else {
+                                await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "     " + String.Format("{0:0.00}", KthyerAll) + "    " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+                            }
+                        }
+                        else {
+                            await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "     " + String.Format("{0:0.00}", KthyerAll) + "     " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+                        }
+                    }
+                    else {
+                        await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "      " + String.Format("{0:0.00}", KthyerAll) + "     " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+                    }
+
+                }
+                else
+                    await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "      " + String.Format("{0:0.00}", ShiturAll) + "      " + String.Format("{0:0.00}", KthyerAll) + "     " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+
+
                 await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
@@ -2373,20 +2446,20 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            if (SelectedVizita.IDStatusiVizites != "1") {
-                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
-                return;
-            }
-            foreach (var g in VizitatFilteredByDate) {
-                if (g != null) {
-                    if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
-                        if (g.IDStatusiVizites == "1") {
-                            UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
-                            return;
-                        }
-                    }
-                }
-            }
+            //if (SelectedVizita.IDStatusiVizites != "1") {
+            //    UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+            //    return;
+            //}
+            //foreach (var g in VizitatFilteredByDate) {
+            //    if (g != null) {
+            //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+            //            if (g.IDStatusiVizites == "1") {
+            //                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+            //                return;
+            //            }
+            //        }
+            //    }
+            //}
             ShitjaPage page = new ShitjaPage();
             //          SELECT nf.CurrNrFat from NumriFaturave nf where nf.KOD = 'M03'
             //SELECT nf.NRKUFIP from NumriFaturave nf where nf.KOD = 'M03'
@@ -2433,20 +2506,20 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            if (SelectedVizita.IDStatusiVizites != "1") {
-                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
-                return;
-            }
-            foreach (var g in VizitatFilteredByDate) {
-                if (g != null) {
-                    if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
-                        if (g.IDStatusiVizites == "1") {
-                            UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
-                            return;
-                        }
-                    }
-                }
-            }
+            //if (SelectedVizita.IDStatusiVizites != "1") {
+            //    UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+            //    return;
+            //}
+            //foreach (var g in VizitatFilteredByDate) {
+            //    if (g != null) {
+            //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
+            //            if (g.IDStatusiVizites == "1") {
+            //                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+            //                return;
+            //            }
+            //        }
+            //    }
+            //}
             ShitjaPage page = new ShitjaPage();
             //          SELECT nf.CurrNrFat from NumriFaturave nf where nf.KOD = 'M03'
             //SELECT nf.NRKUFIP from NumriFaturave nf where nf.KOD = 'M03'
