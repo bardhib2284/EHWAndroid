@@ -1238,8 +1238,13 @@ namespace EHWM.ViewModel {
                             }
                             else if(art.SasiaKthyer < 0) {
                                 if(art.SasiaKthyer < -10) {
-                                    await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
-"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "     " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                                    if(art.SasiaKthyer < -100) {
+                                        await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "     " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "" + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                                    }
+                                    else
+                                        await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "     " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "    " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                                 }
                                 else {
                                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
@@ -1274,7 +1279,7 @@ namespace EHWM.ViewModel {
                     if(ShiturAll > 10) {
                         if(KthyerAll < -100) {
                             if(LevizjeAll < 10) {
-                                await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "     " + String.Format("{0:0.00}", KthyerAll) + "    " + String.Format("{0:0.00}", LevizjeAll) + "      " + String.Format("{0:0.00}", MbetjaAll));
+                                await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "     " + String.Format("{0:0.00}", KthyerAll) + "    " + String.Format("{0:0.00}", LevizjeAll) + "    " + String.Format("{0:0.00}", MbetjaAll));
                             }
                             else {
                                 await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "     " + String.Format("{0:0.00}", KthyerAll) + "    " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
