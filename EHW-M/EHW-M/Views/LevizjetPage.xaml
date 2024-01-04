@@ -42,7 +42,7 @@
 
                         <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Depo}" VerticalOptions="Start"/>
                         <Entry  Grid.Row="1" Grid.Column="1" VerticalOptions="Start"/>
-                        <Entry  Grid.Row="1" Grid.Column="2" VerticalOptions="Start" Text="{Binding CurrentlySelectedArtikulli.Seri,Mode=TwoWay}" HorizontalTextAlignment="Center"/>
+                        <Entry  Grid.Row="1" Grid.Column="2" VerticalOptions="Start" Text="{Binding CurrentlySelectedArtikulli.Seri}" HorizontalTextAlignment="Center"/>
 
                         <Label Text="Artikulli"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
                         <Label Text="Sasia" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" HorizontalOptions="CenterAndExpand" Margin="0,0,70,0"  VerticalTextAlignment="End"/>

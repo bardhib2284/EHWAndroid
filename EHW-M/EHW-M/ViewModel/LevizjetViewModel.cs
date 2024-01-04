@@ -569,7 +569,17 @@ namespace EHWM.ViewModel {
                     return;
                 }
             }
+            var artikulli = Artikujt.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
+            var malliMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
+            var stoqet = await App.Database.GetAllStoqetAsync();
 
+            
+            if (artikulli != null) {
+                artikulli.Seri = CurrentlySelectedArtikulli.Seri;
+                malliMbetur.Seri = CurrentlySelectedArtikulli.Seri;
+                await App.Database.UpdateArtikulliAsync(artikulli);
+                await App.Database.UpdateMalliMbeturAsync(malliMbetur);
+            }
             var tempArts = Artikujt;
             CurrentlySelectedArtikulli.Sasia = Sasia;
             SelectedArikujt.Add(CurrentlySelectedArtikulli);
@@ -577,7 +587,7 @@ namespace EHWM.ViewModel {
             Sasia = 0;
             //Update sasia
             decimal SasiaUpdate = Math.Round(decimal.Parse(CurrentlySelectedArtikulli.Sasia.ToString()), 3);
-            var stoqet = await App.Database.GetAllStoqetAsync();
+            
             var stoku = stoqet.FirstOrDefault(x => x.Depo == Agjendi.IDAgjenti && x.Shifra == CurrentlySelectedArtikulli.IDArtikulli);
             decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
             stoku.Sasia = double.Parse(Math.Round(sasiaAktuale - SasiaUpdate, 3).ToString());
