@@ -497,7 +497,7 @@ namespace EHWM.ViewModel {
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
                 await _printer.printText("\nNisesi:" + "                  Transportuesi:" + "          Pritesi:");
 
-                await _printer.printText("\n" + currAgjendi.Emri  + " "+ currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "                 " + depo.TAGNR + "      ");
+                await _printer.printText("\n" + currAgjendi.Emri  + " "+ currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + depo.TAGNR + "      ");
 
 
 
