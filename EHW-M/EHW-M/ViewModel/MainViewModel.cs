@@ -1247,9 +1247,13 @@ namespace EHWM.ViewModel {
                                 }
                             }
                         }
+                        else if (art.SasiaShitur > 100) {
+                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+                            "\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "     " + String.Format("{0:0.00}", art.SasiaKthyer) + "   " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                        }
                         else if(art.SasiaShitur < 10 && art.SasiaShitur > 0) {
                             await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
-"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "      " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "      " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "  " + String.Format("{0:0.00}", art.SasiaMbetur) + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                         }
                         else {
                             await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
