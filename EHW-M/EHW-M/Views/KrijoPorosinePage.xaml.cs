@@ -26,5 +26,9 @@ namespace EHWM.Views {
             bc.CurrentlySelectedArtikulli = (sender as ListView).SelectedItem as Artikulli;
 
         }
+
+        private void Button_Clicked(object sender, EventArgs e) {
+
+        }
     }
 }

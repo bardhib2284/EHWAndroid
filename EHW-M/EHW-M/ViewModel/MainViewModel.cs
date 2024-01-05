@@ -858,6 +858,10 @@ namespace EHWM.ViewModel {
                             totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
                     }
                     else if (vptvsh.Length == 7) {
+                        if(cmimTotal.Length == 8) {
+                            totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
+                        }
+                        else
                         totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
                     }
                     else
@@ -954,6 +958,10 @@ namespace EHWM.ViewModel {
                 }
                 else if (tvshAll.ToString().Length >= 7) {
                     if(TotaliPaTVSH.Length == 7) {
+                        if(cmimTotal.Length == 8) {
+                            totalBuilder += "  " + tvshAll + "   ";
+                        }
+                        else
                         totalBuilder += "  " + tvshAll + "    ";
                     }
                     else if(TotaliPaTVSH.Length == 8 && cmimTotal.Length == 8) {

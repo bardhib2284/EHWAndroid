@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.ZgjidhKlientetModalPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <StackLayout>
+                <Entry Placeholder="Kerko" TextChanged="Entry_TextChanged"/>
+                <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="100" MinimumHeightRequest="100" VerticalOptions="Fill">
+                    <Grid HeightRequest="50" Padding="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="8*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="10,0" VerticalTextAlignment="Center" Text="Emri" Grid.Row="0" Grid.Column="0" />
+                    </Grid>
+                </Frame>
+
+                <Frame Padding="10" BorderColor="Black" x:Name="allArtikujt">
+                    <ListView x:Name="testList" ItemsSource="{Binding Klientet}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="40">
+                                        <Label Text="{Binding Emri}"  FontSize="12" VerticalTextAlignment="Center" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Frame Padding="10" BorderColor="Black" IsVisible="false" x:Name="searchedArtikujt">
+                    <ListView  ItemsSource="{Binding SearchedKlientet}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Spacing="40">
+                                        <Label Text="{Binding Emri}" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+            </StackLayout>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
