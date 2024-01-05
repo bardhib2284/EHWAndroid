@@ -25,14 +25,14 @@
                 <Label Grid.Row="0" Grid.Column="2" Text="Tipi Pageses" HorizontalOptions="Center" VerticalOptions="Center"/>
 
 
-                <Entry Grid.Row="1" Grid.Column="0" Text="{Binding ShumaPaguar}" VerticalOptions="Start"/>
+                <Entry Grid.Row="1" Grid.Column="0" Text="{Binding ShumaPaguar}" VerticalOptions="Start" Keyboard="Numeric"/>
                 <Picker x:Name="monedhaPicker" SelectedItem="{Binding CoinType}" Grid.Row="1" Grid.Column="1"  VerticalOptions="Start" HorizontalTextAlignment="Center"/>
                 <Picker x:Name="tipiPagesesPicker" SelectedItem="{Binding PayType}" Grid.Row="1" Grid.Column="2" VerticalOptions="Start" HorizontalTextAlignment="Center"/>
             </Grid>
 
             <StackLayout Orientation="Horizontal" Margin="40,0,0,0" HorizontalOptions="FillAndExpand">
                 <Label Text="Data Aktuale" HorizontalOptions="Fill" VerticalOptions="Center"/>
-                <Entry Text="{Binding TodaysDate}" IsEnabled="False" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
+                <Entry Text="{Binding TodaysDate,StringFormat='{}{0:dd-MM-yyyy HH-mm-ss}'}" IsEnabled="False" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
             </StackLayout>
 
 
@@ -66,7 +66,7 @@
                     </ListView>
                     <StackLayout Orientation="Horizontal">
                         <Label Text="{Binding TotalPrice}" VerticalTextAlignment="Center"/>
-                        <Button Text="Inkaso" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
+                        <Button Text="Inkaso" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand" BorderColor="Transparent" Margin="10"/>
                     </StackLayout>
                 </StackLayout>
             </Frame>

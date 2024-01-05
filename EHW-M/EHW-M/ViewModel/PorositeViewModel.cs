@@ -318,6 +318,8 @@ namespace EHWM.ViewModel {
             NrPorosise = "PRS-" + App.Instance.MainViewModel.LoginData.DeviceID + "-" + DateTime.Now.ToString("yyMMdd")+ "-" + NrRendor.ToString("00");
             KrijoPorosinePage kpPorosia = new KrijoPorosinePage();
             kpPorosia.BindingContext = this;
+            SelectedKlient = Klientet.FirstOrDefault(x => x.Depo.Trim() == Agjendi.Depo && x.Emri.Contains(Agjendi.Depo));
+            SelectedKlientIndex = Klientet.FindIndex(x=> x.Depo.Trim() == Agjendi.Depo && x.Emri.Contains(Agjendi.Depo));
             await App.Instance.PushAsyncNewPage(kpPorosia);
         }
 

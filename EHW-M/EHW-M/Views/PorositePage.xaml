@@ -36,10 +36,10 @@
             </StackLayout>
 
             <StackLayout Orientation="Horizontal" HorizontalOptions="Start" VerticalOptions="EndAndExpand">
-                <Button Text="Vizualizo" Clicked="Button_Clicked"  x:Name="Vizualizo" WidthRequest="70"/>
-                <Button Text="Faturo" Clicked="Button_Clicked" x:Name="Faturo" WidthRequest="70"/>
-                <Button Text="Krijo liste" Clicked="Button_Clicked" x:Name="Krijo" WidthRequest="70"/>
-                <Button Text="Shto" Clicked="Button_Clicked" x:Name="Shto" WidthRequest="70"/>
+                <Button Text="Vizualizo" Clicked="Button_Clicked"  x:Name="Vizualizo" WidthRequest="70" FontSize="12"/>
+                <Button Text="Faturo" Clicked="Button_Clicked" x:Name="Faturo" WidthRequest="70" FontSize="12"/>
+                <Button Text="Krijo liste" Clicked="Button_Clicked" x:Name="Krijo" WidthRequest="70" FontSize="11"/>
+                <Button Text="Shto" Clicked="Button_Clicked" x:Name="Shto" WidthRequest="70" FontSize="12"/>
             </StackLayout>
             
         </StackLayout>

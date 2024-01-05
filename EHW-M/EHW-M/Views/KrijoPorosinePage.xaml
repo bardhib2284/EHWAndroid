@@ -12,7 +12,7 @@
 
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label Text="Klienti" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
-                <Picker ItemsSource="{Binding Klientet}" SelectedItem="{Binding SelectedKlient}" WidthRequest="250" ItemDisplayBinding="{Binding Emri}" HorizontalOptions="EndAndExpand"/>
+                <Picker ItemsSource="{Binding Klientet}" SelectedItem="{Binding SelectedKlient}" SelectedIndex="{Binding SelectedKlientIndex}" WidthRequest="250" ItemDisplayBinding="{Binding Emri}" HorizontalOptions="EndAndExpand"/>
             </StackLayout>
 
             <StackLayout>

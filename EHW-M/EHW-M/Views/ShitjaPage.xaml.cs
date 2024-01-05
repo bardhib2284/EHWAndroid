@@ -56,7 +56,6 @@ namespace EHWM.Views {
                     var valueSplit = (sender as Entry).Text.Split('-');
                     if (valueSplit.Count() > 1) {
                         (sender as Entry).Text = "-" + decimal.Parse(valueSplit[1]).ToString("0.00");
-
                     }
                 }
                 else {
@@ -64,11 +63,11 @@ namespace EHWM.Views {
                     var valueSplit = stringi.Split('-');
                     if (valueSplit.Count() > 1) {
                         (sender as Entry).Text = "-" + decimal.Parse(valueSplit[1]).ToString("0.00");
-
                     }
                 }
             }else
                 (sender as Entry).Text = decimal.Parse((sender as Entry).Text).ToString("0.00");
+
         }
 
         private void Entry_Focused(object sender, FocusEventArgs e) {

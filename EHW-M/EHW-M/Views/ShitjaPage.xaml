@@ -7,7 +7,7 @@
             <StackLayout Orientation="Horizontal" Padding="10,0" HorizontalOptions="FillAndExpand">
                 <StackLayout Orientation="Vertical" HorizontalOptions="StartAndExpand">
                     <Label Text="Data"/>
-                    <Label Text="{Binding TodayDate}" FontAttributes="Bold"/>
+                    <Label Text="{Binding TodayDate,StringFormat='{}{0:dd-MM-yyyy HH-mm-ss}'}" FontAttributes="Bold"/>
                 </StackLayout>
                 <StackLayout Orientation="Vertical" HorizontalOptions="EndAndExpand">
                     <Label Text="Nr.Fatures"/>

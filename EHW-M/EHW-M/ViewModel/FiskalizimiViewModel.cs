@@ -17,11 +17,17 @@ namespace EHWM.ViewModel {
         public List<CashRegister> CashRegisters { get; set; }
         public List<Liferimi> Liferimet { get; set; }
         public List<LevizjetHeader> Levizjet { get; set; }
+        public List<EvidencaPagesave> InkasimetList { get; set; }
     }
 
 
     public class FiskalizimiViewModel : BaseViewModel {
 
+        private ObservableCollection<EvidencaPagesave> _InkasimetList;
+        public ObservableCollection<EvidencaPagesave> InkasimetList {
+            get { return _InkasimetList; }
+            set { SetProperty(ref _InkasimetList, value); }
+        }
         private ObservableCollection<CashRegister> _cashRegisterList;
         public ObservableCollection<CashRegister> CashRegisterList {
             get { return _cashRegisterList; }

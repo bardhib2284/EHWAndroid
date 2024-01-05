@@ -70,6 +70,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Renderers\ADatePicker.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\ArtikujtPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>

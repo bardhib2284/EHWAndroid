@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:renderers="clr-namespace:EHWM.Renderers"
              x:Class="EHWM.Views.ClientsPage" Title="Lista e klienteve">
     <ContentPage.Content>
         
@@ -15,7 +15,7 @@
             </StackLayout>
             <StackLayout Orientation="Horizontal" HeightRequest="60" HorizontalOptions="FillAndExpand">
                 <Label Text="Data Filter: " WidthRequest="75" VerticalTextAlignment="Center"  HorizontalTextAlignment="Start"/>
-                <DatePicker  Date="{Binding FilterDate}" DateSelected="DatePicker_DateSelected" MinimumDate="{Binding FilterMinDate}"  MaximumDate="{Binding FilterMaxDate}" HorizontalOptions="FillAndExpand" WidthRequest="200" />
+                <renderers:ADatePicker x:Name="datepickerr" CurrentDate="{Binding FilterDate}" HorizontalOptions="FillAndExpand" WidthRequest="200" />
             </StackLayout>            
             <StackLayout Orientation="Horizontal" HeightRequest="60">
                 <Label Text="Filter: " WidthRequest="100" VerticalTextAlignment="Center"  HorizontalTextAlignment="Start"/>
@@ -35,7 +35,7 @@
                 <Label Text="Klienti/Vendi" Grid.Row="0" HorizontalTextAlignment="Center" Grid.Column="1" FontAttributes="Bold"/>
                 <Label Text="Statusi Vizites" Grid.Row="0" Grid.Column="2" FontAttributes="Bold"/>
             </Grid>
-            <ListView x:Name="AllClientsList" ItemsSource="{Binding VizitatFilteredByDate}" SelectionMode="None" ItemTapped="ListView_ItemTapped">
+            <ListView x:Name="AllClientsList" ItemsSource="{Binding VizitatFilteredByDate}" SelectionMode="None" ItemTapped="ListView_ItemTapped" IsVisible="{Binding AllClientsList}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell Tapped="ViewCell_Tapped">
@@ -48,7 +48,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SearchedVizitat}" SelectionMode="Single" ItemTapped="ListView_ItemTapped">
+            <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SearchedVizitat}" SelectionMode="Single" ItemTapped="ListView_ItemTapped" IsVisible="{Binding SearchedClientsList}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -65,7 +65,7 @@
             <StackLayout Orientation="Horizontal">
                 <Button Text="Vizitat" Clicked="Button_Clicked" x:Name="Vizitat" WidthRequest="70"/>
                 <Button Text="Vizualizo" Clicked="Button_Clicked" x:Name="Vizualizo" WidthRequest="70"/>
-                <Button Text="Shitjet" Clicked="Button_Clicked" x:Name="Shitjet" WidthRequest="70"/>
+                <Button Text="Shitje" Clicked="Button_Clicked" x:Name="Shitjet" WidthRequest="70"/>
                 <Button Text="Kthimi" Clicked="Button_Clicked" x:Name="Kthimi" WidthRequest="70"/>
             </StackLayout>
         </StackLayout>

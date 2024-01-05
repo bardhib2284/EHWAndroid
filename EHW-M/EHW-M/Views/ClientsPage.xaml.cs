@@ -15,6 +15,7 @@ namespace EHWM.Views {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ClientsPage : ContentPage {
         public ClientsPage() {
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("sq-AL");
             InitializeComponent();
             NavigationPage.SetHasNavigationBar(this, false);
             AllClientsList.IsVisible = true;
@@ -47,7 +48,11 @@ namespace EHWM.Views {
             bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.Klienti.Contains(e.NewTextValue.ToUpper())).ToList());
             bc.SelectedVizita = null;
         }
+        public void AllClientsListVisibility(bool visible) {
+            AllClientsList.IsVisible = visible;
+        }
 
+        public void SearchedClientsListVisibility(bool visible) {  SearchedClientsList.IsVisible = visible; }
         private async void Button_Clicked(object sender, EventArgs e) {
             // Open a PopupPage
             if((sender as Button).Text == "Vizitat") {
@@ -56,11 +61,10 @@ namespace EHWM.Views {
                 await Navigation.PushPopupAsync(VizitatOptionsPopup);
                 return;
             }
-            if((sender as Button).Text == "Shitjet") {
-                //VizitatOptionsPopup VizitatOptionsPopup = new VizitatOptionsPopup();
-                //VizitatOptionsPopup.BindingContext = this.BindingContext;
-                //await Navigation.PushPopupAsync(VizitatOptionsPopup);
-                //return;
+            if((sender as Button).Text == "Shitje") {
+                var bc = (MainViewModel)BindingContext;
+                bc.ShtijeKorrigjim();
+                return;
             }            
             if((sender as Button).Text == "Kthimi") {
                 var bc = (MainViewModel)BindingContext;
@@ -89,12 +93,7 @@ namespace EHWM.Views {
             }
         }
 
-        private void DatePicker_DateSelected(object sender, DateChangedEventArgs e) {
-            var bc = (MainViewModel)BindingContext;
-            bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>( bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Day == bc.FilterDate.Day));
-            AllClientsList.IsVisible = false;
-            SearchedClientsList.IsVisible = true;
-        }
+
 
         protected override void OnDisappearing() {
 

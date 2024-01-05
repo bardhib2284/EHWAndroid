@@ -68,6 +68,22 @@ namespace EHWM.ViewModel {
 
         public bool DissapearingFromShitjaPage { get; set; }
 
+        private bool _AllClientsList;
+        public bool AllClientsList {
+            get { return _AllClientsList; }
+            set {
+                SetProperty(ref _AllClientsList,value);
+            }
+        }
+
+        private bool _SearchedClientsList;
+        public bool SearchedClientsList {
+            get { return _SearchedClientsList; }
+            set {
+                SetProperty(ref _SearchedClientsList, value);
+            }
+        }
+
         public Klientet CreatedKlient { get; set; }
         private ObservableCollection<Klientet> _clients;
         public ObservableCollection<Klientet> Clients {
@@ -143,6 +159,11 @@ namespace EHWM.ViewModel {
             set { SetProperty(ref _CurrentAgent, value); }
         }
 
+        private Depot _Depoja;
+        public Depot Depoja{
+            get { return _Depoja; }
+            set { SetProperty(ref _Depoja, value); }
+        }
         private DateTime _FilterDate;
         public DateTime FilterDate {
             get { return _FilterDate; }
@@ -284,6 +305,7 @@ namespace EHWM.ViewModel {
 
         public string NrFatKthim { get; set; }
         public Guid IDPorosi { get; set; }
+        public Guid IDLiferimi { get; set; }
 
         public async Task GoToFiskalizimiAsync() {
 
@@ -291,7 +313,8 @@ namespace EHWM.ViewModel {
             {
                 CashRegisters = await App.Database.GetCashRegisterAsync(),
                 Levizjet = await App.Database.GetLevizjetHeaderAsync(),
-                Liferimet = await App.Database.GetLiferimetAsync()
+                Liferimet = await App.Database.GetLiferimetAsync(),
+                InkasimetList = await App.Database.GetEvidencaPagesaveAsync()
             };
             FiskalizimiViewModel fvw = new FiskalizimiViewModel(np);
 
@@ -607,7 +630,7 @@ namespace EHWM.ViewModel {
 "---------------------------------------------------------------------");
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now);
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -628,7 +651,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\nTRANSPORTUESI: e. h. w. j61804031v");
                 await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -2148,6 +2171,7 @@ namespace EHWM.ViewModel {
             return _ret;
         }
 
+
         public async Task GoToShtoVizitenPageAsync() {
             foreach (var viz in VizitatFilteredByDate) {
                 if (viz.IDStatusiVizites == "1") {
@@ -2178,6 +2202,27 @@ namespace EHWM.ViewModel {
                     if (Configurimi.Serveri != null) {
                         App.ApiClient.BaseAddress = new Uri(Configurimi.Serveri);
                         App.Instance.WebServerFiskalizimiUrl = Configurimi.URLFiskalizim;
+                        var depot = await App.Database.GetDepotAsync();
+                        
+                        if (depot.Count > 0) {
+                            Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                        }
+                        else {
+                            if (Configurimi.Token != null) {
+                                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                            }
+                            else
+                                return;
+                            var depotResult = await App.ApiClient.GetAsync("depot");
+                            if(depotResult.IsSuccessStatusCode) {
+                                var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                                depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                                if (depot.Count > 0) {
+                                    Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                    await App.Database.SaveDepotAsync(depot);
+                                }
+                            }
+                        }
                     }
                     else {
                         UserDialogs.Instance.Alert("Ju lutem filloni me Configurimin fillimisht para se te qaseni ne aplikacion, perndryshe nuk do te mundeni te qaseni", "Verejtje", "Ok");
@@ -2445,7 +2490,50 @@ namespace EHWM.ViewModel {
             //Save the stream as a file in the device and invoke it for viewing
             await Xamarin.Forms.DependencyService.Get<ISave>().SaveAndView("testBIXOLON.pdf", "application/pdf", stream);
         }
+        public static Guid NONE = new Guid("00000000-0000-0000-0000-000000000000");
 
+        public async Task ShtijeKorrigjim() {
+            try {
+                if(SelectedVizita == null) {
+                    if(SelectedVizita.IDStatusiVizites != "0" || SelectedVizita.IDStatusiVizites != "1") {
+                        if(IDPorosi != NONE) {
+                            IDPorosi = NONE;
+                            IDLiferimi = NONE;
+                        }
+                        var NumriFaturaveList = await App.Database.GetNumriFaturaveAsync();
+                        var NumriFaturave = NumriFaturaveList.FirstOrDefault(x => x.KOD == LoginData.IDAgjenti);
+                        if (NumriFaturave != null) {
+                            var currentNumriFatures = NumriFaturave.CurrNrFat;
+                            var currentNumriKUFIP = NumriFaturave.NRKUFIP;
+                            var currentNumriKUFIS = NumriFaturave.NRKUFIS;
+                            if (currentNumriFatures + currentNumriKUFIP > currentNumriKUFIS) {
+                                UserDialogs.Instance.Alert("Nuk është i caktuar numri i kufive të faturave \n shitja nuk mund të vazhdojë", "Error", "Ok");
+                                return;
+                            }
+                            else {
+                                currentNumriFatures = currentNumriFatures + currentNumriKUFIP;
+                                var companyInfo = await App.Database.GetCompanyInfoAsync();
+                                if(companyInfo == null) {
+                                    UserDialogs.Instance.Alert("Vlera e TVSH-se nuk është e përcaktuar \n Tabela:CompanyInfo");
+                                    return;
+                                }
+
+                            }
+                        }
+                        else {
+                            UserDialogs.Instance.Alert("Nuk është i caktuar numri i kufive të faturave \n shitja nuk mund të vazhdojë", "Error", "Ok");
+                            return;
+                        }
+                    }
+                    else {
+                        UserDialogs.Instance.Alert("Vizita nuk eshte e hapur!");
+                        return;
+                    }
+                }
+            }catch(Exception e) {
+
+            }
+        }
         public async Task KthimMalli() {
             if (SelectedVizita == null) {
                 UserDialogs.Instance.Alert("Ju lutemi selektoni viziten para se te vazhdoni me shitje", "Error", "Ok");
@@ -2747,6 +2835,7 @@ namespace EHWM.ViewModel {
             UserDialogs.Instance.ShowLoading("Loading..");
             InkasimiPage inkasimiPage = new InkasimiPage();
             var klientet = await App.Database.GetKlientetAsync();
+            klientet = klientet.Where(x => x.Depo.Trim() == LoginData.Depo).ToList();
             var detyrimet = await App.Database.GetDetyrimetAsync();
             if(detyrimet.Count < 1) {
                 var detyrimetResult = await App.ApiClient.GetAsync("detyrimet");

@@ -27,7 +27,11 @@ namespace EHWM.ViewModel {
     }
 
     public class LevizjetViewModel : BaseViewModel{
-
+        private ObservableCollection<Artikulli> _SearchedArtikujt;
+        public ObservableCollection<Artikulli> SearchedArtikujt {
+            get { return _SearchedArtikujt; }
+            set { SetProperty(ref _SearchedArtikujt, value); }
+        }
         public ObservableCollection<Depot> Klientet { get; set; }
         private ObservableCollection<Artikulli> _artikujt;
         public ObservableCollection<Artikulli> Artikujt {
@@ -108,7 +112,8 @@ namespace EHWM.ViewModel {
             ShtoLevizjenCommand = new Command(async () => await ShtoLevizjenAsync());
             FshijArtikullinCommand = new Command(FshijArtikullinAsync);
             PrintoLevizjenCommand = new Command(async () => await PrintoFaturenAsync());
-
+            SearchedArtikujt = new ObservableCollection<Artikulli>();
+            Nga = true;
             LevizjaEPerfunduar = false;
             LevizjeText = "Levizje nga";
         }
@@ -228,7 +233,7 @@ namespace EHWM.ViewModel {
                 
                 await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
                 await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data);
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy"));
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
                 await _printer.printText("\nKodi i operatorit : " + CurrentlySelectedLevizjetHeader.TCROperatorCode);
 
