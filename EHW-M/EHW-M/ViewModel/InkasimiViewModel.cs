@@ -138,7 +138,6 @@ namespace EHWM.ViewModel {
 
                     var EvidencaPagesave = new EvidencaPagesave
                     {
-                        NrFatures = nrFatures,
                         NrPageses = PagesatID,
                         ShumaPaguar = float.Parse(vlera.ToString()),
                         DataPageses = TodaysDate,
@@ -149,8 +148,6 @@ namespace EHWM.ViewModel {
                         PayType = PayType,
                         KMON = "LEK",
                         ExportStatus = 0,
-                        DataPerPagese = TodaysDate,
-                        ShumaTotale = DetyrimetNgaKlienti.FirstOrDefault().Detyrimi
                     };
                     EvidencaPagesave.Borxhi = EvidencaPagesave.ShumaTotale - EvidencaPagesave.ShumaPaguar;
                     DetyrimetNgaKlienti.FirstOrDefault().Detyrimi = (float)EvidencaPagesave.Borxhi;

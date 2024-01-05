@@ -148,8 +148,9 @@ namespace EHWM.ViewModel {
                         if(np.Navigation.NavigationStack[np.Navigation.NavigationStack.Count - 2] is VizualizoPorosinePage vp) {
                             await OnPrintTextClickedSelectedPorosia();
                         }
-                    }else
-                    await OnPrintTextClicked();
+                        else
+                            await OnPrintTextClicked();
+                    }
                 }
             }
             catch (Exception ex) {
