@@ -2177,7 +2177,6 @@ namespace EHWM.ViewModel {
                                         if (vizitatWithDeviceIdResponse.IsSuccessStatusCode) {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<Vizita>>(vizitatWithDeviceIdResult);
                                             var currentVizitat = await App.Database.GetVizitatAsync();
-                                            var res = await App.Database.ClearAllVizitat();
                                             currentVizitat = await App.Database.GetVizitatAsync();
                                             foreach(var viz in listOfClientsWithDepo) {
                                                 viz.IDStatusiVizites = "0";
@@ -2240,25 +2239,6 @@ namespace EHWM.ViewModel {
                                             var currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                             await App.Database.ClearAllEvidencaPagesave();
                                             currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                            var saved = await App.Database.SaveAllEvidencaPagesaveAsync(listOfClientsWithDepo);
-                                            if (saved != -1) {
-                                                currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                                foreach (var vizita in currentEvidencaPagesave) {
-                                                    vizita.SyncStatus = 1;
-                                                }
-                                                var jsonRequest = JsonConvert.SerializeObject(currentEvidencaPagesave);
-                                                var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                                                var vizitatPostResponse = await App.ApiClient.PostAsync("pagesa", stringContent);
-                                                if (vizitatPostResponse.IsSuccessStatusCode) {
-                                                    return true;
-                                                }
-                                                return false;
-                                            }
-                                            else {
-                                                UserDialogs.Instance.HideLoading();
-                                                UserDialogs.Instance.Alert("Error ne ruajtjen e evidencalokale ne DB Lokale ");
-                                                return false;
-                                            }
                                         }
                                         else {
                                             UserDialogs.Instance.HideLoading();
@@ -2268,7 +2248,9 @@ namespace EHWM.ViewModel {
                                     }
                                     else {
                                         var currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-
+                                        foreach(var ev in currentEvidencaPagesave) {
+                                            ev.SyncStatus = 1;
+                                        }
                                         var jsonRequest = JsonConvert.SerializeObject(currentEvidencaPagesave);
                                         var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
                                         var vizitatPostResponse = await App.ApiClient.PostAsync("pagesa", stringContent);
@@ -2280,25 +2262,6 @@ namespace EHWM.ViewModel {
                                                 currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                                 await App.Database.ClearAllEvidencaPagesave();
                                                 currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                                var saved = await App.Database.SaveAllEvidencaPagesaveAsync(listOfClientsWithDepo);
-                                                if (saved != -1) {
-                                                    currentEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
-                                                    foreach (var vizita in currentEvidencaPagesave) {
-                                                        vizita.SyncStatus = 1;
-                                                    }
-                                                    jsonRequest = JsonConvert.SerializeObject(currentEvidencaPagesave);
-                                                    stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                                                    vizitatPostResponse = await App.ApiClient.PostAsync("pagesa", stringContent);
-                                                    if (vizitatPostResponse.IsSuccessStatusCode) {
-                                                        return true;
-                                                    }
-                                                    return false;
-                                                }
-                                                else {
-                                                    UserDialogs.Instance.HideLoading();
-                                                    UserDialogs.Instance.Alert("Error ne ruajtjen e evidencalokale ne DB Lokale ");
-                                                    return false;
-                                                }
                                             }
                                         }
                                         return false;
