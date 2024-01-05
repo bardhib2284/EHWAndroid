@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -55,7 +56,30 @@ namespace EHWM.ViewModel {
             get { return _coinType; }
             set { SetProperty(ref _coinType, value); }
         }
+        private ObservableCollection<Klientet> _SearchedKlientet;
+        public ObservableCollection<Klientet> SearchedKlientet {
+            get { return _SearchedKlientet; }
+            set { SetProperty(ref _SearchedKlientet, value); }
+        }
+        private Klientet _selectedKlient;
+        public Klientet SelectedKlient {
+            get { return _selectedKlient; }
+            set { SetProperty(ref _selectedKlient, value); }
+        }
+        public async Task ZgjedhKlientet() {
+            try {
+                UserDialogs.Instance.ShowLoading("Duke hapur klientet");
+                ZgjidhKlientetModalPage ZgjidhKlientetModalPage = new ZgjidhKlientetModalPage();
+                ZgjidhKlientetModalPage.BindingContext = this;
 
+                await App.Instance.PushAsyncNewModal(ZgjidhKlientetModalPage);
+                UserDialogs.Instance.HideLoading();
+
+            }
+            catch (Exception e) {
+                var g = e.Message;
+            }
+        }
         public async void RegjistroAsync() {
             if(DetyrimetNgaKlienti.Count < 1) {
                 return;
@@ -123,7 +147,7 @@ namespace EHWM.ViewModel {
                         DeviceID = Agjendi.DeviceID,
                         SyncStatus = 0,
                         PayType = PayType,
-                        KMON = CoinType,
+                        KMON = "LEK",
                         ExportStatus = 0,
                         DataPerPagese = TodaysDate,
                         ShumaTotale = DetyrimetNgaKlienti.FirstOrDefault().Detyrimi

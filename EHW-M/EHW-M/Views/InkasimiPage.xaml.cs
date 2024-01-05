@@ -22,10 +22,10 @@ namespace EHWM.Views {
         }
 
         private void depotPicker_SelectedIndexChanged(object sender, EventArgs e) {
-            if(depotPicker.SelectedItem != null) {
-                var bc = (InkasimiViewModel)BindingContext;
-                bc.MerrDetyrimet(depotPicker.SelectedItem as Klientet);
-            }
+            //if(depotPicker.SelectedItem != null) {
+            //    var bc = (InkasimiViewModel)BindingContext;
+            //    bc.MerrDetyrimet(depotPicker.SelectedItem as Klientet);
+            //}
         }
     }
 }

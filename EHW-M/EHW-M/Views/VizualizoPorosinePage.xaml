@@ -25,6 +25,8 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+
+            <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

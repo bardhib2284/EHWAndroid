@@ -64,6 +64,7 @@ namespace EHWM.ViewModel {
         public ICommand GoToFiskalizimiCommand { get; set; }
         public ICommand ChangeVizitaStatusCommand { get; set; }
         public ICommand GoToMbetjaMallitCommand { get; set; }
+        public ICommand HapInkasimetCommand { get; set; }
 
 
         public bool DissapearingFromShitjaPage { get; set; }
@@ -207,6 +208,7 @@ namespace EHWM.ViewModel {
             GoToFiskalizimiCommand = new Command(async () => await GoToFiskalizimiAsync());
             ChangeVizitaStatusCommand = new Command(async () => await ChangeVizitaStatusAsync());
             GoToMbetjaMallitCommand = new Command(async () => await GoToMbetjaMallitAsync());
+            HapInkasimetCommand = new Command(async () => await HapInkasimetAsync());
 
 
             FilterDate = DateTime.Now;
@@ -248,6 +250,23 @@ namespace EHWM.ViewModel {
         public double MbetjaAll {
             get { return mbetjaAll; }
             set { SetProperty(ref mbetjaAll, value); }
+        }
+
+        public ObservableCollection<EvidencaPagesave> InkasimetList { get; set; }
+        public async Task HapInkasimetAsync() {
+
+            UserDialogs.Instance.ShowLoading("Duke hapur inkasimet");
+            InkasimetList = new ObservableCollection<EvidencaPagesave>( await App.Database.GetEvidencaPagesaveAsync());
+            foreach(var inkasim in InkasimetList) {
+                if(string.IsNullOrEmpty(inkasim.KMON)) {
+                    inkasim.KMON = "LEK";
+                }
+            }
+            await App.Instance.MainPage.Navigation.PopPopupAsync();
+
+            await App.Instance.PushAsyncNewPage(new VizualizoInkasimetPage() { BindingContext = this });
+            UserDialogs.Instance.HideLoading();
+
         }
         public async Task GoToMbetjaMallitAsync() {
             PranuarAll = 0;
@@ -517,6 +536,202 @@ namespace EHWM.ViewModel {
         public async Task PrintoFaturenAsync() {
             await App.Instance.PushAsyncNewPage(new PrinterSelectionPage() { BindingContext = this});
         }
+
+
+        async Task OnPrintTextClickedInkasimet() {
+
+            // Prepares to communicate with the printer 
+            _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
+
+            if (_printer == null)
+                return;
+
+            try {
+                await _printSemaphore.WaitAsync();
+
+                uint textCount = 0;
+                string printText = string.Empty;
+
+
+                //sd.AddToPreview();
+                // sd.Preview();
+                //lRet = await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_WPC1252 });
+
+                // note : Page mode and transaction mode cannot be used together between IN and OUT.
+                // When "setTransaction" function called with "MPOS_PRINTER_TRANSACTION_IN", print data are stored in the buffer.
+                //await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
+                // Printer Setting Initialize
+                await _printer.directIO(new byte[] { 0x1b, 0x40 });
+
+                // Code Pages for the contries in east Asia. Please note that the font data downloading is required to print characters for Korean, Japanese and Chinese.
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_KSC5601 });   // Korean
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_SHIFTJIS });  // Japanese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_GB2312 });    // Simplifies Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_BIG5 });      // Traditional Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI });     // Persian 
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI_II });  // Persian 
+
+                await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
+
+
+                await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GetImgResource(),
+                            100/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                            (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                            50,                                                 // brightness
+                            true,                                               // Image Dithering
+                            true);
+                await _printer.printLine(1, 1, 1, 1, 1);
+                await _printer.printText("\nR A P O R T I   I   I N K A S I M E V E (Faturave) \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
+                await _printer.printLine(0, 0, 1, 1, 1);
+                await _printer.printText(
+"---------------------------------------------------------------------\n");
+
+                var agjender = await App.Database.GetAgjendetAsync();
+                var agjendi = agjender.FirstOrDefault(x => x.Depo == LoginData.Depo);
+                await _printer.printText("          " +agjendi.Emri + " " + agjendi.Mbiemri + "         " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+
+                await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
+
+                await _printer.printText("\nKlienti             Tipi    Monedhe    Fatura     Totali     Paguar\n");
+                await _printer.printText("---------------------------------------------------------------------");
+                float teGjithaSasit = 0f;
+                float teGjithaCmimetNjesi = 0f;
+                double teGjitheCmimetTotale = 0f;
+                var tvsh = 0m;
+                var nrBarkodi = 0;
+                var klientet = await App.Database.GetKlientetAsync();
+                foreach (var art in InkasimetList) {
+                    foreach(var klient in klientet) {
+                        if (klient.IDKlienti != art.IDKlienti)
+                            continue;
+                        string prntBuilder = string.Empty; 
+                        if (klient.Emri.Trim().Length > 21) {
+                            klient.Emri = klient.Emri.Trim().Remove(21);
+                        }
+                        prntBuilder += "\n" + klient.Emri.Trim();
+
+                        if(klient.Emri.Length == 21) {
+                            prntBuilder += art.PayType;
+                        }
+                        else if(klient.Emri.Length == 20)
+                        {
+                            prntBuilder += " " +art.PayType;
+                        }
+                        else if(klient.Emri.Length == 19)
+                        {
+                            prntBuilder += "  " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 18)
+                        {
+                            prntBuilder += "   " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 17)
+                        {
+                            prntBuilder += "    " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 16)
+                        {
+                            prntBuilder += "     " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 15)
+                        {
+                            prntBuilder += "      " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 14)
+                        {
+                            prntBuilder += "       " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 13)
+                        {
+                            prntBuilder += "        " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 12)
+                        {
+                            prntBuilder += "         " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 11)
+                        {
+                            prntBuilder += "          " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 10)
+                        {
+                            prntBuilder += "           " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 9)
+                        {
+                            prntBuilder += "            " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 8)
+                        {
+                            prntBuilder += "             " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 7)
+                        {
+                            prntBuilder += "              " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 6)
+                        {
+                            prntBuilder += "               " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 5)
+                        {
+                            prntBuilder += "                " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 4)
+                        {
+                            prntBuilder += "                 " + art.PayType;
+                        }
+                        else if(klient.Emri.Length == 3)
+                        {
+                            prntBuilder += "                  " + art.PayType;
+                        }
+
+                        prntBuilder += "    " + art.KMON;
+
+                        prntBuilder += "       " + art.NrFatures;
+
+                        prntBuilder += "    " + art.ShumaTotale;
+
+                        prntBuilder += "    " + art.ShumaPaguar;
+
+                        await _printer.printText(prntBuilder + "\n");
+                        teGjithaCmimetNjesi += (float)art.ShumaPaguar;
+                    }
+                    
+                }
+
+
+                await _printer.printText("\n---------------------------------------------------------------------");
+
+
+
+                //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
+                //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
+                await _printer.printText("\n");
+                await _printer.printText("\n");
+                await _printer.printText("Llojet e pagesave \n");
+                await _printer.printText("Shuma e paguar ne EURO :                               0.00\n");
+                await _printer.printText("Shuma e paguar ne LEK  :                             " + teGjithaCmimetNjesi + "\n");
+                await _printer.printText("Shuma e paguar ne USD  :                               0.00\n");
+
+
+                // Feed to tear-off position (Manual Cutter Position)
+                await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
+            }
+            catch (Exception ex) {
+                UserDialogs.Instance.Alert("Exception", ex.Message, "OK");
+            }
+            finally {
+                // Printer starts printing by calling "setTransaction" function with "MPOS_PRINTER_TRANSACTION_OUT"
+                await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_OUT);
+                // If there's nothing to do with the printer, call "closeService" method to disconnect the communication between Host and Printer.
+                await _printer.closeService();
+                _printSemaphore.Release();
+                _printer = null;
+                _printSemaphore = null;
+            }
+        }
+
         public async Task OnDeviceOpenClicked() {
             if (_printer == null) {
                 // Prepares to communicate with the printer 
@@ -528,6 +743,10 @@ namespace EHWM.ViewModel {
                     }
                     if (np.Navigation.NavigationStack[np.Navigation.NavigationStack.Count -2] is VizualizoMalliMbeturPage) {
                             await OnPrintTextClickedMalliMbetur();
+                            return;
+                    }
+                    if (np.Navigation.NavigationStack[np.Navigation.NavigationStack.Count -2] is VizualizoInkasimetPage) {
+                            await OnPrintTextClickedInkasimet();
                             return;
                     }
                 }
@@ -630,7 +849,7 @@ namespace EHWM.ViewModel {
 "---------------------------------------------------------------------");
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy"));
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -651,7 +870,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\nTRANSPORTUESI: e. h. w. j61804031v");
                 await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy") + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -1581,7 +1800,8 @@ namespace EHWM.ViewModel {
                                 PayType = liferimi.PayType,
                                 ShumaPaguar = liferimi.ShumaPaguar,
                                 ShumaTotale = liferimi.CmimiTotal,
-                                SyncStatus = 1
+                                SyncStatus = 1,
+                                KMON = "LEK"
                             };
                             await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         }
@@ -1600,7 +1820,8 @@ namespace EHWM.ViewModel {
                                 PayType = liferimi.PayType,
                                 ShumaPaguar = 0,
                                 ShumaTotale = liferimi.CmimiTotal,
-                                SyncStatus = 1
+                                SyncStatus = 1,
+                                KMON = "LEK"
                             };
                             await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         }
@@ -2333,7 +2554,6 @@ namespace EHWM.ViewModel {
                                 CashRegister.TCRSyncStatus = 999;
                                 CashRegister.Message = result.Message.Replace("'", "");
                             }
-
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
 
@@ -2689,7 +2909,7 @@ namespace EHWM.ViewModel {
                         IDVizita = SelectedVizita.IDVizita
                     };
                     await App.Database.SavePorositeAsync(newPorosi);
-                    ShitjaNavigationParameters np = new ShitjaNavigationParameters { Agjendi = LoginData, VizitaEHapur = SelectedVizita, NrFatures = (int)currentNumriFatures, PorosiaID = newPorosi.IDPorosia, KthimMalli = false};
+                    ShitjaNavigationParameters np = new ShitjaNavigationParameters { Agjendi = LoginData, VizitaEHapur = SelectedVizita, NrFatures = (int)currentNumriFatures, PorosiaID = newPorosi.IDPorosia, KthimMalli = false,ShitjeKorigjim = false};
                     ShitjaViewModel shitjaViewModel = new ShitjaViewModel(np);
                     page.BindingContext = shitjaViewModel;
                     App.Instance.ShitjaViewModel = shitjaViewModel;
@@ -2859,7 +3079,7 @@ namespace EHWM.ViewModel {
                 }
             }
             VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderBy(x => x.Klienti));
-            VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderBy(x => x.IDStatusiVizites));
+            VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderByDescending(x => x.IDStatusiVizites));
             ClientsPage ClientsPage = new ClientsPage();
             ClientsPage.BindingContext = this;
             await App.Instance.PushAsyncNewPage(ClientsPage);

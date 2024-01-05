@@ -37,11 +37,11 @@
                         </Grid.ColumnDefinitions>
 
                         <Label Text="{Binding LevizjeText}" Grid.Row="0" Grid.Column="0" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
-                        <Label Text="M03-770" Grid.Row="0" Grid.Column="1" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
+                        <Label Text="Numri Levizjes" Grid.Row="0" Grid.Column="1" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
                         <Label Text="Seri" Grid.Row="0" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
 
                         <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Depo}" VerticalOptions="Start"/>
-                        <Entry  Grid.Row="1" Grid.Column="1" VerticalOptions="Start"/>
+                        <Entry  Grid.Row="1" Grid.Column="1" VerticalOptions="Start" IsEnabled="False" Text="{Binding NrLevizjes}"/>
                         <Entry  Grid.Row="1" Grid.Column="2" VerticalOptions="Start" Text="{Binding CurrentlySelectedArtikulli.Seri}" HorizontalTextAlignment="Center"/>
 
                         <Label Text="Artikulli"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
@@ -55,7 +55,7 @@
                             </StackLayout>
                             <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand" Padding="0,3">
                                 <Button Grid.Row="3" Grid.Column="0" Text="Zgjedh Artikullin" Command="{Binding ZgjedhArtikullinCommand}" WidthRequest="130" HorizontalOptions="Center"/>
-                                <Entry x:Name="sasiaEntry" Grid.Row="3" Grid.Column="1" HorizontalTextAlignment="Center" WidthRequest="100" Text="{Binding Sasia}" HorizontalOptions="CenterAndExpand"/>
+                                <Entry x:Name="sasiaEntry" Grid.Row="3" Grid.Column="1" HorizontalTextAlignment="Center" WidthRequest="100" Text="{Binding Sasia}" Keyboard="Numeric" HorizontalOptions="CenterAndExpand"/>
                                 <Button Text="Shto" Grid.Row="3" Grid.Column="2" Command="{Binding AddArtikulliCommand}"/>
                             </StackLayout>
                         </StackLayout>

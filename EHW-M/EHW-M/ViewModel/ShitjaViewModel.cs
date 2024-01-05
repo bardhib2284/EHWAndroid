@@ -483,7 +483,8 @@ namespace EHWM.ViewModel {
                                 PayType = liferimi.PayType,
                                 ShumaPaguar = liferimi.ShumaPaguar,
                                 ShumaTotale = liferimi.CmimiTotal,
-                                SyncStatus = 1
+                                SyncStatus = 1,
+                                KMON = "LEK"
                             };
                             await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         }
@@ -502,7 +503,8 @@ namespace EHWM.ViewModel {
                                 PayType = liferimi.PayType,
                                 ShumaPaguar = 0,
                                 ShumaTotale = liferimi.CmimiTotal,
-                                SyncStatus = 1
+                                SyncStatus = 1,
+                                KMON = "LEK"
                             };
                             await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         }
@@ -1210,7 +1212,7 @@ namespace EHWM.ViewModel {
 "---------------------------------------------------------------------");
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy"));
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);

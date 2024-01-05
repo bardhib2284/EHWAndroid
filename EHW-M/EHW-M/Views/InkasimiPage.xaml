@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:renderers="clr-namespace:EHWM.Renderers"
              x:Class="EHWM.Views.InkasimiPage" Title="Inkasimi">
     <ContentPage.Content>
         <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="10" Spacing="10">
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label Text="Klienti" HorizontalOptions="Fill" VerticalOptions="Center"/>
-                <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Emri}" VerticalOptions="Start" HorizontalOptions="FillAndExpand" SelectedIndexChanged="depotPicker_SelectedIndexChanged"/>
+                <renderers:KlientetPicker CurrentKlient="{Binding SelectedKlient}" WidthRequest="250" MinimumWidthRequest="250" HorizontalOptions="FillAndExpand"/>
+
             </StackLayout>
 
             <Grid VerticalOptions="Fill" HorizontalOptions="FillAndExpand" RowSpacing="0">
