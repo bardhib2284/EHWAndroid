@@ -27,6 +27,10 @@ namespace EHWM.Renderers {
                     var bc = (PorositeViewModel)kp.BindingContext;
                     bc.ZgjedhKlientet();
                 }
+                if(np.CurrentPage is InkasimiPage ip) {
+                    var bc = (InkasimiViewModel)ip.BindingContext;
+                    bc.ZgjedhKlientet();
+                }
             }
         }
 

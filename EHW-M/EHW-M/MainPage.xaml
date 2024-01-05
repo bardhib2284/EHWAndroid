@@ -115,15 +115,15 @@
 
             <StackLayout Grid.Row="4" Orientation="Horizontal" Grid.ColumnSpan="2" HorizontalOptions="FillAndExpand">
                 <StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal">
-                    <Label Text="Depo : "/>
+                    <Label Text="Depo :"/>
                     <Label Text="{Binding LoginData.Depo}"/>
                 </StackLayout>
                 <StackLayout HorizontalOptions="CenterAndExpand" Orientation="Horizontal">
-                    <Label Text="Agjendi : "/>
+                    <Label Text="Agjendi :"/>
                     <Label Text="{Binding LoginData.Emri}"/>
                 </StackLayout>
                 <StackLayout HorizontalOptions="EndAndExpand" Orientation="Horizontal">
-                    <Label Text="Targa : "/>
+                    <Label Text="Targa :"/>
                     <Label Text="{Binding Depoja.TAGNR}"/>
                 </StackLayout>
             </StackLayout>

@@ -41,27 +41,20 @@ namespace EHWM.Views {
             fshijButton.IsVisible = false;
         }
         bool hasAppearedOnce = false;
-        protected override void OnAppearing() {
-            base.OnAppearing();
-            if(!hasAppearedOnce ) {
-                checkNga.IsChecked = true;
-                hasAppearedOnce = true;
-            }
-        }
+
 
         private void checkNga_CheckedChanged(object sender, CheckedChangedEventArgs e) {
             var bc = (LevizjetViewModel)BindingContext;
-            checkNe.IsChecked = false;
             bc.Nga = true;
             bc.Ne = false;
+            checkNe.IsChecked = false;
         }
-        
+
         private void checkNga_CheckedChangedi(object sender, CheckedChangedEventArgs e) {
             var bc = (LevizjetViewModel)BindingContext;
-            checkNga.IsChecked = false;
             bc.Ne = true;
             bc.Nga = false;
-
+            checkNga.IsChecked = false;
         }
 
         private void Picker_SelectedIndexChanged(object sender, EventArgs e) {

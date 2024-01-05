@@ -40,6 +40,11 @@ namespace EHWM.Views
                         porositeViewModel.SelectedKlient = e.Item as Klientet;
                         App.Instance.PopAsyncModal();
                     }
+                }                
+                else if (BindingContext is InkasimiViewModel InkasimiViewModel) {
+                    InkasimiViewModel.SelectedKlient = e.Item as Klientet;
+                    InkasimiViewModel.MerrDetyrimet(e.Item as Klientet);
+                    App.Instance.PopAsyncModal();
                 }
             }
         }
@@ -47,11 +52,21 @@ namespace EHWM.Views
         private void Entry_TextChanged(object sender, TextChangedEventArgs e) {
             try {
                 if (!string.IsNullOrEmpty(e.NewTextValue)) {
-                    var bc = (PorositeViewModel)BindingContext;
-                    if (bc != null) {
-                        bc.SearchedKlientet = new System.Collections.ObjectModel.ObservableCollection<Klientet>(bc.Klientet.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
-                        searchedArtikujt.IsVisible = true;
-                        allArtikujt.IsVisible = false;
+                    if(BindingContext is PorositeViewModel) {
+                        var bc = (PorositeViewModel)BindingContext;
+                        if (bc != null) {
+                            bc.SearchedKlientet = new System.Collections.ObjectModel.ObservableCollection<Klientet>(bc.Klientet.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+                            searchedArtikujt.IsVisible = true;
+                            allArtikujt.IsVisible = false;
+                        }
+                    }
+                    else if (BindingContext is InkasimiViewModel) {
+                        var bc = (InkasimiViewModel)BindingContext;
+                        if (bc != null) {
+                            bc.SearchedKlientet = new System.Collections.ObjectModel.ObservableCollection<Klientet>(bc.Klientet.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+                            searchedArtikujt.IsVisible = true;
+                            allArtikujt.IsVisible = false;
+                        }
                     }
                 }
                 else {

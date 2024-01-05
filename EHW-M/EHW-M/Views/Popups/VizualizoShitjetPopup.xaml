@@ -25,7 +25,7 @@
         Padding="20, 20, 20, 20" CornerRadius="20">
         <StackLayout>
             <Button Text="Faturat" Command="{Binding HapFaturatEShituraCommand}"/>
-            <Button Text="Inkasimet" Command="{Binding HapFaturatEShituraCommand}"/>
+            <Button Text="Inkasimet" Command="{Binding HapInkasimetCommand}"/>
             <Button Text="Stoku"/>
             <Button Text="Mbetja" Command="{Binding GoToMbetjaMallitCommand}"/>
         </StackLayout>

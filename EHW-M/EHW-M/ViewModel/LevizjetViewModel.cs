@@ -82,12 +82,30 @@ namespace EHWM.ViewModel {
         private bool _nga;
         public bool Nga {
             get { return _nga; }
-            set { LevizjeText = "Transfer nga"; SetProperty(ref _nga, value); }
+            set 
+                {
+                if(value) {
+                    if (NumriFraturave != null)
+                        NrLevizjes = (NumriFraturave.NRKUFIP_D + NumriFraturave.CurrNrFat_D).ToString();
+                }
+
+                LevizjeText = "Transfer nga"; 
+                SetProperty(ref _nga, value); 
+            }
         }
         private bool _Ne;
         public bool Ne {
             get { return _Ne; }
-            set { LevizjeText = "Transfer ne"; SetProperty(ref _Ne, value); }
+            set 
+                {
+                if(value) {
+                    if (NumriPorosive != null)
+                        NrLevizjes = "M03-" + NumriPorosive.NrPorosise;
+                }
+
+                LevizjeText = "Transfer ne";
+                SetProperty(ref _Ne, value); 
+            }
         }
 
         private double _totalPrice;
@@ -233,7 +251,8 @@ namespace EHWM.ViewModel {
                 
                 await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
                 await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy"));
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss"));
+
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
                 await _printer.printText("\nKodi i operatorit : " + CurrentlySelectedLevizjetHeader.TCROperatorCode);
 
@@ -551,6 +570,21 @@ namespace EHWM.ViewModel {
         public async Task ShtoLevizjenAsync() {
             LevizjetPage LevizjetPage = new LevizjetPage();
             LevizjetPage.BindingContext = this;
+            NumriFraturave = await App.Database.GetNumriFaturaveIDAsync(Agjendi.IDAgjenti);
+            var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
+            NumriPorosive = gNumriPorosive.FirstOrDefault(x=> x.TIPI == "LEVIZJE");
+            if(NumriPorosive == null) {
+                NumriPorosive = new NumriPorosive
+                {
+                    TIPI = "LEVIZJE",
+                    NrPorosise = 01,
+                    Date = DateTime.Now,
+                };
+                await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
+            }
+            else {
+                NumriPorosive.NrPorosise += 1;
+            }
             var ld = await App.Database.GetLevizjeDetailsAsync();
             LevizjetDetails = new ObservableCollection<LevizjetDetails>(ld.ToList());
             await App.Instance.PushAsyncNewPage(LevizjetPage);
@@ -646,6 +680,15 @@ namespace EHWM.ViewModel {
             get { return _krijoPorosine; }
             set { SetProperty(ref _krijoPorosine, value); }
         }
+
+        private string _nrLevizjes;
+        public string NrLevizjes {
+            get { return _nrLevizjes; }
+            set { SetProperty(ref _nrLevizjes, value); }
+        }
+
+        public NumriFaturave NumriFraturave { get; set; }
+        public NumriPorosive NumriPorosive { get; set; }
         public async Task RegjistroLevizjenAsync() {
             try {
                 UserDialogs.Instance.ShowLoading("Duke perfunduar levizjen");
@@ -655,17 +698,7 @@ namespace EHWM.ViewModel {
                     return;
                 }
                 var levizjet = await App.Database.GetLevizjetHeaderAsync();
-                if (levizjet.Count < 1) {
-                    var levizjetApiResult = await App.ApiClient.GetAsync("levizje-header/" + Agjendi.DeviceID);
-                    if(levizjetApiResult.IsSuccessStatusCode) {
-                        var levizjetApiResponse = await levizjetApiResult.Content.ReadAsStringAsync();
-                        levizjet = JsonConvert.DeserializeObject<List<LevizjetHeader>>(levizjetApiResponse);
-                    }
-                    else {
-                        UserDialogs.Instance.Alert("Nuk ka levizje header te regjistruara per te ruajtur numrin fiskal, edhe marrja nga rrjeti deshtoi, ju lutemi provoni perseri me vone");
-                        return;
-                    }
-                }
+
                 var numriFaturave = await App.Database.GetNumriFaturaveAsync();
                 var result = numriFaturave
                     .Where(n => n.KOD == Agjendi.IDAgjenti)
@@ -699,6 +732,7 @@ namespace EHWM.ViewModel {
                         malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                         malliIMbetur.SyncStatus = 0;
                         var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
+                        await App.Database.UpdateNumriPorosiveAsync(NumriPorosive);
                     }
                         
                     if(Nga) {
@@ -713,6 +747,12 @@ namespace EHWM.ViewModel {
                         malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                         malliIMbetur.SyncStatus = 0;
                         var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
+                        var currNumriFaturave = numriFaturave.FirstOrDefault(x => x.KOD == Agjendi.IDAgjenti);
+                        if (currNumriFaturave != null) {
+                            currNumriFaturave.CurrNrFat_D = currNumriFaturave.CurrNrFat_D + 1;
+                            NumriFraturave = currNumriFaturave;
+                            await App.Database.UpdateNumriFaturave(currNumriFaturave);
+                        }
                     }
                         
                 }
@@ -757,7 +797,7 @@ namespace EHWM.ViewModel {
                     LevizjeNga = Nga ? Agjendi.Depo : SelectedKlientet.Depo,
                     LevizjeNe = Ne ? Agjendi.Depo : SelectedKlientet.Depo,
                     ImpStatus = 0,
-                    NumriLevizjes = levizjNumber.ToString(),
+                    NumriLevizjes = NrLevizjes,
                     KodiDyqanit = Agjendi.Depo,
                     TransferID = transferId,
                     Latitude = geoLocation.Latitude.ToString(),
@@ -794,20 +834,20 @@ namespace EHWM.ViewModel {
                 await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetails);
                 await App.Database.SaveLevizjeHeaderAsync(levizjaHeader);
                 LevizjetHeader.Add(levizjaHeader);
-                var currNumriFaturave = numriFaturave.FirstOrDefault(x => x.KOD == Agjendi.IDAgjenti);
-                if(currNumriFaturave != null) {
-                    currNumriFaturave.CurrNrFat_D = currNumriFaturave.CurrNrFat_D + 1;
-                    await App.Database.UpdateNumriFaturave(currNumriFaturave);
-                }
+
                 SelectedArikujt = null;
                 TotalPrice = 0;
                 await App.Database.UpdateNumriFiskalAsync(topLevizjeIDN);
                 if(Nga) {
                     await RegisterTCRWTN(levizjaHeader.NumriLevizjes);
                 }
+                await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
                 UserDialogs.Instance.Alert("Levizja u regjistrua me sukses");
                 await App.Instance.PopPageAsync();
                 UserDialogs.Instance.HideLoading();
+                Nga = false;
+                Ne = false;
+                NrLevizjes = String.Empty;
             }
             catch (Exception e) {
                 UserDialogs.Instance.HideLoading();

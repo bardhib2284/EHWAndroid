@@ -45,6 +45,7 @@ namespace EHWM.ViewModel
             _database.CreateTableAsync<KrijimiPorosive>();
             _database.CreateTableAsync<FiskalizimiKonfigurimet>();
             _database.CreateTableAsync<Arsyejet>();
+            _database.CreateTableAsync<NumriPorosive>();
         }
 
         public async Task<List<Table>> QueryAsync(string query) {
@@ -307,6 +308,9 @@ namespace EHWM.ViewModel
             return await _database.Table<Liferimi>().ToListAsync();
         }        
 
+        public async Task<int> UpdateNumriPorosiveAsync(NumriPorosive lif) {
+            return await _database.UpdateAsync(lif);
+        }
         public async Task<int> UpdateLiferimiAsync(Liferimi lif) {
             return await _database.UpdateAsync(lif);
         }
@@ -337,6 +341,9 @@ namespace EHWM.ViewModel
         }
         public async Task<List<Vizita>> GetVizitatAsync() {
             return await _database.Table<Vizita>().ToListAsync();
+        }
+        public async Task<List<NumriPorosive>> GetNumriPorosiveAsync() {
+            return await _database.Table<NumriPorosive>().ToListAsync();
         }
         public async Task<List<NumriFaturave>> GetNumriFaturaveAsync() {
             return await _database.Table<NumriFaturave>().ToListAsync();
@@ -499,6 +506,15 @@ namespace EHWM.ViewModel
         public async Task<int> UpdateOrderDetailsAsync(OrderDetails cr) {
             try {
                 return await _database.UpdateAsync(cr);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+        }
+
+        public async Task<int> SaveNumriPorosiveAsync(NumriPorosive cr) {
+            try {
+                return await _database.InsertAsync(cr);
             }
             catch (Exception e) {
                 return -1;
