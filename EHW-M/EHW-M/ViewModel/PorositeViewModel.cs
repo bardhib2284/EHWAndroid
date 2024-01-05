@@ -1,15 +1,19 @@
 ﻿using Acr.UserDialogs;
 using EHW_M;
 using EHWM.Models;
+using EHWM.Services;
 using EHWM.Views;
 using EHWM.Views.Popups;
 using Newtonsoft.Json;
+using Plugin.BxlMpXamarinSDK;
+using Plugin.BxlMpXamarinSDK.Abstractions;
 using Rg.Plugins.Popup.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Essentials;
@@ -61,6 +65,7 @@ namespace EHWM.ViewModel {
         public DateTime Data { get; set; }
         public ICommand AddArtikulliCommand { get; set; }
         public ICommand RegjistroCommand { get; set; }
+        public ICommand PrintoFaturenCommand { get; set; }
         private ObservableCollection<Klientet> _SearchedKlientet;
         public ObservableCollection<Klientet> SearchedKlientet {
             get { return _SearchedKlientet; }
@@ -85,8 +90,220 @@ namespace EHWM.ViewModel {
             RegjistroCommand = new Command(async () => await RegjistroAsync());
             HapPorositeCommand = new Command(async () => await HapPorositeAsync());
             OrdersList = new ObservableCollection<Orders>(PorositeViewModelNavigationParameters.Orders);
+            PrintoFaturenCommand = new Command(async () => await PrintoFaturenAsync());
+
         }
-        
+
+        public async Task PrintoFaturenAsync() {
+            await App.Instance.PushAsyncNewPage(new PrinterSelectionPage() { BindingContext = this });
+        }
+        public MPosControllerPrinter _printer;
+        public MposConnectionInformation _connectionInfo;
+        public static SemaphoreSlim _printSemaphore = new SemaphoreSlim(1, 1);
+        async Task<MPosControllerDevices> OpenPrinterService(MposConnectionInformation connectionInfo) {
+            if (connectionInfo == null)
+                return null;
+
+            if (_printer != null)
+                return _printer;
+
+            if (_printSemaphore == null) {
+                _printSemaphore = new SemaphoreSlim(1, 1);
+            }
+            _printer = MPosDeviceFactory.Current.createDevice(MPosDeviceType.MPOS_DEVICE_PRINTER) as MPosControllerPrinter;
+
+            switch (connectionInfo.IntefaceType) {
+                case MPosInterfaceType.MPOS_INTERFACE_BLUETOOTH:
+                case MPosInterfaceType.MPOS_INTERFACE_WIFI:
+                case MPosInterfaceType.MPOS_INTERFACE_ETHERNET:
+                    _printer.selectInterface((int)connectionInfo.IntefaceType, connectionInfo.Address);
+                    _printer.selectCommandMode((int)(MPosCommandMode.MPOS_COMMAND_MODE_BYPASS));
+                    break;
+                default:
+                    UserDialogs.Instance.Alert("Connection Fail", "Not Supported Interface", "OK");
+                    return null;
+            }
+
+            await _printSemaphore.WaitAsync();
+
+            try {
+                var result = await _printer.openService();
+                if (result != (int)MPosResult.MPOS_SUCCESS) {
+                    _printer = null;
+                    UserDialogs.Instance.Alert("Connection Fail", "openService failed. (" + result.ToString() + ")", "OK");
+                }
+            }
+            finally {
+                _printSemaphore.Release();
+            }
+
+            return _printer;
+        }
+        public async Task OnDeviceOpenClicked() {
+            try {
+                if (_printer == null) {
+                    // Prepares to communicate with the printer 
+                    _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
+                    await OnPrintTextClicked();
+                }
+            }
+            catch (Exception ex) {
+                UserDialogs.Instance.Alert("Problem me servis te printerit, ju lutem provoni perseri ose me vone !", "Verejtje", "Ok");
+                await App.Instance.PopPageAsync();
+            }
+
+        }
+
+        async Task OnPrintTextClicked() {
+
+            // Prepares to communicate with the printer 
+            _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
+
+            if (_printer == null)
+                return;
+
+            try {
+                await _printSemaphore.WaitAsync();
+
+                uint textCount = 0;
+                string printText = "_Hola Xamarin\n";
+
+
+                //sd.AddToPreview();
+                // sd.Preview();
+                //lRet = await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_WPC1252 });
+
+                // note : Page mode and transaction mode cannot be used together between IN and OUT.
+                // When "setTransaction" function called with "MPOS_PRINTER_TRANSACTION_IN", print data are stored in the buffer.
+                //await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
+                // Printer Setting Initialize
+                await _printer.directIO(new byte[] { 0x1b, 0x40 });
+
+                // Code Pages for the contries in east Asia. Please note that the font data downloading is required to print characters for Korean, Japanese and Chinese.
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_KSC5601 });   // Korean
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_SHIFTJIS });  // Japanese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_GB2312 });    // Simplifies Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_BIG5 });      // Traditional Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI });     // Persian 
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI_II });  // Persian 
+
+                await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
+
+
+                await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GetImgResource(),
+                            100/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                            (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                            50,                                                 // brightness
+                            true,                                               // Image Dithering
+                            true);
+                await _printer.printLine(1, 1, 1, 1, 1);
+                await _printer.printText("\nR A P O R T I   I   P O R O S I S \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
+                await _printer.printLine(0, 0, 1, 1, 1);
+                await _printer.printText(
+"---------------------------------------------------------------------\n");
+
+
+                await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText("Adresa: Autostrada Tirane Durres \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("Tel: 048 200 711        04 356 085 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("Numri i Porosise: " + NrPorosise +"\n");
+                await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+
+                await _printer.printText("\nBleresi: ");
+                await _printer.printText("\nAdresa: ");
+                await _printer.printText("\nNRB:   NRF: \n");
+
+                await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
+
+                await _printer.printText("\nNr Barkodi     Shifra     Pershkrimi                          Sasia\n");
+                await _printer.printText("---------------------------------------------------------------------");
+                float teGjithaSasit = 0f;
+                float teGjithaCmimetNjesi = 0f;
+                double teGjitheCmimetTotale = 0f;
+                var tvsh = 0m;
+                var nrBarkodi = 0;
+                foreach (var art in SelectedArikujt) {
+                    string prntBuilder = string.Empty;
+                    var emriLength = art.Emri.Length;
+                    if(art.Emri.Length > 26) {
+                        art.Emri = art.Emri.Remove(26, art.Emri.Length - 26);
+                    }
+                    if(art.Emri.Length == 26) {
+                        prntBuilder += "\n  " + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "        " + art.Sasia;
+                    }
+                    else if(art.Emri.Length == 25) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "           " + art.Sasia;
+                    }
+                    else if(art.Emri.Length == 24) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "            " + art.Sasia;
+                    }
+                    else if(art.Emri.Length == 23) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "             " + art.Sasia;
+                    }
+                    else if(art.Emri.Length == 22) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "              " + art.Sasia;
+                    }
+                    else if(art.Emri.Length == 21) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "               " + art.Sasia;
+                    }
+                    else if (art.Emri.Length == 20) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                " + art.Sasia;
+                    }
+                    else if (art.Emri.Length == 19) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                 " + art.Sasia;
+                    }
+                    else if (art.Emri.Length == 18) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                  " + art.Sasia;
+                    }
+                    else if (art.Emri.Length == 17) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                   " + art.Sasia;
+                    }
+                    else if (art.Emri.Length == 16) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                    " + art.Sasia;
+                    }
+                    else if (art.Emri.Length == 15) {
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                     " + art.Sasia;
+                    }
+                    else
+                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                      " + art.Sasia;
+                    teGjithaSasit += (float)art.Sasia;
+                    await _printer.printText(prntBuilder);
+                    nrBarkodi++;
+                }
+
+
+                await _printer.printText("\n---------------------------------------------------------------------");
+
+                await _printer.printText("\n                                                              " + teGjithaSasit);
+
+
+                //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
+                //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
+                await _printer.printText("\n");
+                await _printer.printText("\n");
+                await _printer.printText("  Faturoi          Kontrolloi          Vozitesi         Pranoi");
+                await _printer.printText("\n");
+                await _printer.printText("___________       _____________       ___________      ___________");
+                await _printer.printText("\n");
+                await _printer.printText("\n");
+
+                // Feed to tear-off position (Manual Cutter Position)
+                await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
+            }
+            catch (Exception ex) {
+                UserDialogs.Instance.Alert("Exception", ex.Message, "OK");
+            }
+            finally {
+                // Printer starts printing by calling "setTransaction" function with "MPOS_PRINTER_TRANSACTION_OUT"
+                await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_OUT);
+                // If there's nothing to do with the printer, call "closeService" method to disconnect the communication between Host and Printer.
+                await _printer.closeService();
+                _printSemaphore.Release();
+                _printer = null;
+                _printSemaphore = null;
+            }
+        }
+
         public async Task HapPorositeAsync() {
             if(CurrentlySelectedOrder == null) {
                 UserDialogs.Instance.Alert("Ju lutem selektoni njeren nga porosite");

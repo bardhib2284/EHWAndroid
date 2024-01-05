@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Renderers.ADatePickerDate">
+    <ContentView.Content>
+        <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+            </StackLayout.GestureRecognizers>
+            <Label x:Name="labeltext" Text="{Binding SelectedDayAndDate.Day}" FontSize="16" VerticalTextAlignment="Center" TextColor="Black"/>
+            <DatePicker IsVisible="false" x:Name="datepicker" />
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>

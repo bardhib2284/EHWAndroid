@@ -8,12 +8,12 @@
 
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label Text="Nr.Porosise" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
-                <Label Text="{Binding NrPorosise}" HorizontalOptions="EndAndExpand" VerticalOptions="Center"/>
+                <Label Text="{Binding NrPorosise}" FontAttributes="Bold" HorizontalOptions="EndAndExpand" VerticalOptions="Center"/>
             </StackLayout>
 
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                <Label Text="Klienti" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
-                <renderers:KlientetPicker CurrentKlient="{Binding SelectedKlient}" WidthRequest="250" MinimumWidthRequest="250" HorizontalOptions="CenterAndExpand"/>
+                <Label Text="Klienti" HorizontalOptions="Start" VerticalOptions="Center"/>
+                <renderers:KlientetPicker CurrentKlient="{Binding SelectedKlient}" WidthRequest="250" MinimumWidthRequest="250" HorizontalOptions="FillAndExpand"/>
 
             </StackLayout>
 
@@ -79,6 +79,7 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackLayout Orientation="Horizontal">
+                        <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
                         <Button x:Name="fshijButton" Command="{Binding FshijArtikullinCommand}" Clicked="fshijButton_Clicked" IsVisible="False" Text="Fshije" BackgroundColor="Red" Background="red" HorizontalOptions="End"/>
                         <Button Text="Regjistro" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
                     </StackLayout>

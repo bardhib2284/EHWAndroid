@@ -2218,18 +2218,19 @@ namespace EHWM.ViewModel {
                         else {
                             if (Configurimi.Token != null) {
                                 App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
-                            }
-                            else
-                                return;
-                            var depotResult = await App.ApiClient.GetAsync("depot");
-                            if(depotResult.IsSuccessStatusCode) {
-                                var depotResponse = await depotResult.Content.ReadAsStringAsync();
-                                depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
-                                if (depot.Count > 0) {
-                                    Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
-                                    await App.Database.SaveDepotAsync(depot);
+                                var depotResult = await App.ApiClient.GetAsync("depot");
+                                if (depotResult.IsSuccessStatusCode) {
+                                    var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                                    depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                                    if (depot.Count > 0) {
+                                        Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                        await App.Database.SaveDepotAsync(depot);
+                                    }
                                 }
                             }
+                            else {
+                            }
+                            
                         }
                     }
                     else {
@@ -2368,6 +2369,28 @@ namespace EHWM.ViewModel {
                         Configurimi.Paisja = LoginData.DeviceID;
                         await App.Database.SaveConfigurimiAsync(Configurimi);
                         //REGISTER ARKEN
+                        var depot = await App.Database.GetDepotAsync();
+                        if (depot.Count > 0) {
+                            Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                        }
+                        else {
+                            if (Configurimi.Token != null) {
+                                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                                var depotResult = await App.ApiClient.GetAsync("depot");
+                                if (depotResult.IsSuccessStatusCode) {
+                                    var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                                    depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                                    if (depot.Count > 0) {
+                                        Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                        await App.Database.SaveDepotAsync(depot);
+                                    }
+                                }
+                            }
+                            else {
+
+                            }
+
+                        }
                         UserDialogs.Instance.HideLoading();
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
@@ -2426,6 +2449,7 @@ namespace EHWM.ViewModel {
                         NavigationPage navigationPage = new NavigationPage(mainPage) { BarBackgroundColor = Color.LightBlue };
 
                         App.Instance.MainPage = navigationPage;
+                        await Task.Delay(100);
                         UserDialogs.Instance.HideLoading();
                         if(CashRegister.TCRSyncStatus <= 0) {
                             var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
@@ -2502,7 +2526,7 @@ namespace EHWM.ViewModel {
 
         public async Task ShtijeKorrigjim() {
             try {
-                if(SelectedVizita == null) {
+                if(SelectedVizita != null) {
                     if(SelectedVizita.IDStatusiVizites != "0" || SelectedVizita.IDStatusiVizites != "1") {
                         if(IDPorosi != NONE) {
                             IDPorosi = NONE;
@@ -2525,7 +2549,19 @@ namespace EHWM.ViewModel {
                                     UserDialogs.Instance.Alert("Vlera e TVSH-se nuk është e përcaktuar \n Tabela:CompanyInfo");
                                     return;
                                 }
+                                Porosite newPorosi = new Porosite
+                                {
+                                    IDPorosia = Guid.NewGuid(),
+                                    IDVizita = SelectedVizita.IDVizita,
 
+                                }; 
+                                ShitjaPage page = new ShitjaPage();
+                                await App.Database.SavePorositeAsync(newPorosi);
+                                ShitjaNavigationParameters np = new ShitjaNavigationParameters { Agjendi = LoginData, VizitaEHapur = SelectedVizita, NrFatures = (int)currentNumriFatures, PorosiaID = newPorosi.IDPorosia, ShitjeKorigjim = true };
+                                ShitjaViewModel shitjaViewModel = new ShitjaViewModel(np);
+                                page.BindingContext = shitjaViewModel;
+                                App.Instance.ShitjaViewModel = shitjaViewModel;
+                                await App.Instance.PushAsyncNewPage(page);
                             }
                         }
                         else {
@@ -2537,6 +2573,10 @@ namespace EHWM.ViewModel {
                         UserDialogs.Instance.Alert("Vizita nuk eshte e hapur!");
                         return;
                     }
+                }
+                else {
+                    UserDialogs.Instance.Alert("Ju lutem selektoni njeren nga vizitat");
+                    return;
                 }
             }catch(Exception e) {
 
