@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:renderers="clr-namespace:EHWM.Renderers"
              x:Class="EHWM.Views.KrijoPorosinePage" Title="Krijo Porosine">
     <ContentPage.Content>
         <StackLayout Padding="10">
@@ -12,8 +13,8 @@
 
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label Text="Klienti" HorizontalOptions="StartAndExpand" VerticalOptions="Center"/>
-                <Entry Text="{Binding SelectedKlient.Emri}" />
-                <Button Clicked="Button_Clicked"/>
+                <renderers:KlientetPicker CurrentKlient="{Binding SelectedKlient}" WidthRequest="250" MinimumWidthRequest="250" HorizontalOptions="CenterAndExpand"/>
+
             </StackLayout>
 
             <StackLayout>

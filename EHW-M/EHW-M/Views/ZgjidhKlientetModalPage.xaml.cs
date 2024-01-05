@@ -38,29 +38,28 @@ namespace EHWM.Views
                 else if (BindingContext is PorositeViewModel porositeViewModel) {
                     if (porositeViewModel != null) {
                         porositeViewModel.SelectedKlient = e.Item as Klientet;
-                        if (string.IsNullOrEmpty(porositeViewModel.CurrentlySelectedArtikulli.Seri)) {
-                            //viewModel.EnableSeri = true;
-                        }
                         App.Instance.PopAsyncModal();
-                        porositeViewModel.Sasia = 0;
                     }
                 }
             }
         }
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e) {
-            if (!string.IsNullOrEmpty(e.NewTextValue)) {
-                var bc = (ShitjaViewModel)BindingContext;
-                if (bc != null) {
-                    bc.SearchedArtikujt = new System.Collections.ObjectModel.ObservableCollection<Artikulli>(bc.Artikujt.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
-                    searchedArtikujt.IsVisible = true;
-                    allArtikujt.IsVisible = false;
+            try {
+                if (!string.IsNullOrEmpty(e.NewTextValue)) {
+                    var bc = (PorositeViewModel)BindingContext;
+                    if (bc != null) {
+                        bc.SearchedKlientet = new System.Collections.ObjectModel.ObservableCollection<Klientet>(bc.Klientet.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+                        searchedArtikujt.IsVisible = true;
+                        allArtikujt.IsVisible = false;
+                    }
                 }
-            }
-            else {
-                searchedArtikujt.IsVisible = false;
-                allArtikujt.IsVisible = true;
-            }
+                else {
+                    searchedArtikujt.IsVisible = false;
+                    allArtikujt.IsVisible = true;
+                }
+            }catch(Exception x) { }
+
         }
     }
 }

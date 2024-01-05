@@ -1,4 +1,5 @@
-﻿using EHWM.Models;
+﻿using EHW_M;
+using EHWM.Models;
 using EHWM.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,6 @@ namespace EHWM.Views {
             fshijButton.IsVisible = true;
             var bc = (PorositeViewModel)BindingContext;
             bc.CurrentlySelectedArtikulli = (sender as ListView).SelectedItem as Artikulli;
-
-        }
-
-        private void Button_Clicked(object sender, EventArgs e) {
 
         }
     }

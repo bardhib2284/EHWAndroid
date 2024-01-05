@@ -6,7 +6,7 @@
         <StackLayout>
             <StackLayout>
                 <Entry Placeholder="Kerko" TextChanged="Entry_TextChanged"/>
-                <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="100" MinimumHeightRequest="100" VerticalOptions="Fill">
+                <Frame Padding="1" BorderColor="Black" BackgroundColor="LightBlue" HeightRequest="66" MinimumHeightRequest="100" VerticalOptions="Fill">
                     <Grid HeightRequest="50" Padding="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="8*"/>

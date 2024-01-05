@@ -76,11 +76,7 @@ namespace EHWM.ViewModel {
             get { return _artikujt; }
             set { SetProperty(ref _artikujt, value); }
         }
-        private ObservableCollection<Klientet> _SearchedKlientet;
-        public ObservableCollection<Klientet> SearchedKlientet {
-            get { return _SearchedKlientet; }
-            set { SetProperty(ref _SearchedKlientet, value); }
-        }
+
         private ObservableCollection<Artikulli> _SearchedArtikujt;
         public ObservableCollection<Artikulli> SearchedArtikujt {
             get { return _SearchedArtikujt; }

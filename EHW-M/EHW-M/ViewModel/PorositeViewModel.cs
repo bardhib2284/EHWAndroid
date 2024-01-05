@@ -61,7 +61,11 @@ namespace EHWM.ViewModel {
         public DateTime Data { get; set; }
         public ICommand AddArtikulliCommand { get; set; }
         public ICommand RegjistroCommand { get; set; }
-
+        private ObservableCollection<Klientet> _SearchedKlientet;
+        public ObservableCollection<Klientet> SearchedKlientet {
+            get { return _SearchedKlientet; }
+            set { SetProperty(ref _SearchedKlientet, value); }
+        }
         public PorositeViewModel(PorositeViewModelNavigationParameters PorositeViewModelNavigationParameters) {
             Klientet = PorositeViewModelNavigationParameters.Klientet;
             Agjendi = PorositeViewModelNavigationParameters.Agjendi;
@@ -284,6 +288,22 @@ namespace EHWM.ViewModel {
             get { return _SearchedArtikujt; }
             set { SetProperty(ref _SearchedArtikujt, value); }
         }
+
+        public async Task ZgjedhKlientet() {
+            try {
+                UserDialogs.Instance.ShowLoading("Duke hapur artikujt");
+                ZgjidhKlientetModalPage ZgjidhKlientetModalPage = new ZgjidhKlientetModalPage();
+                ZgjidhKlientetModalPage.BindingContext = this;
+
+                await App.Instance.PushAsyncNewModal(ZgjidhKlientetModalPage);
+                UserDialogs.Instance.HideLoading();
+
+            }
+            catch (Exception e) {
+                var g = e.Message;
+            }
+        }
+
         public async Task ZgjedhArtikullinAsync() {
             try {
                 UserDialogs.Instance.ShowLoading("Duke hapur artikujt");
