@@ -58,6 +58,7 @@ namespace EHWM.Views {
                 if(info != null) {
                     mv._connectionInfo = info;
                     await mv.OnDeviceOpenClicked();
+                    await Navigation.PopAsync();
                 }
             }            
             else if(bc is LevizjetViewModel lmv) {
@@ -65,6 +66,15 @@ namespace EHWM.Views {
                 if(info != null) {
                     lmv._connectionInfo = info;
                     await lmv.OnDeviceOpenClicked();
+                    await Navigation.PopAsync();
+                }
+            }            
+            else if(bc is PorositeViewModel pmv) {
+                var info = e.SelectedItem as MposConnectionInformation;
+                if(info != null) {
+                    pmv._connectionInfo = info;
+                    await pmv.OnDeviceOpenClicked();
+                    await Navigation.PopAsync();
                 }
             }
             else {

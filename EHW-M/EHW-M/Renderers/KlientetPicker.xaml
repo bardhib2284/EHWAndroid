@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="EHWM.Renderers.KlientetPicker">
     <ContentView.Content>
-        <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" WidthRequest="250" MinimumWidthRequest="250">
+        <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand" WidthRequest="250" MinimumWidthRequest="250">
             <StackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
             </StackLayout.GestureRecognizers>
-            <Entry IsEnabled="False" HorizontalOptions="CenterAndExpand" x:Name="labeltext" Text="{Binding SelectedDayAndDate.Day}" FontSize="16" VerticalTextAlignment="Center" TextColor="Black"/>
+            <Entry IsEnabled="False" WidthRequest="350" HorizontalOptions="CenterAndExpand" x:Name="labeltext" Text="{Binding SelectedDayAndDate.Day}" FontSize="16" VerticalTextAlignment="Center" TextColor="Black"/>
             <DatePicker IsVisible="false" x:Name="datepicker" />
             <Picker IsVisible="false" x:Name="pickerinho" ItemDisplayBinding="{Binding Day}"/>
         </StackLayout>

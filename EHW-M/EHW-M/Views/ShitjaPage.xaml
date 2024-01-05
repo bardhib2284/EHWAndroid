@@ -27,6 +27,11 @@
                 <Label Text="Nr. Fat. Kthim" VerticalTextAlignment="Center"/>
                 <Entry Text="{Binding NrFatKthim}" WidthRequest="100"  />
             </StackLayout>
+            <StackLayout Orientation="Horizontal" IsVisible="{Binding ShitjeKorigjim}">
+                <Label Text="Nr. Fat. Kthim" VerticalTextAlignment="Center"/>
+                <Entry Text="{Binding NrFatKthim}" WidthRequest="100"  />
+            </StackLayout>
+            
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label Text="Porosi" VerticalOptions="Center"/>
                 <Image Source="https://cdn.icon-icons.com/icons2/1919/PNG/512/minussigncircularbutton_122018.png" WidthRequest="20" HeightRequest="20" >

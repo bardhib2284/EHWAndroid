@@ -34,6 +34,7 @@ namespace EHWM.ViewModel {
         public Guid PorosiaID { get; set; }
         public bool KthimMalli { get; set; }
         public Agjendet Agjendi { get; set; }
+        public bool ShitjeKorigjim { get; set; }
     }
     public class ShitjaViewModel : BaseViewModel {
         private bool _krijoPorosine;
@@ -131,6 +132,9 @@ namespace EHWM.ViewModel {
                 }
                 else {
                     KthimMalli = false;
+                    if(navigationParameters.ShitjeKorigjim) {
+                        ShitjeKorrigjim = true;
+                    }
                     Title = "Shitje";
                 }
 
@@ -972,7 +976,73 @@ namespace EHWM.ViewModel {
                 }
             }
             else if (ShitjeKorrigjim){
-                //TODO SHITJE KORRIGJIM
+                if (NrFatKthim <= 0) {
+                    UserDialogs.Instance.Alert(@"Duhet të plotësohet fusha ""Nr. Fat. Kthim"" Kjo është fushë obligative për fiskalizim!", "Vërejtje");
+                    return;
+                }
+                var vizitat = App.Instance.MainViewModel.VizitatFilteredByDate;
+                var klientet = await App.Database.GetKlientetAsync();
+                var liferimi = await App.Database.GetLiferimetAsync();
+                var nipt = (from v in vizitat
+                            join k in klientet on v.IDKlientDheLokacion equals k.IDKlienti
+                            where v.IDVizita == VizitaESelektuar.IDVizita
+                            select k.NIPT).FirstOrDefault();
+                var nrCount = (from l in liferimi
+                               join k in klientet on l.IDKlienti equals k.IDKlienti
+                               where l.NumriFisk.ToString() == NrFatKthim.ToString()
+                                     && l.LLOJDOK == "SH"
+                                     && k.NIPT == nipt
+                               select l.NumriFisk).Count();
+                var FiscalisationService = App.Instance.FiskalizationService;
+                var agjendi = App.Instance.MainViewModel.LoginData;
+                var agjendet = await App.Database.GetAgjendetAsync();
+                var depot = await App.Database.GetDepotAsync();
+                var FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
+                if (FiskalizimiKonfigurimet.Count <= 0) {
+                    var fiskalizimiKonfigurimetResult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
+                    if (fiskalizimiKonfigurimetResult.IsSuccessStatusCode) {
+                        var fiskalizimiKonfigurimetResponse = await fiskalizimiKonfigurimetResult.Content.ReadAsStringAsync();
+                        FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(fiskalizimiKonfigurimetResponse);
+                        await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
+                    }
+                }
+                var numriFiskal = await App.Database.GetNumratFiskalAsync();
+                NumriFisk NumriFisk = await App.Database.GetNumratFiskalIDAsync(VizitaESelektuar.IDAgjenti);
+                if (NumriFisk == null) {
+                    var numriFiskalAPIResult = await App.ApiClient.GetAsync("numri-fisk/" + VizitaESelektuar.IDAgjenti);
+                    if (numriFiskalAPIResult.IsSuccessStatusCode) {
+                        var numriFiskalResponse = await numriFiskalAPIResult.Content.ReadAsStringAsync();
+                        NumriFisk = JsonConvert.DeserializeObject<NumriFisk>(numriFiskalResponse);
+                        await App.Database.SaveNumriFiskalAsync(NumriFisk);
+                        numriFiskal.Add(NumriFisk);
+                    }
+                    else {
+                        UserDialogs.Instance.Alert("Problem ne numrin fiskal, ju lutem provoni perseri.");
+                        return;
+                    }
+                }
+                var query = from a in agjendet
+                            join d in depot on a.Depo equals d.Depo
+                            join fk in FiskalizimiKonfigurimet on d.TAGNR equals fk.TAGNR
+                            join nf in numriFiskal on fk.TCRCode equals nf.TCRCode into nfGroup
+                            from nf in nfGroup.DefaultIfEmpty()
+                            where a.IDAgjenti.ToLower() == agjendi.IDAgjenti.ToLower()
+                            select new
+                            {
+                                a.IDAgjenti,
+                                d.TAGNR,
+                                fk.TCRCode,
+                                a.OperatorCode,
+                                fk.BusinessUnitCode,
+                                nf.IDN,
+                                LevizjeIDN = nf != null ? nf.LevizjeIDN : (int?)null,
+                                nf.Viti
+                            };
+
+                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, agjendi.TCRCode, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+                    UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
+                    return;
+                }
             }
             if (VizitaESelektuar.DataAritjes == null)
                 VizitaESelektuar.DataAritjes = DateTime.Now;

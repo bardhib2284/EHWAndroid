@@ -123,7 +123,7 @@
                     <Label Text="{Binding LoginData.Emri}"/>
                 </StackLayout>
                 <StackLayout HorizontalOptions="EndAndExpand" Orientation="Horizontal">
-                    <Label Text="Depo : "/>
+                    <Label Text="Targa : "/>
                     <Label Text="{Binding Depoja.TAGNR}"/>
                 </StackLayout>
             </StackLayout>
