@@ -27,7 +27,7 @@
                 <Label Text="Nr. Fat. Kthim" VerticalTextAlignment="Center"/>
                 <Entry Text="{Binding NrFatKthim}" WidthRequest="100"  />
             </StackLayout>
-            <StackLayout Orientation="Horizontal" IsVisible="{Binding ShitjeKorigjim}">
+            <StackLayout Orientation="Horizontal" IsVisible="{Binding ShitjeKorrigjim}">
                 <Label Text="Nr. Fat. Kthim" VerticalTextAlignment="Center"/>
                 <Entry Text="{Binding NrFatKthim}" WidthRequest="100"  />
             </StackLayout>

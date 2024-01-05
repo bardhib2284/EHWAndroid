@@ -132,12 +132,9 @@ namespace EHWM.ViewModel {
                 }
                 else {
                     KthimMalli = false;
-                    if(navigationParameters.ShitjeKorigjim) {
-                        ShitjeKorrigjim = true;
-                    }
                     Title = "Shitje";
                 }
-
+                ShitjeKorrigjim = navigationParameters.ShitjeKorigjim;
             }
             ZgjedhArtikullinCommand = new Command(async () => await ZgjedhArtikullinAsync());
             AddArtikulliCommand = new Command(async () => await AddArtikulliAsync());
@@ -163,7 +160,11 @@ namespace EHWM.ViewModel {
             get { return _EnableSeri; }
             set { SetProperty(ref _EnableSeri, value); }
         }
-        private bool ShitjeKorrigjim { get; set; }
+        private bool _shitjeKorrigjim;
+        public bool ShitjeKorrigjim {
+            get { return _shitjeKorrigjim; }
+            set { SetProperty(ref _shitjeKorrigjim, value); }
+        }
         private bool AprovimFaturash { get; set; }
         private string _llojDok { get; set; }
         public static decimal TotaliFature, TotaliPaguar;
@@ -1395,7 +1396,7 @@ namespace EHWM.ViewModel {
 
 
                 await _printer.printText("---------------------------------------------------------------------");
-                var totalBuilder = string.Empty;
+                string totalBuilder = string.Empty;
                 totalBuilder += "\n    Mbyllet me total     ";
                 if (teGjithaSasit.ToString().Length >= 5) {
                     totalBuilder += "   " + teGjithaSasit + "    ";
@@ -1464,7 +1465,11 @@ namespace EHWM.ViewModel {
                             totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "   ";
                     }
                     else if (vptvsh.Length == 7) {
-                        totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
+                        if (cmimTotal.Length == 8) {
+                            totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
+                        }
+                        else
+                            totalBuilder += "    " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
                     }
                     else
                         totalBuilder += "   " + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + "  ";
@@ -1490,6 +1495,7 @@ namespace EHWM.ViewModel {
                     totalBuilder += cmimTotal;
                 }
                 await _printer.printText(totalBuilder);
+
 
 
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
@@ -1542,7 +1548,7 @@ namespace EHWM.ViewModel {
                     totalBuilder += "\n   S-VAT             20          " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        ";
                 }
                 else if (TotaliPaTVSH.ToString().Length >= 7) {
-                    totalBuilder += "\n   S-VAT             20           " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "         ";
+                    totalBuilder += "\n   S-VAT             20           " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "        ";
                 }
                 else if (TotaliPaTVSH.ToString().Length >= 6) {
                     totalBuilder += "\n   S-VAT             20             " + String.Format("{0:0.00}", Math.Round(lif.TotaliPaTVSH, 2)) + "           ";
@@ -1560,7 +1566,11 @@ namespace EHWM.ViewModel {
                 }
                 else if (tvshAll.ToString().Length >= 7) {
                     if (TotaliPaTVSH.Length == 7) {
-                        totalBuilder += "  " + tvshAll + "    ";
+                        if (cmimTotal.Length == 8) {
+                            totalBuilder += "  " + tvshAll + "   ";
+                        }
+                        else
+                            totalBuilder += "  " + tvshAll + "    ";
                     }
                     else if (TotaliPaTVSH.Length == 8 && cmimTotal.Length == 8) {
                         totalBuilder += tvshAll + "     ";
@@ -1589,6 +1599,7 @@ namespace EHWM.ViewModel {
                     totalBuilder += cmimTotal;
                 }
                 await _printer.printText(totalBuilder);
+
 
 
 
