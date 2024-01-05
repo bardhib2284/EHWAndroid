@@ -22,21 +22,21 @@
             <On Platform="UWP" Value="/Assets/Fonts/sulphur-point.ttf#Sulphur Point"/>
         </OnPlatform>
         <OnPlatform x:TypeArguments="x:String" x:Key="PointDEMOSemiBold">
-            <On Platform="iOS" Value="PointDEMO-SemiBold"/>
-            <On Platform="Android" Value="PointSemiBold.ttf"/>
+            <On Platform="iOS" Value="Lato-Bold"/>
+            <On Platform="Android" Value="Lato-Bold.ttf"/>
             <On Platform="UWP" Value="/Assets/Fonts/Ndiscover - Point DEMO Semi Bold.otf#Point DEMO"/>
         </OnPlatform>
         <OnPlatform x:TypeArguments="x:String" x:Key="PointDEMOLight">
-            <On Platform="iOS" Value="PointDEMO-SemiBold"/>
-            <On Platform="Android" Value="Roboto-Light.ttf"/>
+            <On Platform="iOS" Value="Lato-Black"/>
+            <On Platform="Android" Value="Lato-Regular.ttf"/>
             <On Platform="UWP" Value="/Assets/Fonts/Ndiscover - Point DEMO Semi Bold.otf#Point DEMO"/>
         </OnPlatform>
         
         <Style TargetType="Button">
             <Setter Property="BorderColor" Value="White"/>
-            <Setter Property="Background" Value="#0047AB"/>
+            <Setter Property="Background" Value="#293548"/>
             <Setter Property="BorderWidth" Value="1"/>
-            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="TextColor" Value="White"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontFamily" Value="{StaticResource PointDEMOLight}"/>
@@ -56,6 +56,8 @@
         </Style>
         <Style TargetType="Label">
             <Setter Property="FontFamily" Value="{StaticResource PointDEMOLight}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="TextColor" Value="Black"/>
         </Style>
         <Style TargetType="Entry">
             <Setter Property="FontFamily" Value="{StaticResource PointDEMOSemiBold}"/>

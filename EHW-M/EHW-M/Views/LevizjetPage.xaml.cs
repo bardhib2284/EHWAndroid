@@ -16,7 +16,7 @@ namespace EHWM.Views {
             InitializeComponent();
             sasiaEntry.TextChanged += SasiaEntry_TextChanged;
         }
-
+        
         private void SasiaEntry_TextChanged(object sender, TextChangedEventArgs e) {
             var bc = (LevizjetViewModel)BindingContext;
             if(bc != null) {
@@ -40,9 +40,13 @@ namespace EHWM.Views {
         private void fshijButton_Clicked(object sender, EventArgs e) {
             fshijButton.IsVisible = false;
         }
-
+        bool hasAppearedOnce = false;
         protected override void OnAppearing() {
             base.OnAppearing();
+            if(!hasAppearedOnce ) {
+                checkNga.IsChecked = true;
+                hasAppearedOnce = true;
+            }
         }
 
         private void checkNga_CheckedChanged(object sender, CheckedChangedEventArgs e) {

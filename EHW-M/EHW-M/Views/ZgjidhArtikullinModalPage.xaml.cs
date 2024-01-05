@@ -57,18 +57,38 @@ namespace EHWM.Views {
         }
 
         private void Entry_TextChanged(object sender, TextChangedEventArgs e) {
-            if(!string.IsNullOrEmpty(e.NewTextValue)) {
-                var bc = (ShitjaViewModel)BindingContext;
-                if(bc != null) {
-                    bc.SearchedArtikujt = new System.Collections.ObjectModel.ObservableCollection<Artikulli>(bc.Artikujt.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+            try {
+                if (BindingContext is PorositeViewModel PorositeViewModel) {
+                    PorositeViewModel.SearchedArtikujt = new System.Collections.ObjectModel.ObservableCollection<Artikulli>(PorositeViewModel.Artikujt.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+                    searchedKrijoArtikujt.IsVisible = true;
+                    allKrijoArtikujt.IsVisible = false;
+                    if (string.IsNullOrEmpty(e.NewTextValue)) {
+                        searchedKrijoArtikujt.IsVisible = false;
+                        allKrijoArtikujt.IsVisible = true;
+                    }
+                }
+                    if (BindingContext is LevizjetViewModel levizjetViewModel) {
+                    levizjetViewModel.SearchedArtikujt = new System.Collections.ObjectModel.ObservableCollection<Artikulli>(levizjetViewModel.Artikujt.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
                     searchedArtikujt.IsVisible = true;
                     allArtikujt.IsVisible = false;
                 }
+                if (!string.IsNullOrEmpty(e.NewTextValue)) {
+                    var bc = (ShitjaViewModel)BindingContext;
+                    if (bc != null) {
+                        bc.SearchedArtikujt = new System.Collections.ObjectModel.ObservableCollection<Artikulli>(bc.Artikujt.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+                        searchedArtikujt.IsVisible = true;
+                        allArtikujt.IsVisible = false;
+                    }
+                }
+                else {
+                    searchedArtikujt.IsVisible = false;
+                    allArtikujt.IsVisible = true;
+                    
+                }
+                }catch (Exception ex) {
+
             }
-            else {
-                searchedArtikujt.IsVisible = false;
-                allArtikujt.IsVisible = true;
-            }
+
         }
     }
 }

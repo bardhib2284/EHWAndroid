@@ -1051,7 +1051,7 @@ namespace EHWM.ViewModel {
                             KeyFields = config.PK_FieldName.Split(',');
                             indexTable++;
                             UserDialogs.Instance.ShowLoading("Sinkronizimi Tabela: " + strTableName + " " + indexTable + "/" + Sinkronizimet.Count);
-                            if (strTableName == "NumriFaturave") {
+                            if (strTableName == "Detyrimet") {
 
                             }
                             strFilterUp = config.FilterUp.ToString();

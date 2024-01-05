@@ -13,6 +13,7 @@ using Plugin.Connectivity;
 using Xamarin.Essentials;
 using EHWM.DependencyInjections;
 using EHWM.DependencyInjections.FiskalizationExtraModels;
+using System.Globalization;
 
 namespace EHW_M {
     public partial class App : Application {
@@ -58,7 +59,6 @@ namespace EHW_M {
             //    TCRCode = "fa248ng165"
             //};
             FiskalizationService = DependencyService.Get<IFiskalizationService>();
-
         }
 
         protected override void OnStart() {

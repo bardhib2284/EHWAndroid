@@ -176,6 +176,16 @@ namespace EHWM.Converters {
         }
     }
 
+    public class DateTimeToStringConverter : IValueConverter {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            return ((DateTime)value).ToString("dd.MM.yyyy");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return ((DateTime)value).ToString("dd.MM.yyyy");
+        }
+    }
+
     public class NegateBooleanConverter : IValueConverter {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             return !((bool)value);

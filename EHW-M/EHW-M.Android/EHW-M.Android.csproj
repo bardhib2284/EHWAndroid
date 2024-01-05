@@ -93,6 +93,7 @@
     <Compile Include="EscapeSequence.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="PlatformInfo.cs" />
+    <Compile Include="Renderers\DatePickerRenderer.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FiskalizationServiceAndroid.cs" />
@@ -108,28 +109,16 @@
     <AndroidAsset Include="Assets\Asseco_See_test.p12" />
     <AndroidAsset Include="Assets\cert_20201216151211653_E. H. W..p12" />
     <AndroidAsset Include="Assets\ASSECOSEE.p12" />
-    <AndroidAsset Include="Assets\GRAND HALVA.otf" />
-    <AndroidAsset Include="Assets\Ndiscover - Point DEMO Semi Bold.otf" />
-    <AndroidAsset Include="Assets\PointLight.otf" />
-    <AndroidAsset Include="Assets\PointSemiBold.otf" />
-    <AndroidAsset Include="Assets\sulphur-point.ttf" />
-    <AndroidAsset Include="Assets\Vuldo-6Y8Y1.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Black.ttf" />
-    <AndroidAsset Include="Assets\Roboto-BlackItalic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Bold.ttf" />
-    <AndroidAsset Include="Assets\Roboto-BoldCondensed.ttf" />
-    <AndroidAsset Include="Assets\Roboto-BoldCondensedItalic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-BoldItalic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Condensed.ttf" />
-    <AndroidAsset Include="Assets\Roboto-CondensedItalic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Italic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Light.ttf" />
-    <AndroidAsset Include="Assets\Roboto-LightItalic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Medium.ttf" />
-    <AndroidAsset Include="Assets\Roboto-MediumItalic.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Regular.ttf" />
-    <AndroidAsset Include="Assets\Roboto-Thin.ttf" />
-    <AndroidAsset Include="Assets\Roboto-ThinItalic.ttf" />
+    <AndroidAsset Include="Assets\Lato-Black.ttf" />
+    <AndroidAsset Include="Assets\Lato-BlackItalic.ttf" />
+    <AndroidAsset Include="Assets\Lato-Bold.ttf" />
+    <AndroidAsset Include="Assets\Lato-BoldItalic.ttf" />
+    <AndroidAsset Include="Assets\Lato-Italic.ttf" />
+    <AndroidAsset Include="Assets\Lato-Light.ttf" />
+    <AndroidAsset Include="Assets\Lato-LightItalic.ttf" />
+    <AndroidAsset Include="Assets\Lato-Regular.ttf" />
+    <AndroidAsset Include="Assets\Lato-Thin.ttf" />
+    <AndroidAsset Include="Assets\Lato-ThinItalic.ttf" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -237,6 +226,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\FiskalizimiService\FiscalisationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\OFL.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

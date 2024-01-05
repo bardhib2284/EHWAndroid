@@ -532,6 +532,8 @@ namespace EHWM.ViewModel {
             UserDialogs.Instance.ShowLoading("Duke u kthyer te vizitat");
             App.Instance.MainPage = new NavigationPage( new MainPage { BindingContext = App.Instance.MainViewModel });
             await App.Instance.PushAsyncNewPage(new ClientsPage() { BindingContext = App.Instance.MainViewModel });
+            App.Instance.MainViewModel.VizitatFilteredByDate.Remove(VizitaESelektuar);
+            App.Instance.MainViewModel.VizitatFilteredByDate.Insert(0, VizitaESelektuar);
             UserDialogs.Instance.HideLoading();
         }
 
@@ -1142,7 +1144,7 @@ namespace EHWM.ViewModel {
 "---------------------------------------------------------------------");
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now);
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -1163,7 +1165,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\nTRANSPORTUESI: e. h. w. j61804031v");
                 await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
