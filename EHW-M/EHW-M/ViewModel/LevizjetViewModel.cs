@@ -570,10 +570,13 @@ namespace EHWM.ViewModel {
         public async Task ShtoLevizjenAsync() {
             LevizjetPage LevizjetPage = new LevizjetPage();
             LevizjetPage.BindingContext = this;
+            TotalPrice = 0;
+            SelectedKlientet = null;
+            CurrentlySelectedArtikulli = null;
             NumriFraturave = await App.Database.GetNumriFaturaveIDAsync(Agjendi.IDAgjenti);
             var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
             NumriPorosive = gNumriPorosive.FirstOrDefault(x=> x.TIPI == "LEVIZJE");
-            if(NumriPorosive == null) {
+            if (NumriPorosive == null) {
                 NumriPorosive = new NumriPorosive
                 {
                     TIPI = "LEVIZJE",
@@ -585,6 +588,8 @@ namespace EHWM.ViewModel {
             else {
                 NumriPorosive.NrPorosise += 1;
             }
+            if(SelectedArikujt != null)
+                SelectedArikujt.Clear();
             var ld = await App.Database.GetLevizjeDetailsAsync();
             LevizjetDetails = new ObservableCollection<LevizjetDetails>(ld.ToList());
             await App.Instance.PushAsyncNewPage(LevizjetPage);
@@ -612,6 +617,11 @@ namespace EHWM.ViewModel {
             var malliMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
             var stoqet = await App.Database.GetAllStoqetAsync();
 
+            if(malliMbetur == null) {
+                UserDialogs.Instance.Alert("Artikulli " + artikulli.Emri + " nuk gjindet ne mall te mbetur per kete depo, ju lutemi kontaktoni bazen ose provoni artikull tjeter");
+                CurrentlySelectedArtikulli = null;
+                return;
+            }
             
             if (artikulli != null) {
                 artikulli.Seri = CurrentlySelectedArtikulli.Seri;
@@ -718,6 +728,11 @@ namespace EHWM.ViewModel {
                 var agjendet = await App.Database.GetAgjendetAsync();
                 var FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
                 var numriFiskal = await App.Database.GetNumratFiskalAsync();
+                if(SelectedArikujt == null) {
+                    UserDialogs.Instance.HideLoading();
+                    UserDialogs.Instance.Alert("Ju lutem zgjedhni artikujt para se te regjistroni levizjen");
+                    return;
+                }
                 foreach (var artikull in SelectedArikujt) {
 
                     if(Ne) {
@@ -851,7 +866,7 @@ namespace EHWM.ViewModel {
             }
             catch (Exception e) {
                 UserDialogs.Instance.HideLoading();
-                UserDialogs.Instance.Alert("Levizja nuk u regjistrua me sukses errori : " + e.Message + " stack trace : " + e.StackTrace);
+                UserDialogs.Instance.Alert("Levizja nuk u regjistrua me sukses errori : " + e.StackTrace + " stack trace : " + e.StackTrace);
             }
             UserDialogs.Instance.HideLoading();
 

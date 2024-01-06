@@ -17,7 +17,6 @@ namespace EHWM.Views {
         public ClientsPage() {
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("sq-AL");
             InitializeComponent();
-            NavigationPage.SetHasNavigationBar(this, false);
             AllClientsList.IsVisible = true;
             SearchedClientsList.IsVisible = false;
         }

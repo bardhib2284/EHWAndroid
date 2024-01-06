@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="EHWM.Views.VizualizoInkasimetPage">
+             x:Class="EHWM.Views.VizualizoInkasimetPage" Title="Vizualizimi i inkasimeve">
     <ContentPage.Content>
         <StackLayout >
             <StackLayout Padding="10" Orientation="Horizontal" BackgroundColor="LightBlue">
-                <Label Text="NrFatures" WidthRequest="70" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                <Label Text="ShumaTotale" WidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                <Label Text="DataPageses" WidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                <Label Text="KMON" WidthRequest="40" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                <Label Text="PayType" WidthRequest="70" HorizontalOptions="FillAndExpand" FontSize="12"/>
+                <Label Text="NrFatures" WidthRequest="120" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
+                <Label Text="ShumaTotale" WidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
+                <Label Text="DataPageses" WidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
+                <Label Text="KMON" WidthRequest="40" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
+                <Label Text="PayType" WidthRequest="60" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
             </StackLayout>
 
             <ListView ItemsSource="{Binding InkasimetList}" SelectionMode="None">
@@ -17,11 +17,11 @@
                     <DataTemplate>
                         <ViewCell>
                             <StackLayout Orientation="Horizontal" Padding="10">
-                                <Label Text="{Binding NrFatures}" WidthRequest="70" HorizontalOptions="Center" FontSize="12"/>
-                                <Label Text="{Binding ShumaTotale}" WidthRequest="65" HorizontalOptions="Center" FontSize="12"/>
-                                <Label Text="{Binding DataPageses,StringFormat='{}{0:dd.MM.yyyy}'}" WidthRequest="100" HorizontalOptions="Center" FontSize="12"/>
-                                <Label Text="{Binding KMON}" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                                <Label Text="{Binding PayType}" HorizontalOptions="FillAndExpand" FontSize="12"/>
+                                <Label Text="{Binding NrPageses}" WidthRequest="120" MinimumWidthRequest="100" HorizontalOptions="FillAndExpand" FontSize="12"/>
+                                <Label Text="{Binding ShumaPaguar,StringFormat='{0:F2}'}" WidthRequest="100" MinimumWidthRequest="80" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
+                                <Label Text="{Binding DataPageses,StringFormat='{}{0:dd.MM.yyyy}'}" WidthRequest="70" HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" FontSize="12"/>
+                                <Label Text="{Binding KMON}" HorizontalOptions="FillAndExpand" WidthRequest="60" HorizontalTextAlignment="Center" MinimumWidthRequest="60" FontSize="12"/>
+                                <Label Text="{Binding PayType}" HorizontalOptions="FillAndExpand" WidthRequest="60" HorizontalTextAlignment="Center" MinimumWidthRequest="60" FontSize="12"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

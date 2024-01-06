@@ -53,9 +53,9 @@
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Orientation="Horizontal" Padding="5,0" >
-                                        <Label Text="{Binding IDDetyrimi}" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
-                                        <StackLayout Orientation="Horizontal" Spacing="8">
-                                            <Label Text="{Binding KOD}" TextColor="red" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start"/>
+                                        <Label Text="{Binding IDDetyrimi}" LineBreakMode="TailTruncation" WidthRequest="100" HorizontalOptions="FillAndExpand"/>
+                                        <StackLayout Orientation="Horizontal" Spacing="8" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding KOD}" TextColor="red" WidthRequest="80" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start"/>
                                             <Label Text="{Binding Emri}" WidthRequest="135" HorizontalOptions="FillAndExpand" Margin="0,0,0,0" LineBreakMode="TailTruncation"/>
                                             <Label Text="{Binding KMON}" WidthRequest="10" HorizontalOptions="FillAndExpand"/>
                                             <Label Text="{Binding Detyrimi,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand"/>

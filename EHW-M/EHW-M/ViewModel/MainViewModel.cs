@@ -2243,6 +2243,9 @@ namespace EHWM.ViewModel {
             var porosite = await App.Database.GetPorositeAsync();
             var porositeart = await App.Database.GetPorositeArtAsync();
             var artikujt = await App.Database.GetArtikujtAsync();
+            AllLiferimetEKryeraKthimet = 0;
+            AllLiferimetEKryeraCmimiTotal = 0;
+            AllLiferimetEKryeraInkasimet = 0;
             foreach (var lif in liferimet) {
                 var lfV = new VizualizimiFatures
                 {
@@ -2281,17 +2284,17 @@ namespace EHWM.ViewModel {
 
                 LiferimetEKryera.Add(lfV);
 
-                if (decimal.Parse(lif.CmimiTotal.ToString()) < 0) {
-                    AllLiferimetEKryeraKthimet -= decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.CmimiTotal.ToString());
+                if (decimal.Parse(lif.ShumaPaguar.ToString()) < 0) {
+                    AllLiferimetEKryeraKthimet -= decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
-                else if (decimal.Parse(lif.CmimiTotal.ToString()) == 0) {
-                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.CmimiTotal.ToString());
+                else if (decimal.Parse(lif.ShumaPaguar.ToString()) == 0) {
+                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
                 else {
-                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.CmimiTotal.ToString());
+                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
             }
         }
@@ -2337,7 +2340,10 @@ namespace EHWM.ViewModel {
             var porosite = await App.Database.GetPorositeAsync();
             var porositeart = await App.Database.GetPorositeArtAsync();
             var artikujt = await App.Database.GetArtikujtAsync();
-            foreach(var lif in liferimet) {
+            AllLiferimetEKryeraKthimet = 0;
+            AllLiferimetEKryeraCmimiTotal = 0;
+            AllLiferimetEKryeraInkasimet = 0;
+            foreach (var lif in liferimet) {
                 var lfV = new VizualizimiFatures
                 {
                     Data = lif.DataLiferimit,
@@ -2376,16 +2382,16 @@ namespace EHWM.ViewModel {
                 LiferimetEKryera.Add(lfV);
 
                 if (decimal.Parse(lif.CmimiTotal.ToString()) < 0) {
-                    AllLiferimetEKryeraKthimet -= decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.CmimiTotal.ToString());
+                    AllLiferimetEKryeraKthimet -= decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
                 else if(decimal.Parse(lif.CmimiTotal.ToString()) == 0) {
-                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.CmimiTotal.ToString());
+                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
                 else {
-                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.CmimiTotal.ToString());
+                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
             }
             DataEZgjedhur = DitetEJaves.FirstOrDefault(x => x == GetDayName(TodaysDate));

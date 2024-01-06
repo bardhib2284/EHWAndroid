@@ -69,6 +69,14 @@ namespace EHWM.Views {
                     await Navigation.PopAsync();
                 }
             }            
+            else if(bc is InkasimiViewModel imv) {
+                var info = e.SelectedItem as MposConnectionInformation;
+                if(info != null) {
+                    imv._connectionInfo = info;
+                    await imv.OnDeviceOpenClicked();
+                    await Navigation.PopAsync();
+                }
+            }            
             else if(bc is PorositeViewModel pmv) {
                 var info = e.SelectedItem as MposConnectionInformation;
                 if(info != null) {

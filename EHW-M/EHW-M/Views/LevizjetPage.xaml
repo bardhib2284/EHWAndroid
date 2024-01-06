@@ -41,7 +41,7 @@
                         <Label Text="Seri" Grid.Row="0" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
 
                         <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Depo}" VerticalOptions="Start"/>
-                        <Entry  Grid.Row="1" Grid.Column="1" VerticalOptions="Start" IsEnabled="False" Text="{Binding NrLevizjes}"/>
+                        <Entry  Grid.Row="1" Grid.Column="1" VerticalOptions="Start" IsEnabled="False" HorizontalTextAlignment="Center" Text="{Binding NrLevizjes}"/>
                         <Entry  Grid.Row="1" Grid.Column="2" VerticalOptions="Start" Text="{Binding CurrentlySelectedArtikulli.Seri}" HorizontalTextAlignment="Center"/>
 
                         <Label Text="Artikulli"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" HorizontalTextAlignment="Center" VerticalTextAlignment="End"/>
@@ -69,11 +69,11 @@
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Orientation="Horizontal" Spacing="40">
-                                        <Label Text="{Binding Emri}" WidthRequest="170" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                        <Label Text="{Binding Emri}" WidthRequest="190" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
                                         <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                                            <Label Text="{Binding Sasia}" HorizontalOptions="StartAndExpand"/>
-                                            <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0"/>
-                                            <Label Text="{Binding CmimiTotal}" HorizontalOptions="EndAndExpand"/>
+                                            <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" HorizontalTextAlignment="Center"/>
+                                            <Label Text="{Binding CmimiNjesi ,StringFormat='{0:F2}'}" HorizontalTextAlignment="Center" HorizontalOptions="Center" Margin="10,0,0,0"/>
+                                            <Label Text="{Binding CmimiTotal ,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" HorizontalTextAlignment="Center"/>
                                         </StackLayout>
                                     </StackLayout>
                                 </ViewCell>
@@ -81,8 +81,8 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackLayout Orientation="Horizontal">
-                        <Label Text="Totali per levizje : " VerticalTextAlignment="Center"/>
-                        <Label Text="{Binding TotalPrice}" VerticalTextAlignment="Center"/>
+                        <Label Text="Totali per levizje : " VerticalTextAlignment="Center" FontAttributes="Bold"/>
+                        <Label Text="{Binding TotalPrice,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" FontAttributes="Bold"/>
                         <Button x:Name="fshijButton" Command="{Binding FshijArtikullinCommand}" Clicked="fshijButton_Clicked" IsVisible="False" Text="Fshije" BackgroundColor="Red" Background="red" HorizontalOptions="EndAndExpand"/>
                         <Button Text="Regjistro" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
                     </StackLayout>

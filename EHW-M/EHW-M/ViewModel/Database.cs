@@ -427,6 +427,14 @@ namespace EHWM.ViewModel
                 return -1;
             }
         }
+        public async Task<int> UpdateDetyrimi(Detyrimet cr) {
+            try {
+                return await _database.UpdateAsync(cr);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+        }
         public async Task<int> SaveOrUpdateDetyrimi(Detyrimet cr) {
             try {
                 return await _database.InsertOrReplaceAsync(cr);
