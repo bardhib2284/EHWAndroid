@@ -50,7 +50,7 @@
                                         <Label Text="{Binding SasiaPranuar,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="Start" HorizontalTextAlignment="Start" WidthRequest="30" MinimumWidthRequest="30" FontSize="10"/>
                                         <Label Text="{Binding SasiaShitur,StringFormat='{0:F2}'}"  VerticalTextAlignment="Center" HorizontalTextAlignment="Start" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="StartAndExpand" FontSize="10"/>
                                         <Label Text="{Binding SasiaKthyer,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalTextAlignment="Start"  WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="StartAndExpand" FontSize="10"/>
-                                        <Label Text="{Binding LevizjeStoku}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
+                                        <Label Text="{Binding LevizjeStoku,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
                                         <Label Text="{Binding SasiaMbetur,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" WidthRequest="30" MinimumWidthRequest="30" HorizontalOptions="Start" HorizontalTextAlignment="Start" FontSize="10"/>
                                         <Label Text="{Binding Seri,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand" FontSize="10" WidthRequest="30" MinimumWidthRequest="30"/>
                                     </StackLayout>
@@ -64,11 +64,11 @@
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                     <StackLayout WidthRequest="90" HorizontalOptions="Start"></StackLayout>
                     <StackLayout VerticalOptions="Center" Spacing="0" Orientation="Horizontal" HeightRequest="40" HorizontalOptions="FillAndExpand">
-                        <Label Text="{Binding PranuarAll}" HorizontalOptions="FillAndExpand" WidthRequest="50" MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
-                        <Label Text="{Binding ShiturAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
-                        <Label Text="{Binding KthyerAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
-                        <Label Text="{Binding LevizjeAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
-                        <Label Text="{Binding MbetjaAll}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding PranuarAll,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" WidthRequest="50" MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding ShiturAll,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding KthyerAll,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding LevizjeAll,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
+                        <Label Text="{Binding MbetjaAll,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" WidthRequest="50"  MinimumHeightRequest="50" HorizontalTextAlignment="Center"/>
                     </StackLayout>
                     <StackLayout WidthRequest="50" HorizontalOptions="Start"></StackLayout>
                 </StackLayout>

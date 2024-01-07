@@ -43,15 +43,15 @@ namespace EHWM.Views {
                     var client = kdl.FirstOrDefault(x => x.IDKlienti == (bc.Clients[pickerForClients.SelectedIndex].IDKlienti));
                     if (client != null)
                         Adresa.Text = client.Adresa;
-                    var res = await Geolocation.GetLocationAsync();
+                    var res = await Geolocation.GetLastKnownLocationAsync();
                     Guid g = Guid.NewGuid();
                     App.Instance.MainViewModel.RegjistroVizitenVizita = new Vizita
                     {
                         DataAritjes = App.Instance.MainViewModel.RegjistroVizitenDate,
                         DeviceID = App.Instance.MainViewModel.LoginData.DeviceID,
                         IDAgjenti = App.Instance.MainViewModel.LoginData.IDAgjenti,
-                        Latitude = res.Latitude.ToString(),
-                        Longitude = res.Longitude.ToString(),
+                        Latitude = res?.Latitude.ToString(),
+                        Longitude = res?.Longitude.ToString(),
                         IDVizita = g,
                         IDKlientDheLokacion = client?.IDKlientDheLokacion,
                         Komenti = "",

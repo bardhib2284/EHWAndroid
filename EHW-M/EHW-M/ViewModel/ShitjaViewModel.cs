@@ -223,7 +223,7 @@ namespace EHWM.ViewModel {
                                     malliIMbetur.SasiaShitur = float.Parse(Math.Round(SasiaShiturUpdate + SasiaShiturAktuale, 3).ToString());
 
                                     //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
-                                    var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) - malliIMbetur.LevizjeStoku;
+                                    var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                                     malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                                     malliIMbetur.SyncStatus = 0;
                                     await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -273,7 +273,7 @@ namespace EHWM.ViewModel {
                                     malliIMbetur.SasiaKthyer = float.Parse(Math.Round(SasiaShiturUpdate + SasiaKthyerAktuale, 3).ToString());
 
                                     //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
-                                    var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) - malliIMbetur.LevizjeStoku;
+                                    var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                                     malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                                     malliIMbetur.SyncStatus = 0;
                                     await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -509,23 +509,6 @@ namespace EHWM.ViewModel {
                             };
                             await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         }
-
-                        var cashRegisters = await App.Database.GetCashRegisterAsync();
-                        var cashRegister = cashRegisters.FirstOrDefault();
-
-                        var newCashRegister = new CashRegister
-                        {
-                            Cashamount = cashRegister.Cashamount + decimal.Parse(TotalPrice.ToString()),
-                            DepositType = 1,
-                            DeviceID = agjendi.DeviceID,
-                            ID = Guid.NewGuid(),
-                            Message = "",
-                            RegisterDate = DateTime.Now,
-                            SyncStatus = 0,
-                            TCRCode = agjendi.TCRCode,
-                            TCRSyncStatus = 0,
-                        };
-                        await App.Database.SaveCashRegisterAsync(newCashRegister);
                     }
                 }
             }

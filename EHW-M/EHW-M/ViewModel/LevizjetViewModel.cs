@@ -738,12 +738,10 @@ namespace EHWM.ViewModel {
                     if(Ne) {
                         //update malli i mbetur
                         var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
-                        decimal SasiaLevizurUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                        decimal SasiaLevizurAktuale = Math.Round(decimal.Parse(malliIMbetur.LevizjeStoku.ToString()), 3);
 
-                        malliIMbetur.LevizjeStoku = float.Parse(Math.Round(SasiaLevizurUpdate + SasiaLevizurAktuale, 3).ToString());
+                        malliIMbetur.LevizjeStoku += (float)artikull.Sasia;
 
-                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) + malliIMbetur.LevizjeStoku;
+                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                         malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                         malliIMbetur.SyncStatus = 0;
                         var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -752,13 +750,10 @@ namespace EHWM.ViewModel {
                         
                     if(Nga) {
                         var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
-                        decimal SasiaLevizurUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                        decimal SasiaLevizurAktuale = Math.Round(decimal.Parse(malliIMbetur.LevizjeStoku.ToString()), 3);
-
-                        malliIMbetur.LevizjeStoku = float.Parse(Math.Round(SasiaLevizurAktuale - SasiaLevizurUpdate, 3).ToString());
+                        malliIMbetur.LevizjeStoku -= (float)artikull.Sasia;
 
                         //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
-                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) + malliIMbetur.LevizjeStoku;
+                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                         malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                         malliIMbetur.SyncStatus = 0;
                         var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -815,16 +810,16 @@ namespace EHWM.ViewModel {
                     NumriLevizjes = NrLevizjes,
                     KodiDyqanit = Agjendi.Depo,
                     TransferID = transferId,
-                    Latitude = geoLocation.Latitude.ToString(),
-                    Longitude = geoLocation.Longitude.ToString(),
+                    Latitude = geoLocation?.Latitude.ToString(),
+                    Longitude = geoLocation?.Longitude.ToString(),
                     Message = "Levizja ka perfunduar",
                     NumriDaljes = "0",
                     NumriFisk = topLevizjeIDN.LevizjeIDN,
                     SyncStatus = 0,
                     TCR = Agjendi.TCRCode,
-                    TCRBusinessUnitCode = query.FirstOrDefault().BusinessUnitCode,
+                    TCRBusinessUnitCode = query?.FirstOrDefault().BusinessUnitCode,
                     TCRIssueDateTime = Agjendi.TCRRegisteredDateTime,
-                    TCROperatorCode = query.FirstOrDefault().OperatorCode,
+                    TCROperatorCode = query?.FirstOrDefault().OperatorCode,
                     Totali = decimal.Parse(TotalPrice.ToString()),
                     TCRSyncStatus = 0,
                 };

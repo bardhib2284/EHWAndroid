@@ -258,7 +258,13 @@ namespace EHWM.ViewModel {
             UserDialogs.Instance.ShowLoading("Duke hapur inkasimet");
             InkasimetList = new ObservableCollection<EvidencaPagesave>( await App.Database.GetEvidencaPagesaveAsync());
             InkasimetList = new ObservableCollection<EvidencaPagesave>(InkasimetList.Where(x => x.ExportStatus == 0));
+            var klientet = await App.Database.GetKlientetAsync();
             foreach(var inkasim in InkasimetList) {
+                foreach(var klient in klientet) {
+                    if(klient.IDKlienti == inkasim.IDKlienti) {
+                        inkasim.Kontakti = klient.Emri;
+                    }
+                }
                 if(string.IsNullOrEmpty(inkasim.KMON)) {
                     inkasim.KMON = "LEK";
                 }
@@ -277,7 +283,7 @@ namespace EHWM.ViewModel {
             MbetjaAll = 0;
             UserDialogs.Instance.ShowLoading("Duke mbledhur mallin e mbetur");
             MalliMbetur = new ObservableCollection<Malli_Mbetur>( await App.Database.GetMalliMbeturAsync());
-            MalliMbetur = new ObservableCollection<Malli_Mbetur>(MalliMbetur.Where(x => x.SasiaMbetur > 0));
+            MalliMbetur = new ObservableCollection<Malli_Mbetur>(MalliMbetur.Where(x => x.SasiaMbetur != 0));
             foreach (var mall in MalliMbetur) {
                 PranuarAll += mall.SasiaPranuar;
                 ShiturAll += mall.SasiaShitur;
@@ -576,9 +582,9 @@ namespace EHWM.ViewModel {
 
 
                 await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GetImgResource(),
-                            100/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                            120/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
                             (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
-                            50,                                                 // brightness
+                            60,                                                 // brightness
                             true,                                               // Image Dithering
                             true);
                 await _printer.printLine(1, 1, 1, 1, 1);
@@ -586,6 +592,10 @@ namespace EHWM.ViewModel {
                 await _printer.printLine(0, 0, 1, 1, 1);
                 await _printer.printText(
 "---------------------------------------------------------------------\n");
+                await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
 
                 var agjender = await App.Database.GetAgjendetAsync();
                 var agjendi = agjender.FirstOrDefault(x => x.Depo == LoginData.Depo);
@@ -594,7 +604,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
                 await _printer.printText("\nKlienti             Tipi    Monedhe    Fatura     Totali     Paguar\n");
-                await _printer.printText("---------------------------------------------------------------------");
+                await _printer.printText("---------------------------------------------------------------------\n");
                 float teGjithaSasit = 0f;
                 float teGjithaCmimetNjesi = 0f;
                 double teGjitheCmimetTotale = 0f;
@@ -606,10 +616,10 @@ namespace EHWM.ViewModel {
                         if (klient.IDKlienti != art.IDKlienti)
                             continue;
                         string prntBuilder = string.Empty; 
-                        if (klient.Emri.Trim().Length > 21) {
-                            klient.Emri = klient.Emri.Trim().Remove(21);
+                        if (klient.Emri.Trim().Length > 19) {
+                            klient.Emri = klient.Emri.Trim().Remove(19);
                         }
-                        prntBuilder += "\n" + klient.Emri.Trim();
+                        prntBuilder += klient.Emri.Trim();
 
                         if(klient.Emri.Length == 21) {
                             prntBuilder += art.PayType;
@@ -620,47 +630,47 @@ namespace EHWM.ViewModel {
                         }
                         else if(klient.Emri.Length == 19)
                         {
-                            prntBuilder += "  " + art.PayType;
+                            prntBuilder += " " + art.PayType;
                         }
                         else if(klient.Emri.Length == 18)
                         {
-                            prntBuilder += "   " + art.PayType;
+                            prntBuilder += "  " + art.PayType;
                         }
                         else if(klient.Emri.Length == 17)
                         {
-                            prntBuilder += "    " + art.PayType;
+                            prntBuilder += "   " + art.PayType;
                         }
                         else if(klient.Emri.Length == 16)
                         {
-                            prntBuilder += "     " + art.PayType;
+                            prntBuilder += "    " + art.PayType;
                         }
                         else if(klient.Emri.Length == 15)
                         {
-                            prntBuilder += "      " + art.PayType;
+                            prntBuilder += "     " + art.PayType;
                         }
                         else if(klient.Emri.Length == 14)
                         {
-                            prntBuilder += "       " + art.PayType;
+                            prntBuilder += "      " + art.PayType;
                         }
                         else if(klient.Emri.Length == 13)
                         {
-                            prntBuilder += "        " + art.PayType;
+                            prntBuilder += "       " + art.PayType;
                         }
                         else if(klient.Emri.Length == 12)
                         {
-                            prntBuilder += "         " + art.PayType;
+                            prntBuilder += "        " + art.PayType;
                         }
                         else if(klient.Emri.Length == 11)
                         {
-                            prntBuilder += "          " + art.PayType;
+                            prntBuilder += "           " + art.PayType;
                         }
                         else if(klient.Emri.Length == 10)
                         {
-                            prntBuilder += "           " + art.PayType;
+                            prntBuilder += "            " + art.PayType;
                         }
                         else if(klient.Emri.Length == 9)
                         {
-                            prntBuilder += "            " + art.PayType;
+                            prntBuilder += "             " + art.PayType;
                         }
                         else if(klient.Emri.Length == 8)
                         {
@@ -689,13 +699,41 @@ namespace EHWM.ViewModel {
 
                         prntBuilder += "    " + art.KMON;
 
-                        prntBuilder += "       " + art.NrFatures;
+                        if(string.IsNullOrEmpty(art.NrFatures)) {
+                            prntBuilder += "       " + "        ";
+                        }
+                        else {
+                            prntBuilder += "       " + art.NrFatures;
+                        }
 
-                        prntBuilder += "    " + art.ShumaTotale;
 
-                        prntBuilder += "    " + art.ShumaPaguar;
+                        if (art.ShumaTotale == null) {
+                            prntBuilder += "    " + "    " + "   ";
 
-                        await _printer.printText(prntBuilder + "\n");
+
+                        }
+                        else {
+                            art.ShumaTotale = 0.00f;
+                            var shumaTotale = String.Format("{0:0.00}", art.ShumaTotale);
+
+                            if (shumaTotale.Length >= 7) {
+                                prntBuilder += "   " + shumaTotale + " ";
+                            }
+                            else if (shumaTotale.Length >= 6) {
+                                prntBuilder += "    " + shumaTotale + " ";
+                            }
+                            else if (shumaTotale.Length >= 5) {
+                                prntBuilder += "    " + shumaTotale + "  ";
+                            }
+                            else if (shumaTotale.Length >= 4) {
+                                prntBuilder += "    " + shumaTotale + "   ";
+                            }
+                        }
+
+
+                        prntBuilder += "    " + String.Format("{0:0.00}", art.ShumaPaguar);
+
+                        await _printer.printText(prntBuilder + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                         teGjithaCmimetNjesi += (float)art.ShumaPaguar;
                     }
                     
@@ -712,7 +750,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n");
                 await _printer.printText("Llojet e pagesave \n");
                 await _printer.printText("Shuma e paguar ne EURO :                               0.00\n");
-                await _printer.printText("Shuma e paguar ne LEK  :                             " + teGjithaCmimetNjesi + "\n");
+                await _printer.printText("Shuma e paguar ne LEK  :                               " + String.Format("{0:0.00}", teGjithaCmimetNjesi) + "\n");
                 await _printer.printText("Shuma e paguar ne USD  :                               0.00\n");
 
 
@@ -1614,7 +1652,7 @@ namespace EHWM.ViewModel {
                                 malliIMbetur.SasiaKthyer = float.Parse(Math.Round(SasiaShiturUpdate + SasiaKthyerAktuale, 3).ToString());
 
                                 //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
-                                var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) - malliIMbetur.LevizjeStoku;
+                                var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                                 malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                                 malliIMbetur.SyncStatus = 0;
                                 await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -2289,11 +2327,11 @@ namespace EHWM.ViewModel {
                     AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
                 else if (decimal.Parse(lif.ShumaPaguar.ToString()) == 0) {
-                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
                     AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
                 else {
-                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
                     AllLiferimetEKryeraInkasimet += decimal.Parse(lif.ShumaPaguar.ToString());
                 }
             }

@@ -5,23 +5,23 @@
     <ContentPage.Content>
         <StackLayout >
             <StackLayout Padding="10" Orientation="Horizontal" BackgroundColor="LightBlue">
-                <Label Text="NrFatures" WidthRequest="120" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
-                <Label Text="ShumaTotale" WidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
-                <Label Text="DataPageses" WidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
+                <Label Text="Kontakti" WidthRequest="60" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
+                <Label Text="ShumaTotale" WidthRequest="70" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
+                <Label Text="DataPageses" WidthRequest="70" HorizontalOptions="FillAndExpand" FontSize="12" HorizontalTextAlignment="Center"/>
                 <Label Text="KMON" WidthRequest="40" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
-                <Label Text="PayType" WidthRequest="60" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
+                <Label Text="PayType" WidthRequest="40" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
             </StackLayout>
 
-            <ListView ItemsSource="{Binding InkasimetList}" SelectionMode="None">
+            <ListView ItemsSource="{Binding InkasimetList}" SelectionMode="None" RowHeight="60">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
                             <StackLayout Orientation="Horizontal" Padding="10">
-                                <Label Text="{Binding NrPageses}" WidthRequest="120" MinimumWidthRequest="100" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                                <Label Text="{Binding ShumaPaguar,StringFormat='{0:F2}'}" WidthRequest="100" MinimumWidthRequest="80" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
-                                <Label Text="{Binding DataPageses,StringFormat='{}{0:dd.MM.yyyy}'}" WidthRequest="70" HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" FontSize="12"/>
+                                <Label Text="{Binding Kontakti}" WidthRequest="80" LineBreakMode="TailTruncation" MinimumWidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12"/>
+                                <Label Text="{Binding ShumaPaguar,StringFormat='{0:F2}'}" WidthRequest="50" MinimumWidthRequest="50" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
+                                <Label Text="{Binding DataPageses,StringFormat='{}{0:dd.MM.yyyy}'}" WidthRequest="90" MinimumWidthRequest="100" HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" FontSize="12"/>
                                 <Label Text="{Binding KMON}" HorizontalOptions="FillAndExpand" WidthRequest="60" HorizontalTextAlignment="Center" MinimumWidthRequest="60" FontSize="12"/>
-                                <Label Text="{Binding PayType}" HorizontalOptions="FillAndExpand" WidthRequest="60" HorizontalTextAlignment="Center" MinimumWidthRequest="60" FontSize="12"/>
+                                <Label Text="{Binding PayType}" HorizontalOptions="FillAndExpand" WidthRequest="50" HorizontalTextAlignment="Center" MinimumWidthRequest="50" FontSize="12"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>
