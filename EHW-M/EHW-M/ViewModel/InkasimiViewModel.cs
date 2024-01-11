@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using EHWM.Services;
+using System.Diagnostics;
 
 namespace EHWM.ViewModel {
 
@@ -286,18 +287,26 @@ namespace EHWM.ViewModel {
                         else {
                             prntBuilder += "       " + art.NrFatures;
                         }
-
+                        var shumaPaguarString = String.Format("{0:0.00}", art.ShumaPaguar);
 
                         if (art.ShumaTotale == null) {
-                            prntBuilder += "    " + "    " + "   ";
-
-
+                            if (shumaPaguarString.Length >= 9) {
+                                prntBuilder += "    " + "    " + "  ";
+                            }
+                            else
+                                prntBuilder += "    " + "    " + "   ";
                         }
                         else {
                             art.ShumaTotale = 0.00f;
                             var shumaTotale = String.Format("{0:0.00}", art.ShumaTotale);
 
-                            if (shumaTotale.Length >= 7) {
+                            if (shumaTotale.Length >= 9) {
+                                prntBuilder += "  " + shumaTotale + "";
+                            }
+                            else if (shumaTotale.Length >= 8) {
+                                prntBuilder += "   " + shumaTotale + "";
+                            }
+                            else if (shumaTotale.Length >= 7) {
                                 prntBuilder += "   " + shumaTotale + " ";
                             }
                             else if (shumaTotale.Length >= 6) {
@@ -311,11 +320,11 @@ namespace EHWM.ViewModel {
                             }
                         }
 
-
                         prntBuilder += "    " + String.Format("{0:0.00}", art.ShumaPaguar);
 
                         await _printer.printText(prntBuilder + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                         teGjithaCmimetNjesi += (float)art.ShumaPaguar;
+                        Debug.WriteLine(prntBuilder + " Length : " + prntBuilder.Length);
                     }
 
                 }
@@ -353,7 +362,12 @@ namespace EHWM.ViewModel {
         }
 
         public async void RegjistroAsync() {
+            if(string.IsNullOrEmpty(PayType)) {
+                UserDialogs.Instance.Alert("Ju lutem zgjedhni menyren e pageses para se te regjistroni inkasimin");
+                return;
+            }
             if(DetyrimetNgaKlienti.Count < 1) {
+                UserDialogs.Instance.Alert("Nuk ka detyrim, ju lutem zgjedhni nje klient me detyrim");
                 return;
             }
             else {

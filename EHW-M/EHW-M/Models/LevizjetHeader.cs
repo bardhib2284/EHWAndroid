@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,5 +32,7 @@ namespace EHWM.Models {
         public string TCRNSLFSH { get; set; }
         public string TCRNIVFSH { get; set; }
         public string Message { get; set; }
+        [JsonIgnore]
+        public int NrPorosis { get; set; }
     }
 }

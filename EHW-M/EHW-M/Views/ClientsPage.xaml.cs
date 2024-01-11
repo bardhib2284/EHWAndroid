@@ -28,6 +28,7 @@ namespace EHWM.Views {
                 bc.SelectedVizita = null;
                 bc.DissapearingFromShitjaPage = false;
             }
+            datepickerr.FixData();
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e) {

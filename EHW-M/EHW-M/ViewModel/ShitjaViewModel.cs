@@ -178,6 +178,23 @@ namespace EHWM.ViewModel {
         }
         public async Task VazhdoTeKonfirmoPageAsync() {
             UserDialogs.Instance.ShowLoading("Duke perfunduar faturen");
+            var liferimet = await App.Database.GetLiferimetAsync();
+            var liferimetToday = liferimet.Where(x=> x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
+
+            var niptTotal = liferimetToday.Sum(x=> x.ShumaPaguar);
+            if (niptTotal >= 150000) {
+                UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
+                UserDialogs.Instance.HideLoading();
+                return;
+            }
+            else {
+                niptTotal += (float)TotalPrice;
+                if (niptTotal >= 150000) {
+                    UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotal);
+                    UserDialogs.Instance.HideLoading();
+                    return;
+                }
+            }
             await PerfundoLiferimin();
             await App.Instance.PushAsyncNewPage(new KonfirmoPagesenPage { BindingContext = this });
             UserDialogs.Instance.HideLoading();
@@ -391,6 +408,20 @@ namespace EHWM.ViewModel {
                                         LevizjeIDN = nf != null ? nf.LevizjeIDN : (int?)null,
                                         nf.Viti
                                     };
+                        var nrPorosise = await App.Database.GetNumriPorosiveAsync();
+                        var nrPor = nrPorosise.FirstOrDefault(x => x.TIPI == "SHITJE");
+                        if (nrPor == null) {
+                            nrPor = new NumriPorosive
+                            {
+                                TIPI = "SHITJE",
+                                NrPorosise = 01,
+                                Date = DateTime.Now,
+                            };
+                            await App.Database.SaveNumriPorosiveAsync(nrPor);
+                        }
+                        else {
+                            nrPor.NrPorosise += 1;
+                        }
                         Liferimi liferimi = new Liferimi
                         {
                             IDLiferimi = IDLiferimi,
@@ -420,6 +451,7 @@ namespace EHWM.ViewModel {
                             TCROperatorCode = agjendi.OperatorCode,
                             TCRBusinessCode = query.FirstOrDefault().BusinessUnitCode, // TODO FIND BUSINESSUNITCODE
                             TCRIssueDateTime = DateTime.Now.Date,
+                            NrPorosis = nrPor.NrPorosise
                         };
                         liferimi.TotaliPaTVSH = liferimi.CmimiTotal / 1.2f;
                         await App.Database.SaveLiferimiAsync(liferimi);
@@ -889,9 +921,15 @@ namespace EHWM.ViewModel {
 
 
         public async Task RegjistroAsync() {
-
+            App.Instance.MainViewModel.TodaysDate = DateTime.Now;
+            await App.Instance.MainViewModel.FixDataVizualizimit();
             //await App.Instance.MainPage.Navigation.PushAsync(new PrinterSelectionPage() { BindingContext = this });
-            
+
+
+            if (SelectedArikujt == null) {
+                UserDialogs.Instance.Alert("Nuk mund te vazhdohet me faturim pa artikuj te zgjedhur");
+                return;
+            }
             if (KthimMalli) {
                 if(NrFatKthim <= 0) {
                     UserDialogs.Instance.Alert(@"Duhet të plotësohet fusha ""Nr. Fat. Kthim"" Kjo është fushë obligative për fiskalizim!", "Vërejtje");
@@ -1190,8 +1228,6 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\nLloji i procesit:");
                     await _printer.printText("\nP3 Faturimi i dorezimit te porosise se blerjes se rastesishme \n");
                 }
-                await _printer.printText("\nLloji i procesit:");
-                await _printer.printText("\nP3 Faturimi i dorezimit te porosise se blerjes se rastesishme \n");
                 await _printer.printText(
 "---------------------------------------------------------------------");
 
@@ -1215,9 +1251,9 @@ namespace EHWM.ViewModel {
                 await _printer.printText(
 "---------------------------------------------------------------------");
 
-                await _printer.printText("\nTRANSPORTUESI: e. h. w. j61804031v");
+                await _printer.printText("\nTRANSPORTUESI: E. H. W. j61804031v");
                 await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy") + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -1665,8 +1701,12 @@ namespace EHWM.ViewModel {
                 SelectedArikujt = new ObservableCollection<Artikulli>();
             }
             if (CurrentlySelectedArtikulli == null) return;
-            if(string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
-                UserDialogs.Instance.Alert("Artikulli i selektuar nuk ka Seri, ju lutem mbusheni fushen", "Verejtje", "Ok");
+            if (CurrentlySelectedArtikulli.Seri.Trim().Length == 0) {
+                UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
+                return;
+            }
+            if (string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
+                UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
                 return;
             }
             if (!KthimMalli) {

@@ -18,9 +18,9 @@
                         <ViewCell>
                             <StackLayout Orientation="Horizontal" Padding="10">
                                 <Label Text="{Binding Kontakti}" WidthRequest="80" LineBreakMode="TailTruncation" MinimumWidthRequest="80" HorizontalOptions="FillAndExpand" FontSize="12"/>
-                                <Label Text="{Binding ShumaPaguar,StringFormat='{0:F2}'}" WidthRequest="50" MinimumWidthRequest="50" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
+                                <Label Text="{Binding ShumaPaguar,StringFormat='{0:F2}'}" WidthRequest="60" MinimumWidthRequest="60" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" FontSize="12"/>
                                 <Label Text="{Binding DataPageses,StringFormat='{}{0:dd.MM.yyyy}'}" WidthRequest="90" MinimumWidthRequest="100" HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" FontSize="12"/>
-                                <Label Text="{Binding KMON}" HorizontalOptions="FillAndExpand" WidthRequest="60" HorizontalTextAlignment="Center" MinimumWidthRequest="60" FontSize="12"/>
+                                <Label Text="{Binding KMON}" HorizontalOptions="FillAndExpand" WidthRequest="50" HorizontalTextAlignment="Center" MinimumWidthRequest="60" FontSize="12"/>
                                 <Label Text="{Binding PayType}" HorizontalOptions="FillAndExpand" WidthRequest="50" HorizontalTextAlignment="Center" MinimumWidthRequest="50" FontSize="12"/>
                             </StackLayout>
                         </ViewCell>

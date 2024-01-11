@@ -212,7 +212,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Adresa: Autostrada Tirane Durres \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Tel: 048 200 711        04 356 085 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                await _printer.printText("Numri i Porosise: " + NrPorosise +"\n");
+                await _printer.printText("Numri i Porosise: " + NrPorosise + "\n");
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 
                 await _printer.printText("\nBleresi: ");
@@ -231,47 +231,107 @@ namespace EHWM.ViewModel {
                 foreach (var art in SelectedArikujt) {
                     string prntBuilder = string.Empty;
                     var emriLength = art.Emri.Length;
-                    if(art.Emri.Length > 26) {
+                    if (art.Emri.Length > 26) {
                         art.Emri = art.Emri.Remove(26, art.Emri.Length - 26);
                     }
-                    if(art.Emri.Length == 26) {
-                        prntBuilder += "\n  " + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "        " + String.Format("{0:0.00}", art.Sasia);
+                    if (nrBarkodi >= 10) {
+                        prntBuilder += "\n" + nrBarkodi + "            ";
                     }
-                    else if(art.Emri.Length == 25) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "           " + String.Format("{0:0.00}", art.Sasia);
+                    else if (nrBarkodi < 10) {
+                        prntBuilder += "\n" + nrBarkodi + "             ";
                     }
-                    else if(art.Emri.Length == 24) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "            " + String.Format("{0:0.00}", art.Sasia);
+                    if (art.IDArtikulli.Length == 7) {
+                        prntBuilder += art.IDArtikulli + "    ";
                     }
-                    else if(art.Emri.Length == 23) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "             " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 6) {
+                        prntBuilder += art.IDArtikulli + "     ";
                     }
-                    else if(art.Emri.Length == 22) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "              " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 5) {
+                        prntBuilder += art.IDArtikulli + "      ";
                     }
-                    else if(art.Emri.Length == 21) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "               " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 4) {
+                        prntBuilder += art.IDArtikulli + "       ";
                     }
-                    else if (art.Emri.Length == 20) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 3) {
+                        prntBuilder += art.IDArtikulli + "        ";
                     }
-                    else if (art.Emri.Length == 19) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                 " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 18) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                  " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 17) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                   " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 16) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                    " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 15) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                     " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 2) {
+                        prntBuilder += art.IDArtikulli + "         ";
                     }
                     else
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                      " + String.Format("{0:0.00}", art.Sasia);
+                        prntBuilder += art.IDArtikulli + "          ";
+
+                    if (art.Emri.Length == 26) {
+                        prntBuilder += art.Emri + "          ";
+                    }
+                    else if (art.Emri.Length == 25) {
+                        prntBuilder += art.Emri + "             ";
+                    }
+                    else if (art.Emri.Length == 24) {
+                        prntBuilder += art.Emri + "              ";
+                    }
+                    else if (art.Emri.Length == 23) {
+                        prntBuilder += art.Emri + "               ";
+                    }
+                    else if (art.Emri.Length == 22) {
+                        prntBuilder += art.Emri + "                ";
+                    }
+                    else if (art.Emri.Length == 21) {
+                        prntBuilder += art.Emri + "                 ";
+                    }
+                    else if (art.Emri.Length == 20) {
+                        prntBuilder += art.Emri + "                  ";
+                    }
+                    else if (art.Emri.Length == 19) {
+                        prntBuilder += art.Emri + "                   ";
+                    }
+                    else if (art.Emri.Length == 18) {
+                        prntBuilder += art.Emri + "                    ";
+                    }
+                    else if (art.Emri.Length == 17) {
+                        prntBuilder += art.Emri + "                     ";
+                    }
+                    else if (art.Emri.Length == 16) {
+                        prntBuilder += art.Emri + "                      ";
+                    }
+                    else if (art.Emri.Length == 15) {
+                        prntBuilder += art.Emri + "                       ";
+                    }
+                    else if (art.Emri.Length == 14) {
+                        prntBuilder += art.Emri + "                        ";
+                    }
+                    else if (art.Emri.Length == 13) {
+                        prntBuilder += art.Emri + "                         ";
+                    }
+                    else if (art.Emri.Length == 12) {
+                        prntBuilder += art.Emri + "                          ";
+                    }
+                    else if (art.Emri.Length == 11) {
+                        prntBuilder += art.Emri + "                           ";
+                    }
+                    else if (art.Emri.Length == 10) {
+                        prntBuilder += art.Emri + "                            ";
+                    }
+                    else if (art.Emri.Length == 9) {
+                        prntBuilder += art.Emri + "                             ";
+                    }
+                    else if (art.Emri.Length == 8) {
+                        prntBuilder += art.Emri + "                              ";
+                    }
+                    else if (art.Emri.Length == 7) {
+                        prntBuilder += art.Emri + "                               ";
+                    }
+                    else if (art.Emri.Length == 6) {
+                        prntBuilder += art.Emri + "                                ";
+                    }
+                    else
+                        prntBuilder += art.Emri + "                                 ";
+                    var sasia = String.Format("{0:0.00}", art.Sasia);
+                    if (sasia.Length >= 7)
+                        prntBuilder = prntBuilder.Remove(prntBuilder.Length - 1, 1);
+
+                    prntBuilder += sasia;
+
                     teGjithaSasit += (float)art.Sasia;
                     await _printer.printText(prntBuilder);
                     nrBarkodi++;
@@ -280,7 +340,15 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\n---------------------------------------------------------------------");
 
-                await _printer.printText("\n                                                              " + String.Format("{0:0.00}", teGjithaSasit));
+                var tegjithaSasisString = String.Format("{0:0.00}", teGjithaSasit);
+                if (tegjithaSasisString.Length >= 8) {
+                    await _printer.printText("\n                                                             " + tegjithaSasisString);
+                }
+                else if (tegjithaSasisString.Length >= 7) {
+                    await _printer.printText("\n                                                              " + tegjithaSasisString);
+                }
+                else
+                    await _printer.printText("\n                                                               " + tegjithaSasisString);
 
 
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
@@ -380,47 +448,107 @@ namespace EHWM.ViewModel {
                 foreach (var art in Artikujt) {
                     string prntBuilder = string.Empty;
                     var emriLength = art.Emri.Length;
-                    if(art.Emri.Length > 26) {
+                    if (art.Emri.Length > 26) {
                         art.Emri = art.Emri.Remove(26, art.Emri.Length - 26);
                     }
-                    if(art.Emri.Length == 26) {
-                        prntBuilder += "\n  " + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "        " + String.Format("{0:0.00}", art.Sasia);
+                    if (nrBarkodi >= 10) {
+                        prntBuilder += "\n" + nrBarkodi + "            ";
                     }
-                    else if(art.Emri.Length == 25) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "           " + String.Format("{0:0.00}", art.Sasia);
+                    else if (nrBarkodi < 10) {
+                        prntBuilder += "\n" + nrBarkodi + "             ";
                     }
-                    else if(art.Emri.Length == 24) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "            " + String.Format("{0:0.00}", art.Sasia);
+                    if (art.IDArtikulli.Length == 7) {
+                        prntBuilder += art.IDArtikulli + "    ";
                     }
-                    else if(art.Emri.Length == 23) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "             " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 6) {
+                        prntBuilder += art.IDArtikulli + "     ";
                     }
-                    else if(art.Emri.Length == 22) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "              " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 5) {
+                        prntBuilder += art.IDArtikulli + "      ";
                     }
-                    else if(art.Emri.Length == 21) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "               " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 4) {
+                        prntBuilder += art.IDArtikulli + "       ";
                     }
-                    else if (art.Emri.Length == 20) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 3) {
+                        prntBuilder += art.IDArtikulli + "        ";
                     }
-                    else if (art.Emri.Length == 19) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                 " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 18) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                  " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 17) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                   " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 16) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                    " + String.Format("{0:0.00}", art.Sasia);
-                    }
-                    else if (art.Emri.Length == 15) {
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                     " + String.Format("{0:0.00}", art.Sasia);
+                    else if (art.IDArtikulli.Length == 2) {
+                        prntBuilder += art.IDArtikulli + "         ";
                     }
                     else
-                        prntBuilder += "\n" + nrBarkodi + "              " + art.IDArtikulli + "      " + art.Emri + "                      " + String.Format("{0:0.00}", art.Sasia);
+                        prntBuilder += art.IDArtikulli + "          ";
+
+                    if (art.Emri.Length == 26) {
+                        prntBuilder += art.Emri + "          ";
+                    }
+                    else if (art.Emri.Length == 25) {
+                        prntBuilder += art.Emri + "             ";
+                    }
+                    else if (art.Emri.Length == 24) {
+                        prntBuilder += art.Emri + "              ";
+                    }
+                    else if (art.Emri.Length == 23) {
+                        prntBuilder += art.Emri + "               ";
+                    }
+                    else if (art.Emri.Length == 22) {
+                        prntBuilder += art.Emri + "                ";
+                    }
+                    else if (art.Emri.Length == 21) {
+                        prntBuilder += art.Emri + "                 ";
+                    }
+                    else if (art.Emri.Length == 20) {
+                        prntBuilder += art.Emri + "                  ";
+                    }
+                    else if (art.Emri.Length == 19) {
+                        prntBuilder += art.Emri + "                   ";
+                    }
+                    else if (art.Emri.Length == 18) {
+                        prntBuilder += art.Emri + "                    ";
+                    }
+                    else if (art.Emri.Length == 17) {
+                        prntBuilder += art.Emri + "                     ";
+                    }
+                    else if (art.Emri.Length == 16) {
+                        prntBuilder += art.Emri + "                      ";
+                    }
+                    else if (art.Emri.Length == 15) {
+                        prntBuilder += art.Emri + "                       ";
+                    }
+                    else if (art.Emri.Length == 14) {
+                        prntBuilder += art.Emri + "                        ";
+                    }
+                    else if (art.Emri.Length == 13) {
+                        prntBuilder += art.Emri + "                         ";
+                    }
+                    else if (art.Emri.Length == 12) {
+                        prntBuilder += art.Emri + "                          ";
+                    }
+                    else if (art.Emri.Length == 11) {
+                        prntBuilder += art.Emri + "                           ";
+                    }
+                    else if (art.Emri.Length == 10) {
+                        prntBuilder += art.Emri + "                            ";
+                    }
+                    else if (art.Emri.Length == 9) {
+                        prntBuilder += art.Emri + "                             ";
+                    }
+                    else if (art.Emri.Length == 8) {
+                        prntBuilder += art.Emri + "                              ";
+                    }
+                    else if (art.Emri.Length == 7) {
+                        prntBuilder += art.Emri + "                               ";
+                    }
+                    else if (art.Emri.Length == 6) {
+                        prntBuilder += art.Emri + "                                ";
+                    }
+                    else
+                        prntBuilder += art.Emri + "                                 " ;
+                    var sasia = String.Format("{0:0.00}", art.Sasia);
+                    if (sasia.Length >= 7) 
+                        prntBuilder = prntBuilder.Remove(prntBuilder.Length - 1, 1);
+
+                    prntBuilder += sasia;
+
                     teGjithaSasit += (float)art.Sasia;
                     await _printer.printText(prntBuilder);
                     nrBarkodi++;
@@ -428,8 +556,15 @@ namespace EHWM.ViewModel {
 
 
                 await _printer.printText("\n---------------------------------------------------------------------");
-
-                await _printer.printText("\n                                                              " + String.Format("{0:0.00}", teGjithaSasit));
+                var tegjithaSasisString = String.Format("{0:0.00}", teGjithaSasit);
+                if (tegjithaSasisString.Length >= 8) {
+                    await _printer.printText("\n                                                             " + tegjithaSasisString);
+                }
+                else if (tegjithaSasisString.Length >= 7) {
+                    await _printer.printText("\n                                                              " + tegjithaSasisString);
+                }
+                else
+                    await _printer.printText("\n                                                               " + tegjithaSasisString);
 
 
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
