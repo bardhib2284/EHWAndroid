@@ -1268,17 +1268,44 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\n");
                     await _printer.printText("\n");
 
-                    await _printer.printText("\n");
-                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne  kete Kod QR");
-                    await _printer.printText("\n");
 
                 }
-
+                var companyInfo = await App.Database.GetCompanyInfoAsync();
                 if (lif.PayType == "BANK") {
+                    var query = from l in liferimi
+                                join la in liferimetArt on l.IDLiferimi equals la.IDLiferimi
+                                join c in companyInfo on l.TCRNIVF equals c.Value
+                                join cl in companyInfo on "NIPT" equals cl.Item
+                                where c.Item == "Shitesi" && cl.Item == "NIPT" && l.IDPorosia == lif.IDPorosia
+                                group la.Totali by new { NIPT = cl.Value, Emri = c.Value, NIVF = l.TCRNIVF } into grouped
+                                select new
+                                {
+                                    grouped.Key.NIPT,
+                                    grouped.Key.Emri,
+                                    grouped.Key.NIVF,
+                                    Shuma = Math.Round(grouped.Sum(), 2),
+                                    Data = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+                                };
+
+                    var result = query.FirstOrDefault();
+                    var smallBarcodeString = result.NIPT + ";" + result.Emri + ";" + result.NIVF + ";" + result.Data.ToString() + ";" + String.Format("{0:###0.00}", result.Shuma) + "ALL;;;";
+                    await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
+                                150/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                                (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                                50,                                                 // brightness
+                                true,                                               // Image Dithering
+                                true);
+                    await _printer.printText("\n");
+
+                    await _printer.printText("\n");
+                    await _printer.printText("\n");
                     await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302 \n");
                     await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616\n");
                     await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01\n");
                     await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF\n");
+                    await _printer.printText("\n");
+                    await _printer.printText("\n");
+                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne \n kete Kod QR");
                 }
                 // Feed to tear-off position (Manual Cutter Position)
                 await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
