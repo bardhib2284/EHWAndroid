@@ -51,10 +51,9 @@
             <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SearchedVizitat}" SelectionMode="Single" ItemTapped="ListView_ItemTapped" IsVisible="{Binding SearchedClientsList}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <ViewCell>
+                        <ViewCell Tapped="ViewCell_Tapped">
                             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="5">
-                                <Label Text="{Binding Klienti}" TextColor="Black" HorizontalOptions="Fill" VerticalTextAlignment="Center"/>
-                                <BoxView HeightRequest="100" WidthRequest="0.1" BackgroundColor="Black" VerticalOptions="Fill"/>
+                                <Label Text="{Binding Klienti}" WidthRequest="170" MinimumWidthRequest="170" TextColor="Black" HorizontalOptions="Fill" VerticalTextAlignment="Center"/>
                                 <Label Text="{Binding Vendi}" TextColor="Black" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center"/>
                                 <Image Source="{Binding IDStatusiVizites,Converter={StaticResource VizitaStatusToImage}}"  VerticalOptions="FillAndExpand" HorizontalOptions="EndAndExpand"/>
                             </StackLayout>

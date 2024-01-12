@@ -83,6 +83,11 @@ namespace EHWM.Views {
                         }
                         else
                             App.Instance.MainViewModel.VizitatFilteredByDate.Insert(0, App.Instance.MainViewModel.RegjistroVizitenVizita);
+                        if (App.Instance.MainViewModel.SearchedVizitat == null) {
+                            App.Instance.MainViewModel.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita> { App.Instance.MainViewModel.RegjistroVizitenVizita };
+                        }
+                        else
+                            App.Instance.MainViewModel.SearchedVizitat.Insert(0, App.Instance.MainViewModel.RegjistroVizitenVizita);
                         UserDialogs.Instance.Alert("Vizita U Shtua Me Sukses", "Sukses", "Ok");
                     }
 

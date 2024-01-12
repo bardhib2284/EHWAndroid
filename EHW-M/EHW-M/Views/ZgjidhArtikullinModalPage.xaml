@@ -33,7 +33,7 @@
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Orientation="Horizontal" Spacing="40">
-                                        <Label Text="{Binding Emri}" WidthRequest="180" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                        <Label Text="{Binding Emri}" WidthRequest="180" LineBreakMode="TailTruncation" FontSize="12" HorizontalOptions="Fill"/>
                                         <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                                             <Label Text="{Binding Sasia}" HorizontalOptions="StartAndExpand"/>
                                             <Label Text="{Binding CmimiNjesi}" HorizontalOptions="Center" Margin="10,0,0,0"/>

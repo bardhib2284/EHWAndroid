@@ -305,7 +305,20 @@ namespace EHWM.ViewModel {
                     .Where(n => n.KOD == Agjendi.IDAgjenti)
                     .Select(n => n.NRKUFIP_D + n.CurrNrFat_D)
                     .FirstOrDefault();
-
+                var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
+                var NumriPorosive = gNumriPorosive.FirstOrDefault(x => x.TIPI == "LEVIZJE");
+                if (NumriPorosive == null) {
+                    NumriPorosive = new NumriPorosive
+                    {
+                        TIPI = "LEVIZJE",
+                        NrPorosise = 01,
+                        Date = DateTime.Now,
+                    };
+                    await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
+                }
+                else {
+                    NumriPorosive.NrPorosise += 1;
+                }
                 var newLevizjetHeader = new LevizjetHeader
                 {
                     TransferID = Guid.NewGuid(),
@@ -325,9 +338,11 @@ namespace EHWM.ViewModel {
                     NumriFisk = _LevizjeIDN,
                     TCR = Agjendi.TCRCode,
                     TCROperatorCode = Agjendi.OperatorCode,
-                    TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit
+                    TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit,
+                    NrPorosis = NumriPorosive.NrPorosise
                 };
                 var res = await App.Database.SaveLevizjeHeaderAsync(newLevizjetHeader);
+                await App.Database.UpdateNumriPorosiveAsync(NumriPorosive);
 
                 var levizjetDetailsList = (
                     from m in malliMbetur

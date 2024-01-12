@@ -26,6 +26,7 @@ using System.Windows.Input;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using static EHWM.ViewModel.SinkronizimiViewModel;
+using static SQLite.SQLite3;
 
 namespace EHWM.ViewModel {
     public class ShitjaNavigationParameters {
@@ -1436,7 +1437,8 @@ namespace EHWM.ViewModel {
                     totalBuilder += "   " + teGjithaSasit + "           ";
                 }
 
-
+                var tvshAll = String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
+                var cmimTotal = String.Format("{0:0.00}", lif.CmimiTotal);
                 //v.patvsh
                 var vptvsh = String.Format("{0:0.00}", lif.TotaliPaTVSH);
                 if (vptvsh.Length >= 10) {
@@ -1446,6 +1448,9 @@ namespace EHWM.ViewModel {
                     totalBuilder += " " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
                 }
                 else if (vptvsh.Length >= 8) {
+                    if(tvshAll.Length == 7 && cmimTotal.Length == 8) {
+                        totalBuilder += "     " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
+                    }else
                     totalBuilder += "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
                 }
                 else if (vptvsh.Length >= 7) {
@@ -1458,8 +1463,7 @@ namespace EHWM.ViewModel {
                     totalBuilder += "  " + String.Format("{0:0.00}", lif.TotaliPaTVSH);
                 }
 
-                var tvshAll = String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
-                var cmimTotal = String.Format("{0:0.00}", lif.CmimiTotal);
+                
                 if (tvshAll.ToString().Length >= 9) {
                     totalBuilder += "" + String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2)) + " ";
                 }
@@ -1657,25 +1661,15 @@ namespace EHWM.ViewModel {
                 }
                 var companyInfo = await App.Database.GetCompanyInfoAsync();
                 if (lif.PayType == "BANK") {
-                    var query = from l in liferimi
-                                join la in liferimetArt on l.IDLiferimi equals la.IDLiferimi
-                                join c in companyInfo on l.TCRNIVF equals c.Value
-                                join cl in companyInfo on "NIPT" equals cl.Item
-                                where c.Item == "Shitesi" && cl.Item == "NIPT" && l.IDPorosia == lif.IDPorosia
-                                group la.Totali by new { NIPT = cl.Value, Emri = c.Value, NIVF = l.TCRNIVF } into grouped
-                                select new
-                                {
-                                    grouped.Key.NIPT,
-                                    grouped.Key.Emri,
-                                    grouped.Key.NIVF,
-                                    Shuma = Math.Round(grouped.Sum(), 2),
-                                    Data = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
-                                };
+                    var smallBarcodeString = string.Empty;
+                    if (string.IsNullOrEmpty(lif.TCRNIVF)) {
+                         smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.TCRNIVF + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
+                    }
+                    else
+                         smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.IDPorosia + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
 
-                    var result = query.FirstOrDefault();
-                    var smallBarcodeString = result.NIPT +";"+result.Emri+";"+result.NIVF+";"+result.Data.ToString()+";"+ String.Format("{0:###0.00}",result.Shuma)+"ALL;;;";
-                    await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
-                                150/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
+                    150/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
                                 (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
                                 50,                                                 // brightness
                                 true,                                               // Image Dithering
@@ -1690,9 +1684,14 @@ namespace EHWM.ViewModel {
                     await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF\n");
                     await _printer.printText("\n");
                     await _printer.printText("\n");
-                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne \n kete Kod QR");
 
                 }
+                if (!string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
+                    await _printer.printText("\n");
+                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne \n kete Kod QR");
+                }
+                await _printer.printText("\n");
+                await _printer.printText("\n");
                 // Feed to tear-off position (Manual Cutter Position)
                 await _printer.directIO(new byte[] { 0x1b, 0x4a, 0xaf });
             }

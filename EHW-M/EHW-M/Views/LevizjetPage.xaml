@@ -68,12 +68,12 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
-                                    <StackLayout Orientation="Horizontal" Spacing="40">
-                                        <Label Text="{Binding Emri}" WidthRequest="190" LineBreakMode="TailTruncation" HorizontalOptions="Fill"/>
+                                    <StackLayout Orientation="Horizontal" Spacing="10">
+                                        <Label Text="{Binding Emri}" WidthRequest="180" MinimumHeightRequest="180" FontSize="13" LineBreakMode="WordWrap" HorizontalOptions="Fill"/>
                                         <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                                            <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" HorizontalTextAlignment="Center"/>
-                                            <Label Text="{Binding CmimiNjesi ,StringFormat='{0:F2}'}" HorizontalTextAlignment="Center" HorizontalOptions="Center" Margin="10,0,0,0"/>
-                                            <Label Text="{Binding CmimiTotal ,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" HorizontalTextAlignment="Center"/>
+                                            <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" WidthRequest="80" MinimumHeightRequest="80" FontSize="13" HorizontalOptions="Fill" HorizontalTextAlignment="Center"/>
+                                            <Label Text="{Binding CmimiNjesi ,StringFormat='{0:F2}'}" WidthRequest="80" MinimumHeightRequest="80"  FontSize="13" HorizontalTextAlignment="Center" HorizontalOptions="Fill" Margin="10,0,0,0"/>
+                                            <Label Text="{Binding CmimiTotal ,StringFormat='{0:F2}'}" WidthRequest="80" MinimumHeightRequest="80" FontSize="13" HorizontalOptions="Fill" HorizontalTextAlignment="Center"/>
                                         </StackLayout>
                                     </StackLayout>
                                 </ViewCell>

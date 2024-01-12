@@ -219,15 +219,6 @@ namespace EHWM.ViewModel {
                 //await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
                 // Printer Setting Initialize
                 await _printer.directIO(new byte[] { 0x1b, 0x40 });
-
-                // Code Pages for the contries in east Asia. Please note that the font data downloading is required to print characters for Korean, Japanese and Chinese.
-                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_KSC5601 });   // Korean
-                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_SHIFTJIS });  // Japanese
-                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_GB2312 });    // Simplifies Chinese
-                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_BIG5 });      // Traditional Chinese
-                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI });     // Persian 
-                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI_II });  // Persian 
-
                 await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
 
 
@@ -237,52 +228,114 @@ namespace EHWM.ViewModel {
                             50,                                                 // brightness
                             true,                                               // Image Dithering
                             true);
-                await _printer.printLine(1, 1, 1, 1, 1);
-                await _printer.printText("\nF A T U R E    S H O Q E R U E S E \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
-                await _printer.printLine(0, 0, 1, 1, 1);
-                await _printer.printText(
-"---------------------------------------------------------------------\n");
-
-
-                await _printer.printText("Emri i Nisesit: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                await _printer.printText("Adresa: AA951IN            9923 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-                
-                await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
-                if(CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
-                    var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');
-                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-"+ nrPorosiseDepo[1] + "-" + Agjendi.Depo);
-                }
-                else
-                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
-
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss"));
-
-                await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
-                await _printer.printText("\nKodi i operatorit : " + CurrentlySelectedLevizjetHeader.TCROperatorCode);
-
-                await _printer.printText("\nNIVFSH:  " + CurrentlySelectedLevizjetHeader.TCRNIVFSH);
-                await _printer.printText("\nNSLFSH:  " + CurrentlySelectedLevizjetHeader.TCRNSLFSH);
-                await _printer.printText("\nQellimi i Levizjes se Mallit:  Shitje me shumice\n");
-                await _printer.printText(
-"---------------------------------------------------------------------");
+                // Code Pages for the contries in east Asia. Please note that the font data downloading is required to print characters for Korean, Japanese and Chinese.
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_KSC5601 });   // Korean
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_SHIFTJIS });  // Japanese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_GB2312 });    // Simplifies Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosEastAsiaCodePage.MPOS_CODEPAGE_BIG5 });      // Traditional Chinese
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI });     // Persian 
+                //await _printer.printText((textCount++).ToString() + printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI_II });  // Persian 
                 var depot = await App.Database.GetDepotAsync();
                 var depo = depot.FirstOrDefault(x => x.Depo == CurrentlySelectedLevizjetHeader.LevizjeNe);
-                await _printer.printText("\nEmri i Pritesit: E. H. W.   NIPT: " + depo.NIPT + " +   SN : " + depo.SN);
-                await _printer.printText("\nAdresa: " + depo.ADRESA +"\n");
 
-
-                await _printer.printText(
-"---------------------------------------------------------------------");
-                var currentDepo = depot.FirstOrDefault(x => x.Depo == CurrentlySelectedLevizjetHeader.LevizjeNga);
+                var currentDepo = depot.FirstOrDefault(x => x.Depo == Agjendi.Depo);
                 var agjendet = await App.Database.GetAgjendetAsync();
-                var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == CurrentlySelectedLevizjetHeader.LevizjeNga);
-                await _printer.printText("\nTransportues:  " + currAgjendi.Emri.ToUpper() + " " + currAgjendi.Mbiemri.ToUpper() + "  J61804031V");
-                await _printer.printText("\nAdresa: " + currentDepo.ADRESA );
-                await _printer.printText("\nMjeti: " + currentDepo.TARGE );
-                await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
+                var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == Agjendi.Depo);
+                if(CurrentlySelectedLevizjetHeader.Latitude == "8" && CurrentlySelectedLevizjetHeader.Longitude == "8") {
+                    await _printer.printLine(1, 1, 1, 1, 1);
+                    await _printer.printText("\nF A T U R E    S H O Q E R U E S E \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
+                    await _printer.printLine(0, 0, 1, 1, 1);
+                    await _printer.printText(
+    "---------------------------------------------------------------------\n");
+
+
+                    await _printer.printText("Emri i Nisesit: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText("Adresa: AA951IN            9923 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+
+                    await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
+
+                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + CurrentlySelectedLevizjetHeader.NrPorosis + "-" + Agjendi.Depo);
+
+
+                    await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss"));
+
+                    await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
+                    await _printer.printText("\nKodi i operatorit : " + CurrentlySelectedLevizjetHeader.TCROperatorCode);
+
+                    await _printer.printText("\nNIVFSH:  " + CurrentlySelectedLevizjetHeader.TCRNIVFSH);
+                    await _printer.printText("\nNSLFSH:  " + CurrentlySelectedLevizjetHeader.TCRNSLFSH);
+                    await _printer.printText("\nQellimi i Levizjes se Mallit:  Shitje me shumice\n");
+                    await _printer.printText(
+    "---------------------------------------------------------------------");
+                    await _printer.printText("\nEmri i Pritesit: E. H. W.   NIPT: " + depo.NIPT + " +   SN : " + depo.SN);
+                    await _printer.printText("\nAdresa: " + depo.ADRESA + "\n");
+
+
+                    await _printer.printText(
+    "---------------------------------------------------------------------");
+                    await _printer.printText("\nTransportues:  " + currAgjendi.Emri.ToUpper() + " " + currAgjendi.Mbiemri.ToUpper() + "  J61804031V");
+                    await _printer.printText("\nAdresa: " + currentDepo.ADRESA);
+                    await _printer.printText("\nMjeti: " + currentDepo.TARGE);
+                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
+
+                }
+                else if (CurrentlySelectedLevizjetHeader.LevizjeNga == Agjendi.Depo) {
+                    //NGA
+                    await _printer.printLine(1, 1, 1, 1, 1);
+                    await _printer.printText("\nD A L J E\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
+                    await _printer.printLine(0, 0, 1, 1, 1);
+                    await _printer.printText(
+    "---------------------------------------------------------------------\n");
+                    await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("\nDepo:  " + currentDepo.Depo);
+                    await _printer.printText("\nMjeti: " + currentDepo.TARGE);
+                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
+                    if (CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
+                        var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');
+                        if (CurrentlySelectedLevizjetHeader.NumriFisk == null) {
+                            await _printer.printText("Numri i serise: " + Agjendi.Depo + "-" + nrPorosiseDepo[1] + "\n");
+                        }
+                        else
+                            await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + nrPorosiseDepo[1] + "-" + Agjendi.Depo + "\n");
+                    }
+                    else
+                        await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes + "\n");
+                }     
+                else if (CurrentlySelectedLevizjetHeader.LevizjeNe == Agjendi.Depo) {
+                    //NGA
+                    await _printer.printLine(1, 1, 1, 1, 1);
+                    await _printer.printText("\nH Y R J E\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
+                    await _printer.printLine(0, 0, 1, 1, 1);
+                    await _printer.printText(
+    "---------------------------------------------------------------------\n");
+                    await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("\nDepo:  " + currentDepo.Depo);
+                    await _printer.printText("\nMjeti: " + currentDepo.TARGE);
+                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
+                    if (CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
+                        var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');
+                        if (CurrentlySelectedLevizjetHeader.NumriFisk == null) {
+                            await _printer.printText("Numri i serise: " + Agjendi.Depo + "-" + nrPorosiseDepo[1] + "\n");
+                        }
+                        else
+                            await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + nrPorosiseDepo[1] + "-" + Agjendi.Depo + "\n");
+                    }
+                    else
+                        await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes + "\n");
+                }
+                
+
+
+
 
                 await _printer.printText(
 "---------------------------------------------------------------------");                
@@ -304,7 +357,7 @@ namespace EHWM.ViewModel {
                     foreach(var art in Artikujt) {
                         if(art.IDArtikulli == ld.IDArtikulli) {
                             //BUM
-                            builderToPrint += "\n" + art.IDArtikulli + "   " + art.Emri + "   "  + art.Seri +
+                            builderToPrint += "\n"+ art.IDArtikulli + "   " + art.Emri + "   "  + ld.Seri +
 "\n                     ";
                             if (art.BUM == "COP") {
                                 builderToPrint += art.BUM + "     ";
@@ -323,7 +376,7 @@ namespace EHWM.ViewModel {
                                 builderToPrint += ld.Sasia + "      ";
                             }
                             else if(ld.Sasia > 0 && ld.Sasia < 10) {
-                                builderToPrint += ld.Sasia + "       ";
+                                builderToPrint += ld.Sasia + "      ";
                             }
                             else if (ld.Sasia < 100) {
                                 builderToPrint += ld.Sasia + "     ";
@@ -409,11 +462,10 @@ namespace EHWM.ViewModel {
                             else if (tvsh.ToString().Length >= 7) {
                                 builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
                                 if(cmimiFinal.Length >=8) {
-                                    builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
-                                    builderToPrint += tvsh + " ";
+                                    builderToPrint += " " + tvsh + " ";
                                 }
                                 else
-                                builderToPrint += tvsh + " ";
+                                builderToPrint += " " + tvsh + " ";
                             }
                             else if (tvsh.ToString().Length >= 6) {
                                 builderToPrint += tvsh + " ";
@@ -433,7 +485,7 @@ namespace EHWM.ViewModel {
                             else
                                 builderToPrint += tvsh + "      ";
 
-                            builderToPrint += cmimiFinal +"\n";
+                            builderToPrint += cmimiFinal ;
 
                             await _printer.printText(builderToPrint);
                             teGjithaSasit += (float)ld.Sasia;
@@ -466,7 +518,7 @@ namespace EHWM.ViewModel {
                 }
 
 
-                await _printer.printText("---------------------------------------------------------------------");
+                await _printer.printText("\n---------------------------------------------------------------------");
                 ;
                 builderToPrint = string.Empty;
                 builderToPrint += "\n                    Total    ";
@@ -490,7 +542,11 @@ namespace EHWM.ViewModel {
                     if(vleraTVSHs.Length == 8 && teGjitheCmimetTotales.Length == 8) {
                         builderToPrint = builderToPrint.Remove(builderToPrint.Length - 2, 2);
                         builderToPrint += tegjithaCmimetTvsh + " ";
-                    }else
+                    }else if(vleraTVSHs.Length == 8 && teGjitheCmimetTotales.Length == 9) {
+                        builderToPrint = builderToPrint.Remove(builderToPrint.Length - 5, 5);
+                        builderToPrint += tegjithaCmimetTvsh + " ";
+                    }
+                    else
                     builderToPrint += tegjithaCmimetTvsh + " ";
                 }
                 else if (tegjithaCmimetTvsh.ToString().Length >= 8) {
@@ -556,7 +612,11 @@ namespace EHWM.ViewModel {
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
                 await _printer.printText("\nNisesi:" + "                  Transportuesi:" + "          Pritesi:");
-
+                if(depo.TAGNR.Length >= 21) {
+                    var wholeDepo = depo.TAGNR;
+                    var only20Depo = depo.TAGNR.Remove(20);
+                    await _printer.printText("\n" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + only20Depo + "           " + "                  " + "           " + "         " + wholeDepo.Remove(0,20));
+                }else
                 await _printer.printText("\n" + currAgjendi.Emri  + " "+ currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + depo.TAGNR + "      ");
 
 
@@ -569,7 +629,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\n");
                 await _printer.printText("(emri,mbiemri,nensh.)   (emri,mbiemri,nensh.)   (emri,mbiemri,nensh.)");
-                if (!string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRQRCodeLink)) {
+                if (string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRQRCodeLink)) {
                     await _printer.printText("                       Dokument i pa fiskalizuar");
                 }
                 else {
