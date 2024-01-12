@@ -17,7 +17,6 @@ namespace EHWM.Views {
         public ClientsPage() {
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("sq-AL");
             InitializeComponent();
-            NavigationPage.SetHasNavigationBar(this, false);
             AllClientsList.IsVisible = true;
             SearchedClientsList.IsVisible = false;
         }
@@ -29,6 +28,7 @@ namespace EHWM.Views {
                 bc.SelectedVizita = null;
                 bc.DissapearingFromShitjaPage = false;
             }
+            datepickerr.FixData();
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e) {

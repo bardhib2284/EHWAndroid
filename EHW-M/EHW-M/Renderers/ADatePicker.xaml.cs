@@ -54,10 +54,28 @@ namespace EHWM.Renderers
             pickerinho.ItemsSource = DitetEJaves;
             pickerinho.SelectedIndexChanged += Pickerinho_SelectedIndexChanged;
             CreateDitetEJaves();
-            pickerinho.SelectedIndex = 0;
+            pickerinho.SelectedIndex = DitetEJaves.IndexOf(DitetEJaves.FirstOrDefault(x=> x.Date.Date == DateTime.Now.Date));
             SelectedDayAndDate = pickerinho.SelectedItem as DayAndDate;
+            App.Instance.MainViewModel.FilterDate = CurrentDate;
+            App.Instance.MainViewModel.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(App.Instance.MainViewModel.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Day == App.Instance.MainViewModel.FilterDate.Day));
+            App.Instance.MainViewModel.AllClientsList = false;
+            App.Instance.MainViewModel.SearchedClientsList = true;
         }
 
+        public void FixData() {
+            if (App.Instance.MainPage is NavigationPage np) {
+                if (np.CurrentPage is ClientsPage cp) {
+                    if (CurrentDate == DateTime.MinValue) {
+                        cp.AllClientsListVisibility(true);
+                        cp.SearchedClientsListVisibility(false);
+                    }
+                    else {
+                        cp.AllClientsListVisibility(false);
+                        cp.SearchedClientsListVisibility(true);
+                    }
+                }
+            }
+        }
         public void CreateDitetEJaves() {
             var bc = App.Instance.MainViewModel;
             DitetEJaves.Clear();
@@ -74,7 +92,14 @@ namespace EHWM.Renderers
             for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
                 yield return day;
         }
-        
+
+        public string GetDayName(DateTime date) {
+            string _ret = string.Empty;
+            var culture = new System.Globalization.CultureInfo("sq-AL");
+            _ret = culture.DateTimeFormat.GetDayName(date.DayOfWeek);
+            _ret = culture.TextInfo.ToTitleCase(_ret.ToLower());
+            return _ret;
+        }
         private void Pickerinho_SelectedIndexChanged(object sender, EventArgs e) {
             var bc = App.Instance.MainViewModel;
             SelectedDayAndDate = DitetEJaves[pickerinho.SelectedIndex] as DayAndDate;
@@ -93,7 +118,7 @@ namespace EHWM.Renderers
             }
                 
             bc.FilterDate = CurrentDate;
-            bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Day == bc.FilterDate.Day));
+            bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
             bc.AllClientsList = false;
             bc.SearchedClientsList = true;
         }

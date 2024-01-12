@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,5 +21,7 @@ namespace EHWM.Models {
         public string NrPageses { get; set; }
         public int? ExportStatus { get; set; }
         public string PayType { get; set; }
+        [JsonIgnore]
+        public string Kontakti { get; set; }
     }
 }

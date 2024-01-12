@@ -52,11 +52,11 @@
                         <DataTemplate>
                             <ViewCell>
                                 <StackLayout Orientation="Horizontal" Spacing="10" VerticalOptions="Center" Padding="0,0,10,0">
-                                    <Label Text="{Binding Emri}" HorizontalTextAlignment="Center" WidthRequest="175" MinimumHeightRequest="175" LineBreakMode="TailTruncation" FontSize="12" HorizontalOptions="Fill"/>
-                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                                        <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="StartAndExpand" FontSize="12"/>
-                                        <Label Text="{Binding CmimiNjesi}" HorizontalOptions="CenterAndExpand" Margin="10,0,0,0" FontSize="12"/>
-                                        <Label Text="{Binding CmimiTotal,StringFormat='{0:F2}'}" HorizontalOptions="EndAndExpand" FontSize="12"/>
+                                    <Label Text="{Binding Emri}" HorizontalTextAlignment="Center" WidthRequest="205" MinimumHeightRequest="205" LineBreakMode="TailTruncation" FontSize="12" HorizontalOptions="Fill"/>
+                                    <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" WidthRequest="175" MinimumHeightRequest="175">
+                                        <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" WidthRequest="75" MinimumHeightRequest="75"  FontSize="12"/>
+                                        <Label Text="{Binding CmimiNjesi}" HorizontalOptions="FillAndExpand" Margin="10,0,0,0" HorizontalTextAlignment="Center" WidthRequest="75" MinimumHeightRequest="75" FontSize="12"/>
+                                        <Label Text="{Binding CmimiTotal,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" WidthRequest="75" MinimumHeightRequest="75" FontSize="12"/>
                                     </StackLayout>
                                 </StackLayout>
                             </ViewCell>

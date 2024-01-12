@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="EHWM.Views.ArtikujtPage">
+             x:Class="EHWM.Views.ArtikujtPage" Title="Artikujt">
     <ContentPage.Content>
-        <StackLayout>
+        <StackLayout Padding="2">
             <StackLayout Orientation="Horizontal">
                 <Label Text="Filter: "
                 VerticalOptions="CenterAndExpand" 
@@ -13,6 +13,13 @@
                 HorizontalOptions="FillAndExpand" 
                 TextChanged="Entry_TextChanged"/>
             </StackLayout>
+            <Frame>
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Label Text="Emri" WidthRequest="220" HorizontalOptions="FillAndExpand"/>
+                    <Label Text="Sasia" HorizontalOptions="FillAndExpand"/>
+                    <Label Text="Seri" HorizontalOptions="FillAndExpand"/>
+                </StackLayout>
+            </Frame>
             <Frame Padding="0" BorderColor="Black" x:Name="unsearchedFrame">
                 <ListView x:Name="testList" ItemsSource="{Binding Artikujt}" HasUnevenRows="True">
                     <ListView.ItemTemplate>
@@ -23,7 +30,7 @@
                                         <Label Text="{Binding Emri}" Padding="10" FontSize="12" VerticalOptions="Center" MinimumHeightRequest="240" WidthRequest="240" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
                                         <BoxView Margin="0,-10" BackgroundColor="Black" WidthRequest="0.7" HorizontalOptions="Fill"/>
                                         <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand" WidthRequest="100" MinimumWidthRequest="100">
-                                            <Label Text="{Binding Sasia}" FontSize="12" VerticalOptions="Center" Margin="0,0,0,0" WidthRequest="40" HorizontalOptions="Start"/>
+                                            <Label Text="{Binding Sasia,StringFormat='{0:F2}'}" FontSize="12" VerticalOptions="Center" Margin="0,0,0,0" WidthRequest="40" HorizontalOptions="Start"/>
                                             <BoxView Margin="0,-10" BackgroundColor="Black" WidthRequest="0.7" HorizontalOptions="Fill"/>
                                             <Label VerticalOptions="Center" FontSize="12" Text="{Binding Seri}" />
                                         </StackLayout>
@@ -58,6 +65,10 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </Frame>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand" Margin="10,0">
+                <Label Text="Totali : " FontSize="20"/>
+                <Label Text="{Binding Totali,StringFormat='{0:F2}'}" FontSize="20"/>
+            </StackLayout>
         </StackLayout>
 
     </ContentPage.Content>

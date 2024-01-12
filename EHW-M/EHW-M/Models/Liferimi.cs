@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using SQLite;
 using System;
 namespace EHWM.Models {
     public class Liferimi : Table{
@@ -44,6 +45,8 @@ namespace EHWM.Models {
         public string PROCES { get; set; }
         public string TIPDOK { get; set; }
         public string Message { get; set; }
+        [JsonIgnore]
+        public int NrPorosis { get; set; }
         public override string TableName() {
             return "Liferimi";
         }

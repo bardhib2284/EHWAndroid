@@ -18,9 +18,9 @@
                         <ViewCell>
                             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                                 <Label Text="{Binding NumriLevizjes}" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" WidthRequest="60" MinimumWidthRequest="60" HorizontalTextAlignment="Center"/>
-                                <Label Text="{Binding LevizjeNga}" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="20"/>
-                                <Label Text="{Binding LevizjeNe}" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="20"/>
-                                <Label Text="{Binding Totali}" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                <Label Text="{Binding LevizjeNga}" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="80" MinimumWidthRequest="80"/>
+                                <Label Text="{Binding LevizjeNe}" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="80" MinimumWidthRequest="80"/>
+                                <Label Text="{Binding Totali,StringFormat='{0:F2}'}" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" WidthRequest="60" MinimumWidthRequest="60"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

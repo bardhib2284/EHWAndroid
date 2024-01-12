@@ -1,9 +1,11 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace EHWM.Models {
     public class Detyrimet {
+        [PrimaryKey]
         public int IDDetyrimi { get; set; }
         public string KOD { get; set; }
         public string Emri { get; set; }

@@ -153,6 +153,10 @@ namespace EHWM.ViewModel {
                                 var totalShuma = _getAllLiferimet
                                                 .Where(l => l.PayType == "KESH")
                                                 .Sum(l => l.ShumaPaguar);
+                                var _getAllEvidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
+                                totalShuma = (float)_getAllEvidencaPagesave
+                                            .Where(l => l.PayType == "KESH")
+                                            .Sum(l => l.ShumaPaguar);
                                 var roundedTotalShuma = Math.Round(totalShuma, 2);
 
                                 if (roundedTotalShuma > 0) {
@@ -180,7 +184,7 @@ namespace EHWM.ViewModel {
                                 decimal CashShumaTotale = _LiferimetShuma; //+_getInitialCash;
 
                                 try {
-                                    if (DateTime.Now.Date > DataCashRegister.Date) {
+                                    if (DateTime.Now.Date >= DataCashRegister.Date) {
                                         RegisterCashDepositInputRequestPCL cashDepositRequest = new RegisterCashDepositInputRequestPCL
                                         {
                                             CashAmount = CashShumaTotale,
@@ -329,7 +333,7 @@ namespace EHWM.ViewModel {
                     from m in malliMbetur
                     join ss in salesPrice on m.IDArtikulli equals ss.ItemNo
                     join a in artikujt on m.IDArtikulli equals a.IDArtikulli
-                    where ss.SalesCode == "STANDARD" && m.SasiaMbetur > 0 && m.Depo == Agjendi.Depo
+                    where ss.SalesCode == "STANDARD" && m.SasiaMbetur > 0.09 && m.Depo == Agjendi.Depo
                     select new LevizjetDetails
                     {
                         NumriLevizjes = _NrFatures.ToString(),

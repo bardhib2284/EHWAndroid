@@ -10,6 +10,7 @@ using Plugin.BxlMpXamarinSDK.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -250,7 +251,13 @@ namespace EHWM.ViewModel {
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 
                 await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
-                await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
+                if(CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
+                    var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');
+                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-"+ nrPorosiseDepo[1] + "-" + Agjendi.Depo);
+                }
+                else
+                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
+
                 await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss"));
 
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
@@ -272,10 +279,10 @@ namespace EHWM.ViewModel {
                 var currentDepo = depot.FirstOrDefault(x => x.Depo == CurrentlySelectedLevizjetHeader.LevizjeNga);
                 var agjendet = await App.Database.GetAgjendetAsync();
                 var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == CurrentlySelectedLevizjetHeader.LevizjeNga);
-                await _printer.printText("\nTransportues:  " + currAgjendi.Emri.ToUpper() + "  J61804031V");
+                await _printer.printText("\nTransportues:  " + currAgjendi.Emri.ToUpper() + " " + currAgjendi.Mbiemri.ToUpper() + "  J61804031V");
                 await _printer.printText("\nAdresa: " + currentDepo.ADRESA );
                 await _printer.printText("\nMjeti: " + currentDepo.TARGE );
-                await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data + " \n");
+                await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
 
                 await _printer.printText(
 "---------------------------------------------------------------------");                
@@ -324,23 +331,30 @@ namespace EHWM.ViewModel {
                             else{
                                 builderToPrint += ld.Sasia + "       ";
                             }
+                            var vpaTvsh = String.Format("{0:0.00}", Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2));
 
+                            var tvsh = String.Format("{0:0.00}", (decimal.Parse((ld.Cmimi * ld.Sasia).ToString()) - Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2)));
+                            var cmimiFinal = String.Format("{0:0.00}", ld.Cmimi * ld.Sasia);
                             //CMIMI
-                            if(ld.Cmimi >= 1000) {
+                            if (ld.Cmimi >= 1000) {
                                 builderToPrint += ld.Cmimi + "     ";
                             }
                             else if(ld.Cmimi >=100) {
-                                builderToPrint += ld.Cmimi + "     ";
+                                if(vpaTvsh.Length == 7 && tvsh.Length == 7 && cmimiFinal.Length == 7) {
+                                    builderToPrint += ld.Cmimi + "    ";
+                                }
+                                else if(vpaTvsh.Length >= 7) {
+                                    builderToPrint += ld.Cmimi + "    ";
+                                }
+                                else
+                                    builderToPrint += ld.Cmimi + "     ";
                             }
                             else {
                                 builderToPrint += ld.Cmimi + "       ";
                             }
 
                             //v.pa tvsh
-                            var vpaTvsh = String.Format("{0:0.00}", Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2));
-
-                            var tvsh = String.Format("{0:0.00}", (decimal.Parse((ld.Cmimi * ld.Sasia).ToString()) - Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2)));
-                            var cmimiFinal = String.Format("{0:0.00}", ld.Cmimi * ld.Sasia);
+                           
 
                             if (vpaTvsh.ToString().Length >= 9) 
                             {
@@ -348,20 +362,27 @@ namespace EHWM.ViewModel {
                             }
                             else if(vpaTvsh.ToString().Length >= 8) 
                             {
-                                if(tvsh.Length == 7 & cmimiFinal.Length == 8) {
+                                if(tvsh.Length == 7 && cmimiFinal.Length == 8) {
                                     builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
                                     builderToPrint += vpaTvsh + " ";
                                 }
-                                else
-                                    builderToPrint += vpaTvsh + "  ";
+                                else {
+                                    if (tvsh.Length == 7 && cmimiFinal.Length == 7) {
+                                        builderToPrint = builderToPrint.Remove(builderToPrint.Length - 2, 2);
+                                        builderToPrint += vpaTvsh + " ";
+                                    }
+                                    else {
+                                        builderToPrint += vpaTvsh + "  ";
+                                    }
+                                }
                             }
                             else if(vpaTvsh.ToString().Length >= 7) 
                             {
-                                builderToPrint += vpaTvsh + "   ";
+                                builderToPrint += vpaTvsh + "  ";
                             }
                             else if(vpaTvsh.ToString().Length >= 6) 
                             {
-                                builderToPrint += vpaTvsh + "    ";
+                                builderToPrint += vpaTvsh + "   ";
                             }
                             else if(vpaTvsh.ToString().Length >= 5) {
                                 builderToPrint += vpaTvsh + "    ";
@@ -388,7 +409,8 @@ namespace EHWM.ViewModel {
                             else if (tvsh.ToString().Length >= 7) {
                                 builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
                                 if(cmimiFinal.Length >=8) {
-                                    builderToPrint += " " + tvsh + " ";
+                                    builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
+                                    builderToPrint += tvsh + " ";
                                 }
                                 else
                                 builderToPrint += tvsh + " ";
@@ -419,6 +441,8 @@ namespace EHWM.ViewModel {
                             teGjitheCmimetTotale += (double)ld.Totali;
                             vleraTVSH += (decimal.Parse((ld.Cmimi * ld.Sasia).ToString()) - Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2));
                             tegjithaCmimetVPaTVSH += Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2);
+                            Debug.WriteLine(builderToPrint + " Length: " + builderToPrint.Length);
+
                             builderToPrint = string.Empty;
 //                            if (art.BUM == "COP") {
 //                                builderToPrint += art.BUM + "      ";
@@ -437,7 +461,6 @@ namespace EHWM.ViewModel {
 //                                teGjitheCmimetTotale += (double)ld.Totali;
 //                                vleraTVSH = decimal.Parse(ld.Cmimi.ToString()) - Math.Round((decimal)(ld.Cmimi / 1.2m), 2);
 //                            }
-
                         }
                     }
                 }
@@ -463,12 +486,24 @@ namespace EHWM.ViewModel {
                 var teGjitheCmimetTotales = String.Format("{0:0.00}", teGjitheCmimetTotale);
 
                 //vlera pa tvsh
-                if (tegjithaCmimetTvsh.ToString().Length >= 8) {
+                if (tegjithaCmimetTvsh.ToString().Length >= 9) {
                     if(vleraTVSHs.Length == 8 && teGjitheCmimetTotales.Length == 8) {
-                        builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
+                        builderToPrint = builderToPrint.Remove(builderToPrint.Length - 2, 2);
                         builderToPrint += tegjithaCmimetTvsh + " ";
                     }else
                     builderToPrint += tegjithaCmimetTvsh + " ";
+                }
+                else if (tegjithaCmimetTvsh.ToString().Length >= 8) {
+                    if (vleraTVSHs.Length == 8 && teGjitheCmimetTotales.Length == 9) {
+                        builderToPrint = builderToPrint.Remove(builderToPrint.Length - 2, 2);
+                        builderToPrint += tegjithaCmimetTvsh + " ";
+                    }
+                    else if (vleraTVSHs.Length == 8 && teGjitheCmimetTotales.Length == 8) {
+                        builderToPrint = builderToPrint.Remove(builderToPrint.Length - 1, 1);
+                        builderToPrint += tegjithaCmimetTvsh + " ";
+                    }
+                    else
+                        builderToPrint += tegjithaCmimetTvsh + " ";
                 }
                 else if (tegjithaCmimetTvsh.ToString().Length >= 7) {
                     builderToPrint += tegjithaCmimetTvsh + "  ";
@@ -515,6 +550,7 @@ namespace EHWM.ViewModel {
                 builderToPrint += teGjitheCmimetTotales;
 
                 await _printer.printText(builderToPrint);
+                Debug.WriteLine(builderToPrint);
                 await _printer.printText("\n");
 
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
@@ -533,7 +569,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\n");
                 await _printer.printText("(emri,mbiemri,nensh.)   (emri,mbiemri,nensh.)   (emri,mbiemri,nensh.)");
-                if (string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRQRCodeLink)) {
+                if (!string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRQRCodeLink)) {
                     await _printer.printText("                       Dokument i pa fiskalizuar");
                 }
                 else {
@@ -545,6 +581,12 @@ namespace EHWM.ViewModel {
                                 50,                                                 // brightness
                                 true,                                               // Image Dithering
                                 true);
+                    await _printer.printText("\n");
+                    await _printer.printText("\n");
+
+                    await _printer.printText("\n");
+                    await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne  kete Kod QR");
+                    await _printer.printText("\n");
                 }
 
                 await _printer.printText("\n");
@@ -570,10 +612,13 @@ namespace EHWM.ViewModel {
         public async Task ShtoLevizjenAsync() {
             LevizjetPage LevizjetPage = new LevizjetPage();
             LevizjetPage.BindingContext = this;
+            TotalPrice = 0;
+            SelectedKlientet = null;
+            CurrentlySelectedArtikulli = null;
             NumriFraturave = await App.Database.GetNumriFaturaveIDAsync(Agjendi.IDAgjenti);
             var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
             NumriPorosive = gNumriPorosive.FirstOrDefault(x=> x.TIPI == "LEVIZJE");
-            if(NumriPorosive == null) {
+            if (NumriPorosive == null) {
                 NumriPorosive = new NumriPorosive
                 {
                     TIPI = "LEVIZJE",
@@ -585,6 +630,8 @@ namespace EHWM.ViewModel {
             else {
                 NumriPorosive.NrPorosise += 1;
             }
+            if(SelectedArikujt != null)
+                SelectedArikujt.Clear();
             var ld = await App.Database.GetLevizjeDetailsAsync();
             LevizjetDetails = new ObservableCollection<LevizjetDetails>(ld.ToList());
             await App.Instance.PushAsyncNewPage(LevizjetPage);
@@ -596,6 +643,10 @@ namespace EHWM.ViewModel {
                 SelectedArikujt = new ObservableCollection<Artikulli>();
             }
             if (CurrentlySelectedArtikulli == null) return;
+            if(CurrentlySelectedArtikulli.Seri.Trim().Length == 0) {
+                UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
+                return;
+            }
             if (string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
                 UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
                 return;
@@ -612,6 +663,11 @@ namespace EHWM.ViewModel {
             var malliMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
             var stoqet = await App.Database.GetAllStoqetAsync();
 
+            if(malliMbetur == null) {
+                UserDialogs.Instance.Alert("Artikulli " + artikulli.Emri + " nuk gjindet ne mall te mbetur per kete depo, ju lutemi kontaktoni bazen ose provoni artikull tjeter");
+                CurrentlySelectedArtikulli = null;
+                return;
+            }
             
             if (artikulli != null) {
                 artikulli.Seri = CurrentlySelectedArtikulli.Seri;
@@ -718,17 +774,20 @@ namespace EHWM.ViewModel {
                 var agjendet = await App.Database.GetAgjendetAsync();
                 var FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
                 var numriFiskal = await App.Database.GetNumratFiskalAsync();
+                if(SelectedArikujt == null) {
+                    UserDialogs.Instance.HideLoading();
+                    UserDialogs.Instance.Alert("Ju lutem zgjedhni artikujt para se te regjistroni levizjen");
+                    return;
+                }
                 foreach (var artikull in SelectedArikujt) {
 
                     if(Ne) {
                         //update malli i mbetur
                         var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
-                        decimal SasiaLevizurUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                        decimal SasiaLevizurAktuale = Math.Round(decimal.Parse(malliIMbetur.LevizjeStoku.ToString()), 3);
 
-                        malliIMbetur.LevizjeStoku = float.Parse(Math.Round(SasiaLevizurUpdate + SasiaLevizurAktuale, 3).ToString());
+                        malliIMbetur.LevizjeStoku += (float)artikull.Sasia;
 
-                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) + malliIMbetur.LevizjeStoku;
+                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                         malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                         malliIMbetur.SyncStatus = 0;
                         var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -737,13 +796,10 @@ namespace EHWM.ViewModel {
                         
                     if(Nga) {
                         var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
-                        decimal SasiaLevizurUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                        decimal SasiaLevizurAktuale = Math.Round(decimal.Parse(malliIMbetur.LevizjeStoku.ToString()), 3);
-
-                        malliIMbetur.LevizjeStoku = float.Parse(Math.Round(SasiaLevizurAktuale - SasiaLevizurUpdate, 3).ToString());
+                        malliIMbetur.LevizjeStoku -= (float)artikull.Sasia;
 
                         //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))
-                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - malliIMbetur.SasiaShitur + Math.Abs(malliIMbetur.SasiaKthyer) + malliIMbetur.LevizjeStoku;
+                        var sasiaMbeturString = malliIMbetur.SasiaPranuar - (malliIMbetur.SasiaShitur + malliIMbetur.SasiaKthyer - malliIMbetur.LevizjeStoku);
                         malliIMbetur.SasiaMbetur = float.Parse(Math.Round(double.Parse(sasiaMbeturString.ToString()), 3).ToString());
                         malliIMbetur.SyncStatus = 0;
                         var res = await App.Database.UpdateMalliMbeturAsync(malliIMbetur);
@@ -800,19 +856,21 @@ namespace EHWM.ViewModel {
                     NumriLevizjes = NrLevizjes,
                     KodiDyqanit = Agjendi.Depo,
                     TransferID = transferId,
-                    Latitude = geoLocation.Latitude.ToString(),
-                    Longitude = geoLocation.Longitude.ToString(),
+                    Latitude = geoLocation?.Latitude.ToString(),
+                    Longitude = geoLocation?.Longitude.ToString(),
                     Message = "Levizja ka perfunduar",
                     NumriDaljes = "0",
                     NumriFisk = topLevizjeIDN.LevizjeIDN,
                     SyncStatus = 0,
                     TCR = Agjendi.TCRCode,
-                    TCRBusinessUnitCode = query.FirstOrDefault().BusinessUnitCode,
+                    TCRBusinessUnitCode = query?.FirstOrDefault().BusinessUnitCode,
                     TCRIssueDateTime = Agjendi.TCRRegisteredDateTime,
-                    TCROperatorCode = query.FirstOrDefault().OperatorCode,
+                    TCROperatorCode = query?.FirstOrDefault().OperatorCode,
                     Totali = decimal.Parse(TotalPrice.ToString()),
                     TCRSyncStatus = 0,
                 };
+                if (Ne)
+                    levizjaHeader.NumriFisk = null;
                 var levizjetDetails = new List<LevizjetDetails>();
                 foreach (var artikulli in SelectedArikujt) {
                     var levizjaDetails = new LevizjetDetails
@@ -833,11 +891,11 @@ namespace EHWM.ViewModel {
                 }
                 await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetails);
                 await App.Database.SaveLevizjeHeaderAsync(levizjaHeader);
-                LevizjetHeader.Add(levizjaHeader);
 
                 SelectedArikujt = null;
                 TotalPrice = 0;
-                await App.Database.UpdateNumriFiskalAsync(topLevizjeIDN);
+                if(Nga)
+                    await App.Database.UpdateNumriFiskalAsync(topLevizjeIDN);
                 if(Nga) {
                     await RegisterTCRWTN(levizjaHeader.NumriLevizjes);
                 }
@@ -848,10 +906,11 @@ namespace EHWM.ViewModel {
                 Nga = false;
                 Ne = false;
                 NrLevizjes = String.Empty;
+                LevizjetHeader = new ObservableCollection<LevizjetHeader>( await App.Database.GetLevizjetHeaderAsync());
             }
             catch (Exception e) {
                 UserDialogs.Instance.HideLoading();
-                UserDialogs.Instance.Alert("Levizja nuk u regjistrua me sukses errori : " + e.Message + " stack trace : " + e.StackTrace);
+                UserDialogs.Instance.Alert("Levizja nuk u regjistrua me sukses errori : " + e.StackTrace + " stack trace : " + e.StackTrace);
             }
             UserDialogs.Instance.HideLoading();
 
@@ -892,7 +951,7 @@ namespace EHWM.ViewModel {
                         {
                             Numri_Levizjes = h.NumriLevizjes,
                             DeviceID = h.Depo,
-                            OperatorCode = "OperatorCode",
+                            OperatorCode = Agjendi.OperatorCode,
                             InvOrdNum = (int)h.NumriFisk,
                             InvNum = h.NumriFisk + "/" + DateTime.Now.Year,
                             SendDatetime = (DateTime)h.Data,
@@ -903,7 +962,7 @@ namespace EHWM.ViewModel {
                             Item_C = l.IDArtikulli,
                             Item_U = l.Njesia_matese,
                             Item_Q = Math.Round((decimal)l.Sasia, 2),
-                            MobileRefId = "M-06"
+                            MobileRefId = Agjendi.DeviceID
                         };
 
             List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
