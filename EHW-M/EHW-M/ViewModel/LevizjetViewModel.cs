@@ -593,12 +593,19 @@ namespace EHWM.ViewModel {
                 //printText = "A. 1. عدد ۰۱۲۳۴۵۶۷۸۹" + "\nB. 2. عدد 0123456789" + "\nC. 3. به" + "\nD. 4. نه" + "\nE. 5. مراجعه" + "\n";// 
                 //await _printer.printText(printText, new MPosFontAttribute() { CodePage = (int)MPosCodePage.MPOS_CODEPAGE_FARSI, Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });     // Persian 
                 await _printer.printText("\nNisesi:" + "                  Transportuesi:" + "          Pritesi:");
-                if(depo.TAGNR.Length >= 21) {
-                    var wholeDepo = depo.TAGNR;
-                    var only20Depo = depo.TAGNR.Remove(20);
-                    await _printer.printText("\n" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + only20Depo + "           " + "                  " + "           " + "         " + wholeDepo.Remove(0,20));
-                }else
-                await _printer.printText("\n" + currAgjendi.Emri  + " "+ currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + depo.TAGNR + "      ");
+                if (CurrentlySelectedLevizjetHeader.LevizjeNe == Agjendi.Depo) {
+                    await _printer.printText("\n" + "                         " + depo.TAGNR );
+                }
+                else {
+                    if (depo.TAGNR.Length >= 21) {
+                        var wholeDepo = depo.TAGNR;
+                        var only20Depo = depo.TAGNR.Remove(20);
+                        await _printer.printText("\n" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + only20Depo + "           " + "                  " + "           " + "         " + wholeDepo.Remove(0, 20));
+                    }
+                    else
+                        await _printer.printText("\n" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "              " + currAgjendi.Emri + " " + currAgjendi.Mbiemri + "             " + depo.TAGNR + "      ");
+                }
+                
 
 
 
