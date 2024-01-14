@@ -26,7 +26,7 @@
                             <ViewCell>
                                 <StackLayout VerticalOptions="FillAndExpand" Orientation="Horizontal" Padding="10">
                                     <Label Text="{Binding IDOrder}" VerticalTextAlignment="Center" WidthRequest="140" VerticalOptions="CenterAndExpand"/>
-                                    <Label Text="{Binding Data,StringFormat='{}{0:dd-MM-yyyy}'}" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="150"/>
+                                    <Label Text="{Binding Data,StringFormat='{}{0:dd.MM.yyyy}'}" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" WidthRequest="150"/>
                                     <Label Text="{Binding SyncStatus}" VerticalTextAlignment="Center" WidthRequest="50" HorizontalTextAlignment="Center"/>
                                 </StackLayout>
                             </ViewCell>

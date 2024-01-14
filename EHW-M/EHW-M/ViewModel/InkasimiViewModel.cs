@@ -199,7 +199,7 @@ namespace EHWM.ViewModel {
 
                 var agjender = await App.Database.GetAgjendetAsync();
                 var agjendi = agjender.FirstOrDefault(x => x.Depo == Agjendi.Depo);
-                await _printer.printText("          " + agjendi.Emri + " " + agjendi.Mbiemri + "         " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("          " + agjendi.Emri + " " + agjendi.Mbiemri + "         " + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 

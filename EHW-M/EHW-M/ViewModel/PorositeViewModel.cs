@@ -212,7 +212,8 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Adresa: Autostrada Tirane Durres \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Tel: 048 200 711        04 356 085 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                await _printer.printText("Numri i Porosise: " + NrPorosise + "\n");
+                await _printer.printText("Depo: " + Agjendi.Depo + "\n");
+                await _printer.printText("Data: " + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "\n");
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 
                 await _printer.printText("\nBleresi: ");

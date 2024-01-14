@@ -56,6 +56,7 @@ namespace EHWM.Renderers
             CreateDitetEJaves();
             pickerinho.SelectedIndex = DitetEJaves.IndexOf(DitetEJaves.FirstOrDefault(x=> x.Date.Date == DateTime.Now.Date));
             SelectedDayAndDate = pickerinho.SelectedItem as DayAndDate;
+            CurrentDate = DateTime.Now;
             App.Instance.MainViewModel.FilterDate = CurrentDate;
             App.Instance.MainViewModel.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(App.Instance.MainViewModel.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Day == App.Instance.MainViewModel.FilterDate.Day));
             App.Instance.MainViewModel.AllClientsList = false;

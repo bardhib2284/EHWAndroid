@@ -33,7 +33,7 @@
 
             <StackLayout Orientation="Horizontal" Margin="40,0,0,0" HorizontalOptions="FillAndExpand">
                 <Label Text="Data Aktuale" HorizontalOptions="Fill" VerticalOptions="Center"/>
-                <Entry Text="{Binding TodaysDate,StringFormat='{}{0:dd-MM-yyyy HH-mm-ss}'}" IsEnabled="False" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
+                <Entry Text="{Binding TodaysDate,StringFormat='{}{0:dd.MM.yyyy HH-mm-ss}'}" IsEnabled="False" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
             </StackLayout>
 
 

@@ -13,7 +13,7 @@
                 </StackLayout>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
                     <Label Text="Data: " FontSize="16"/>
-                    <Label Text="{Binding SelectedLiferimetEKryera.Data,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Data,StringFormat='{}{0:dd.MM.yyyy}'}" FontSize="16"/>
                 </StackLayout>
             </StackLayout>
 
@@ -24,7 +24,7 @@
                 </StackLayout>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
                     <Label Text="Vendi: " FontSize="16"/>
-                    <Label Text="{Binding SelectedLiferimetEKryera.Kontakt,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Kontakt,StringFormat='{}{0:dd.MM.yyyy}'}" FontSize="16"/>
                 </StackLayout>
             </StackLayout>
 

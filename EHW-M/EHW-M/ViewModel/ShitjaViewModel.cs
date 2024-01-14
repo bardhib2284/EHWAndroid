@@ -1233,7 +1233,7 @@ namespace EHWM.ViewModel {
 "---------------------------------------------------------------------");
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss"));
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -1254,7 +1254,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\nTRANSPORTUESI: E. H. W. j61804031v");
                 await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd-MM-yyyy HH:mm:ss") + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -1518,6 +1518,26 @@ namespace EHWM.ViewModel {
                 }
                 else {
                     totalBuilder += cmimTotal;
+                }
+                if (totalBuilder.Length > 69) {
+                    bool wasLastEmpty = false;
+                    string totalTemp = totalBuilder;
+                    for (int i = totalBuilder.Length - 1; i >= 0; i--) {
+                        var de = totalBuilder[i];
+                        if (wasLastEmpty) {
+                            if (totalBuilder[i] == ' ') {
+                                wasLastEmpty = true;
+                                totalTemp = totalTemp.Remove(totalTemp[i], 1);
+                                if (totalTemp.Length <= 69) {
+                                    totalBuilder = totalTemp;
+                                    break;
+                                }
+                            }
+                        }
+                        if (totalBuilder[i] == ' ') {
+                            wasLastEmpty = true;
+                        }
+                    }
                 }
                 await _printer.printText(totalBuilder);
 

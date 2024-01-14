@@ -18,7 +18,7 @@
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Data dhe koha : " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
-                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.DataPlanifikimit,StringFormat='{}{0:dd-MM-yyyy}',Mode=OneWay}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
+                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.DataPlanifikimit,StringFormat='{}{0:dd.MM.yyyy}',Mode=OneWay}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
                 </StackLayout>
                 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">

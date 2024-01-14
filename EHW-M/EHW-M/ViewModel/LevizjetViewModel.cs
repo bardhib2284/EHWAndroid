@@ -241,7 +241,7 @@ namespace EHWM.ViewModel {
                 var currentDepo = depot.FirstOrDefault(x => x.Depo == Agjendi.Depo);
                 var agjendet = await App.Database.GetAgjendetAsync();
                 var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == Agjendi.Depo);
-                if(CurrentlySelectedLevizjetHeader.Latitude == "8" && CurrentlySelectedLevizjetHeader.Longitude == "8") {
+                if((CurrentlySelectedLevizjetHeader.Latitude == "8" && CurrentlySelectedLevizjetHeader.Longitude == "8") || CurrentlySelectedLevizjetHeader.LevizjeNga == Agjendi.Depo) {
                     await _printer.printLine(1, 1, 1, 1, 1);
                     await _printer.printText("\nF A T U R E    S H O Q E R U E S E \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
                     await _printer.printLine(0, 0, 1, 1, 1);
@@ -257,10 +257,10 @@ namespace EHWM.ViewModel {
 
                     await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
 
-                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + CurrentlySelectedLevizjetHeader.NrPorosis + "-" + Agjendi.Depo);
+                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-"  + "-" + Agjendi.Depo);
 
 
-                    await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss"));
+                    await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss"));
 
                     await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
                     await _printer.printText("\nKodi i operatorit : " + CurrentlySelectedLevizjetHeader.TCROperatorCode);
@@ -277,36 +277,11 @@ namespace EHWM.ViewModel {
                     await _printer.printText(
     "---------------------------------------------------------------------");
                     await _printer.printText("\nTransportues:  " + currAgjendi.Emri.ToUpper() + " " + currAgjendi.Mbiemri.ToUpper() + "  J61804031V");
-                    await _printer.printText("\nAdresa: " + currentDepo.ADRESA);
+                    await _printer.printText("\nAdresa: Autostrada Tirane Durres");
                     await _printer.printText("\nMjeti: " + currentDepo.TARGE);
-                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
+                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss") + " \n");
 
                 }
-                else if (CurrentlySelectedLevizjetHeader.LevizjeNga == Agjendi.Depo) {
-                    //NGA
-                    await _printer.printLine(1, 1, 1, 1, 1);
-                    await _printer.printText("\nD A L J E\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
-                    await _printer.printLine(0, 0, 1, 1, 1);
-                    await _printer.printText(
-    "---------------------------------------------------------------------\n");
-                    await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                    await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                    await _printer.printText("\nDepo:  " + currentDepo.Depo);
-                    await _printer.printText("\nMjeti: " + currentDepo.TARGE);
-                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
-                    if (CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
-                        var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');
-                        if (CurrentlySelectedLevizjetHeader.NumriFisk == null) {
-                            await _printer.printText("Numri i serise: " + Agjendi.Depo + "-" + nrPorosiseDepo[1] + "\n");
-                        }
-                        else
-                            await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + nrPorosiseDepo[1] + "-" + Agjendi.Depo + "\n");
-                    }
-                    else
-                        await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes + "\n");
-                }     
                 else if (CurrentlySelectedLevizjetHeader.LevizjeNe == Agjendi.Depo) {
                     //NGA
                     await _printer.printLine(1, 1, 1, 1, 1);
@@ -314,23 +289,21 @@ namespace EHWM.ViewModel {
                     await _printer.printLine(0, 0, 1, 1, 1);
                     await _printer.printText(
     "---------------------------------------------------------------------\n");
-                    await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                     await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                     await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                    await _printer.printText("\nDepo:  " + currentDepo.Depo);
+                    await _printer.printText("\nHyrje nga :  " + currentDepo.Depo);
                     await _printer.printText("\nMjeti: " + currentDepo.TARGE);
-                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd-MM-yyyy HH:mm:ss") + " \n");
+                    await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss") + " \n");
                     if (CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
                         var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');
                         if (CurrentlySelectedLevizjetHeader.NumriFisk == null) {
-                            await _printer.printText("Numri i serise: " + Agjendi.Depo + "-" + nrPorosiseDepo[1] + "\n");
+                            await _printer.printText("Nr.Dok : " + Agjendi.Depo + "-" + nrPorosiseDepo[1] + "\n");
                         }
                         else
-                            await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + nrPorosiseDepo[1] + "-" + Agjendi.Depo + "\n");
+                            await _printer.printText("Nr.Dok : " + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + nrPorosiseDepo[1] + "-" + Agjendi.Depo + "\n");
                     }
                     else
-                        await _printer.printText("Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes + "\n");
+                        await _printer.printText("Nr.Dok : " + CurrentlySelectedLevizjetHeader.NumriLevizjes + "\n");
                 }
                 
 
@@ -393,7 +366,10 @@ namespace EHWM.ViewModel {
                                 builderToPrint += ld.Cmimi + "     ";
                             }
                             else if(ld.Cmimi >=100) {
-                                if(vpaTvsh.Length == 7 && tvsh.Length == 7 && cmimiFinal.Length == 7) {
+                                if(vpaTvsh.Length == 9 && tvsh.Length == 8 && cmimiFinal.Length == 9) {
+                                    builderToPrint += ld.Cmimi + " ";
+                                }
+                                else if(vpaTvsh.Length == 7 && tvsh.Length == 7 && cmimiFinal.Length == 7) {
                                     builderToPrint += ld.Cmimi + "    ";
                                 }
                                 else if(vpaTvsh.Length >= 7) {
@@ -604,7 +580,12 @@ namespace EHWM.ViewModel {
                     builderToPrint += vleraTVSHs + "  " + "    ";
                 }
                 builderToPrint += teGjitheCmimetTotales;
-
+               
+                if(builderToPrint.Length <=69) {
+                    if (builderToPrint[35] == ' ') {
+                        builderToPrint = builderToPrint.Replace(builderToPrint[35].ToString(), "  ");
+                    }
+                }
                 await _printer.printText(builderToPrint);
                 Debug.WriteLine(builderToPrint);
                 await _printer.printText("\n");

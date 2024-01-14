@@ -11,7 +11,7 @@
                 </StackLayout>
                 <StackLayout HorizontalOptions="EndAndExpand" Orientation="Horizontal">
                     <Label Text="Data : "  FontSize="16"/>
-                    <Label Text="{Binding DataEPageses,StringFormat='{}{0:dd-MM-yyyy}'}" FontSize="16"/>
+                    <Label Text="{Binding DataEPageses,StringFormat='{}{0:dd.MM.yyyy}'}" FontSize="16"/>
                 </StackLayout>
             </StackLayout>
 

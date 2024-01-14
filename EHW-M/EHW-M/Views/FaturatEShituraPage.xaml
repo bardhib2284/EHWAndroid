@@ -38,7 +38,7 @@
                                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="5">
                                     <Label Text="{Binding Klienti}" WidthRequest="100" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="12"/>
                                     <Label Text="{Binding Kontakt}" TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="12"/>
-                                    <Label Text="{Binding Data,StringFormat='{}{0:dd-MM-yyyy}'}" HorizontalOptions="FillAndExpand" TextColor="Black" VerticalOptions="FillAndExpand" FontSize="12" VerticalTextAlignment="Center"/>
+                                    <Label Text="{Binding Data,StringFormat='{}{0:dd.MM.yyyy}'}" HorizontalOptions="FillAndExpand" TextColor="Black" VerticalOptions="FillAndExpand" FontSize="12" VerticalTextAlignment="Center"/>
                                     <Label Text="{Binding NrFat}" TextColor="Black" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" FontSize="12"/>
                                     <Label Text="{Binding Totali,StringFormat='{0:F2}'}"  TextColor="Black" HorizontalOptions="FillAndExpand" VerticalTextAlignment="Center" FontSize="12"/>
                                 </StackLayout>
