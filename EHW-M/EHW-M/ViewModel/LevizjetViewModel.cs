@@ -257,7 +257,7 @@ namespace EHWM.ViewModel {
 
                     await _printer.printText("\nNumri i fatures: " + CurrentlySelectedLevizjetHeader.NumriFisk + "/" + CurrentlySelectedLevizjetHeader.Data.Value.Year);
 
-                    await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriFisk + "-"  + "-" + Agjendi.Depo);
+                    await _printer.printText("      Numri i serise: FISK-"  + CurrentlySelectedLevizjetHeader.NumriFisk + "-"+ Agjendi.Depo);
 
 
                     await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss"));
@@ -286,11 +286,12 @@ namespace EHWM.ViewModel {
                     //NGA
                     await _printer.printLine(1, 1, 1, 1, 1);
                     await _printer.printText("\nH Y R J E\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_CENTER, Bold = false, });
-                    await _printer.printLine(0, 0, 1, 1, 1);
                     await _printer.printText(
     "---------------------------------------------------------------------\n");
-                    await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
+                    await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                     await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("\nHyrje nga :  " + currentDepo.Depo);
                     await _printer.printText("\nMjeti: " + currentDepo.TARGE);
                     await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss") + " \n");
@@ -372,6 +373,9 @@ namespace EHWM.ViewModel {
                                 else if(vpaTvsh.Length == 7 && tvsh.Length == 7 && cmimiFinal.Length == 7) {
                                     builderToPrint += ld.Cmimi + "    ";
                                 }
+                                else if(vpaTvsh.Length == 7 && tvsh.Length == 6 && cmimiFinal.Length == 7) {
+                                    builderToPrint += ld.Cmimi + "     ";
+                                }
                                 else if(vpaTvsh.Length >= 7) {
                                     builderToPrint += ld.Cmimi + "    ";
                                 }
@@ -444,7 +448,11 @@ namespace EHWM.ViewModel {
                                 builderToPrint += " " + tvsh + " ";
                             }
                             else if (tvsh.ToString().Length >= 6) {
-                                builderToPrint += tvsh + " ";
+                                if (cmimiFinal.Length == 7) {
+                                    builderToPrint += tvsh + "  ";
+                                }
+                                else
+                                    builderToPrint += tvsh + " ";
                             }
                             else if (tvsh.ToString().Length >= 5) {
                                 builderToPrint += tvsh + " ";
@@ -580,12 +588,34 @@ namespace EHWM.ViewModel {
                     builderToPrint += vleraTVSHs + "  " + "    ";
                 }
                 builderToPrint += teGjitheCmimetTotales;
-               
-                if(builderToPrint.Length <=69) {
+
+                if (builderToPrint.Length < 69) {
                     if (builderToPrint[35] == ' ') {
                         builderToPrint = builderToPrint.Replace(builderToPrint[35].ToString(), "  ");
                     }
                 }
+
+                if (builderToPrint.Length > 69) {
+                    bool wasLastEmpty = false;
+                    string totalTemp = builderToPrint;
+                    for (int i = builderToPrint.Length - 1; i >= 0; i--) {
+                        var de = builderToPrint[i];
+                        if (wasLastEmpty) {
+                            if (builderToPrint[i] == ' ') {
+                                wasLastEmpty = true;
+                                totalTemp = totalTemp.Remove(totalTemp[i], 1);
+                                if (totalTemp.Length <= 69) {
+                                    builderToPrint = totalTemp;
+                                    break;
+                                }
+                            }
+                        }
+                        if (builderToPrint[i] == ' ') {
+                            wasLastEmpty = true;
+                        }
+                    }
+                }
+
                 await _printer.printText(builderToPrint);
                 Debug.WriteLine(builderToPrint);
                 await _printer.printText("\n");
@@ -691,11 +721,11 @@ namespace EHWM.ViewModel {
                 SelectedArikujt = new ObservableCollection<Artikulli>();
             }
             if (CurrentlySelectedArtikulli == null) return;
-            if(CurrentlySelectedArtikulli.Seri.Trim().Length == 0) {
+            if (string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
                 UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
                 return;
             }
-            if (string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
+            if (CurrentlySelectedArtikulli.Seri.Trim().Length == 0) {
                 UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
                 return;
             }

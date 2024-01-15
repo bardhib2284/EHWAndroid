@@ -217,12 +217,12 @@ namespace EHWM.ViewModel {
             FilterMinDate = DateTime.Now.AddDays(-7);
             FilterMaxDate = DateTime.Now.AddDays(7);
             dtFisrtDate = DateTime.Now.Date.AddDays(-(currentDay - 1));
-            dtLastDate = dtFisrtDate.AddDays(6);
+            dtLastDate = dtFisrtDate.AddDays(7);
             CultureInfo myCI = new CultureInfo("fr-FR");
             System.Globalization.Calendar myCal = myCI.Calendar;
             currentDay = (int)myCal.GetDayOfWeek(DateTime.Now);
             FilterMinDate = DateTime.Now.Date.AddDays(-(currentDay - 1));
-            FilterMaxDate = dtFisrtDate.AddDays(6);
+            FilterMaxDate = dtFisrtDate.AddDays(7);
             al = new AgjendiLogin();
         }
 
@@ -1210,7 +1210,6 @@ namespace EHWM.ViewModel {
         public async Task OnDeviceOpenClicked() {
             if (_printer == null) {
                 // Prepares to communicate with the printer 
-                await OnPrintTest();
                 _printer = await OpenPrinterService(_connectionInfo) as MPosControllerPrinter;
                 if(App.Instance.MainPage is NavigationPage np) {
                     if (np.Navigation.NavigationStack[np.Navigation.NavigationStack.Count - 2] is FaturatEShituraPage) {
@@ -1245,8 +1244,6 @@ namespace EHWM.ViewModel {
                         }
                     }
                 }
-                await OnPrintTest();
-                return;
                 if (SelectedLiferimetEKryera == null) {
                     UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
                     return;
@@ -2051,17 +2048,31 @@ namespace EHWM.ViewModel {
                             "\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "     " + String.Format("{0:0.00}", art.SasiaKthyer) + "   " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur) , new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                         }
                         else if(art.SasiaShitur < 10 && art.SasiaShitur > 0) {
-                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+                            if (art.SasiaKthyer == 0 && art.LevizjeStoku == 0) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                            }
+                            else
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
 "\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + " " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                         }
                         else {
-                            await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
-    "\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "  " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                            if(art.SasiaShitur == 10) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "       " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "  " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                            }
+                            else if (art.SasiaShitur == 0 && art.SasiaKthyer == 0 && art.LevizjeStoku == 0) {
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "   " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                            }
+                            else
+                                await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "        " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "       " + String.Format("{0:0.00}", art.LevizjeStoku) + "   " + "  " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                         }
                     }
                     else {
                         await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri +
-"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "         " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "      " + String.Format("{0:0.00}", art.LevizjeStoku) + "    " + "    " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+"\n                  " + String.Format("{0:0.00}", art.SasiaPranuar) + "         " + String.Format("{0:0.00}", art.SasiaShitur) + "      " + String.Format("{0:0.00}", art.SasiaKthyer) + "      " + String.Format("{0:0.00}", art.LevizjeStoku) + "    " + "  " + String.Format("{0:0.00}", art.SasiaMbetur), new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     }
 
 
@@ -2080,11 +2091,11 @@ namespace EHWM.ViewModel {
                             }
                         }
                         else {
-                            await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "      " + String.Format("{0:0.00}", KthyerAll) + "      " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+                            await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "      " + String.Format("{0:0.00}", KthyerAll) + "     " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
                         }
                     }
                     else {
-                        await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "      " + String.Format("{0:0.00}", KthyerAll) + "     " + String.Format("{0:0.00}", LevizjeAll) + "     " + String.Format("{0:0.00}", MbetjaAll));
+                        await _printer.printText("                  " + String.Format("{0:0.00}", PranuarAll) + "       " + String.Format("{0:0.00}", ShiturAll) + "      " + String.Format("{0:0.00}", KthyerAll) + "      " + String.Format("{0:0.00}", LevizjeAll) + "      " + String.Format("{0:0.00}", MbetjaAll));
                     }
 
                 }
@@ -3095,12 +3106,7 @@ namespace EHWM.ViewModel {
 
 
 
-                        MainPage mainPage = new MainPage();
-                        mainPage.BindingContext = this;
-                        NavigationPage navigationPage = new NavigationPage(mainPage) { BarBackgroundColor = Color.LightBlue };
-
-                        App.Instance.MainPage = navigationPage;
-                        UserDialogs.Instance.HideLoading();
+                        
                         if(CashRegister.TCRSyncStatus <= 0) {
                             var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
                             {
@@ -3126,7 +3132,12 @@ namespace EHWM.ViewModel {
                             }
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
+                        MainPage mainPage = new MainPage();
+                        mainPage.BindingContext = this;
+                        NavigationPage navigationPage = new NavigationPage(mainPage) { BarBackgroundColor = Color.LightBlue };
+                        UserDialogs.Instance.HideLoading();
 
+                        App.Instance.MainPage = navigationPage;
                     }
                 }
                 if (!string.IsNullOrEmpty(al.perdoruesi) && !string.IsNullOrEmpty(al.idagjenti)) {
@@ -3234,13 +3245,7 @@ namespace EHWM.ViewModel {
 
 
 
-                        MainPage mainPage = new MainPage();
-                        mainPage.BindingContext = this;
-                        NavigationPage navigationPage = new NavigationPage(mainPage) { BarBackgroundColor = Color.LightBlue };
-
-                        App.Instance.MainPage = navigationPage;
-                        await Task.Delay(100);
-                        UserDialogs.Instance.HideLoading();
+                        
                         if(CashRegister.TCRSyncStatus <= 0) {
                             var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
                             {
@@ -3268,7 +3273,14 @@ namespace EHWM.ViewModel {
 
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
-                        
+                        MainPage mainPage = new MainPage();
+                        mainPage.BindingContext = this;
+                        NavigationPage navigationPage = new NavigationPage(mainPage) { BarBackgroundColor = Color.LightBlue };
+
+                        App.Instance.MainPage = navigationPage;
+                        await Task.Delay(100);
+                        UserDialogs.Instance.HideLoading();
+
                     }
                     else {
                         UserDialogs.Instance.HideLoading();
@@ -3641,7 +3653,7 @@ namespace EHWM.ViewModel {
 
                         }
                         if(v.Klienti != string.Empty && v.Vendi != string.Empty) {
-                            if (DatesAreInTheSameWeek((DateTime)v.DataPlanifikimit.Value, DateTime.Today)) {
+                            if (DatesAreInTheSameWeek((DateTime)v.DataPlanifikimit.Value.Date, DateTime.Today)) {
                                 VizitatFilteredByDate.Add(v);
                             }
                         }

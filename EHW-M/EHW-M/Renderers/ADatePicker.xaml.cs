@@ -55,6 +55,9 @@ namespace EHWM.Renderers
             pickerinho.SelectedIndexChanged += Pickerinho_SelectedIndexChanged;
             CreateDitetEJaves();
             pickerinho.SelectedIndex = DitetEJaves.IndexOf(DitetEJaves.FirstOrDefault(x=> x.Date.Date == DateTime.Now.Date));
+            if(pickerinho.SelectedItem == null) {
+                pickerinho.SelectedIndex = 0;
+            }
             SelectedDayAndDate = pickerinho.SelectedItem as DayAndDate;
             CurrentDate = DateTime.Now;
             App.Instance.MainViewModel.FilterDate = CurrentDate;
@@ -83,7 +86,7 @@ namespace EHWM.Renderers
             DitetEJaves.Add(new DayAndDate { Date = DateTime.MinValue, Day = "Java" });
             var index = 0;
             foreach (DateTime day in EachDay(bc.FilterMinDate, bc.FilterMaxDate)) {
-                if (index == 6)
+                if (index == 7)
                     break;
                 DitetEJaves.Add(new DayAndDate { Day = bc.GetDayName(day), Date =  day});
                 index++;
