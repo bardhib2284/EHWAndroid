@@ -110,9 +110,24 @@ namespace EHWM.Renderers
             CurrentDate = DitetEJaves[pickerinho.SelectedIndex].Date;
             if(App.Instance.MainPage is NavigationPage np) {
                 if(np.CurrentPage is ClientsPage cp) {
+                    bc.SearchedVizitat.Clear();
                     if (CurrentDate == DateTime.MinValue) {
-                        cp.AllClientsListVisibility(true);
-                        cp.SearchedClientsListVisibility(false);
+                        foreach(var date in DitetEJaves) {
+                            if (date.Day == "Java")
+                                continue;
+                            foreach(var viz in bc.VizitatFilteredByDate) {
+                                if(viz.DataPlanifikimit.Value.Date == date.Date.Date && viz.DataPlanifikimit.Value.Year == date.Date.Year && viz.DataPlanifikimit.Value.Month == date.Date.Month) {
+                                    bc.SearchedVizitat.Add(viz);
+                                }
+                            }
+                        }
+                        cp.AllClientsListVisibility(false);
+                        cp.SearchedClientsListVisibility(true);
+                        bc.FilterDate = CurrentDate;
+                        bc.AllClientsList = false;
+                        bc.SearchedClientsList = true;
+                        bc.SearchedVizitat = new ObservableCollection<Vizita>( bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
+                        return;
                     }
                     else {
                         cp.AllClientsListVisibility(false);
@@ -123,6 +138,7 @@ namespace EHWM.Renderers
                 
             bc.FilterDate = CurrentDate;
             bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
+            bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
             bc.AllClientsList = false;
             bc.SearchedClientsList = true;
         }

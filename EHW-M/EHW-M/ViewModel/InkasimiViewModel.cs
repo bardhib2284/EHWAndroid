@@ -446,6 +446,9 @@ namespace EHWM.ViewModel {
                             InkasimetList = new ObservableCollection<EvidencaPagesave> { EvidencaPagesave };
                             await App.Instance.PushAsyncNewPage(new PrinterSelectionPage() { BindingContext = this});
                         }
+                        else {
+                            await App.Instance.PopPageAsync();
+                        }
                     }
                 }catch(Exception e) {
 

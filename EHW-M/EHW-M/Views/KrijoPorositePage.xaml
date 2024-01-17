@@ -7,7 +7,7 @@
             <StackLayout Padding="10" Orientation="Horizontal">
                 <Label Text="Klienti" HorizontalOptions="Fill" VerticalOptions="Center"/>
                 <Picker ItemsSource="{Binding Klientet}" HorizontalTextAlignment="Center" x:Name="depotPicker" SelectedItem="{Binding SelectedKlientet}" SelectedIndex="0" Grid.Row="1" Grid.Column="0" ItemDisplayBinding="{Binding Emri}" VerticalOptions="Start" HorizontalOptions="FillAndExpand" SelectedIndexChanged="depotPicker_SelectedIndexChanged"/>
-                <Button Text="Shto" Command="{Binding ShtoKlientinCommand}" WidthRequest="120" HeightRequest="20" TextColor="Black" HorizontalOptions="Fill" />
+                <Button Text="Shto" Command="{Binding ShtoKlientinCommand}" WidthRequest="120" HeightRequest="20" TextColor="White" HorizontalOptions="Fill" />
             </StackLayout>
             <Frame Padding="1" Margin="0" BorderColor="Black" HorizontalOptions="FillAndExpand" VerticalOptions="Fill">
                 <StackLayout BackgroundColor="LightBlue" Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="0" Margin="0">
