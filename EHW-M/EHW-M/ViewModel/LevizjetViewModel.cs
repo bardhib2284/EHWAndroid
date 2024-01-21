@@ -259,7 +259,7 @@ namespace EHWM.ViewModel {
                     if (CurrentlySelectedLevizjetHeader.Latitude == "8" && CurrentlySelectedLevizjetHeader.Longitude == "8")
                         await _printer.printText("      Numri i serise: FISK-" + CurrentlySelectedLevizjetHeader.NumriFisk + "-" + Agjendi.Depo);
                     else
-                        await _printer.printText("      Numri i serise: " + CurrentlySelectedLevizjetHeader.NumriLevizjes);
+                        await _printer.printText("      Numri i serise: " + Agjendi.Depo + "-" + CurrentlySelectedLevizjetHeader.NumriFisk);
                     await _printer.printText("\nData dhe ora e leshimit te fatures: " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss"));
 
                     await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + CurrentlySelectedLevizjetHeader.TCRBusinessUnitCode);
@@ -270,7 +270,7 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\nQellimi i Levizjes se Mallit:  Shitje me shumice\n");
                     await _printer.printText(
     "---------------------------------------------------------------------");
-                    await _printer.printText("\nEmri i Pritesit: E. H. W.   NIPT: " + depo.NIPT + " +   SN : " + depo.SN);
+                    await _printer.printText("\nEmri i Pritesit: E. H. W.   NIPT: " + depo.NIPT);
                     await _printer.printText("\nAdresa: " + depo.ADRESA + "\n");
 
 
@@ -335,6 +335,9 @@ namespace EHWM.ViewModel {
                 string slevizje;
                 string smbetur;
                 string scmimi;
+                CurrentlySelectedLevizjetDetails = new ObservableCollection<LevizjetDetails>((from s in CurrentlySelectedLevizjetDetails
+                                                    orderby s.IDArtikulli
+                                                            select s).ToList());
                 foreach (var ld in CurrentlySelectedLevizjetDetails) {
                     foreach (var art in Artikujt) {
                         if (art.IDArtikulli != ld.IDArtikulli) continue;

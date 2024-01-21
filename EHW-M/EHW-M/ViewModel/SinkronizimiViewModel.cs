@@ -69,7 +69,7 @@ namespace EHWM.ViewModel {
         public ICommand AzhurnoCommand { get; set; }
 
         public SinkronizimiViewModel(SinkronizimiNavigationParameters np) {
-            //SinkronizoCmimet = new Command(async () => await SinkronizoCmimetAsync());
+            SinkronizoCmimet = new Command(async () => await SinkronizoCmimetAsync());
             SinkronizoKlientet = new Command(async () => await SinkronizoKlientetAsync());
             if (np != null) {
                 Agjendi = np.Agjendi;
@@ -1874,7 +1874,272 @@ namespace EHWM.ViewModel {
             return result;
         }
 
-        public void SinkronizoCmimetAsync() {
+        public async Task SinkronizoCmimetAsync() {
+            try {
+                if (!App.Instance.DoIHaveInternet()) {
+                    return;
+                }
+                UserDialogs.Instance.ShowLoading("Inicializimi... ");
+                string[] KeyFields = null;//Used in sync
+                string strFilterDwn = "1=1";//Used in sync
+                string strFilterUp = "1=1"; //Used in sync           
+                string strTableName = "";//Used in sync            
+                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                int _CurrNrFat = 0; //used for fixNrKufijt
+                int _CurrNrFatJT = 0;//used for fixNrKufijt
+                int _CurrNrFat_D = 0; //used for fixNrKufijt
+                StringBuilder strbSyncLog = new StringBuilder();//used for Log in TextBox Control
+
+                bool SyncSuccesful = true; //Used in sync
+                bool SyncSendSuccessful = true; //Used in Sync
+                MobSellSyncDirection MobSyncDirection; //Used in Sync
+                int _stoqetServer = 0;
+                Sync sync = new Sync();
+                var SyncConfigSynced = await sync.SyncTable("SyncConfiguration", null, PnSyncDirection.SnapshotDownload, "", "", "");
+                //MessageBox.Show("SyncConfigSynced " + SyncConfigSynced.ToString());
+                var ConfigSynced = await sync.SyncTable("Konfigurimi", null, PnSyncDirection.SnapshotDownload, "", "", Agjendi.DeviceID);
+
+                if (!SyncConfigSynced || !ConfigSynced) {
+                    UserDialogs.Instance.Alert("Sinkronizimi nuk mund te vazhdoje [KOMUNIKIMI ME MSQLMOBILESERVER deshtoi]", "Gabim");
+                    UserDialogs.Instance.HideLoading();
+                    return;
+                }
+                EditorView = "";
+                EditorView += "Sync Config dhe Konfig SnapShotDownload Sukses\n";
+                var konfigurimi = (await App.Database.GetKonfigurimetAsync()).FirstOrDefault(x => x.DeviceID == Agjendi.DeviceID);
+                Agjendi.IDAgjenti = konfigurimi.IDAgent;
+                Agjendi.Depo = konfigurimi.IDAgent;
+
+                try {
+                    var Sinkronizimet = (await App.Database.GetSyncConfigurationsAsync()).OrderBy(x => x.ID).ToList();
+                    if (Sinkronizimet != null && Sinkronizimet.Count > 0) {
+                        var strSessionID = new Guid();
+                        await InsertLog(Agjendi.DeviceID, strSessionID, DateTime.Now, null, "START_SESSION", "", "", 0, 0, 0, 0, 0);
+                        var indexTable = 0;
+                        //FOR EACH TABLE IN SYNCCONFIG
+                        foreach (var config in Sinkronizimet) {
+                            MobSyncDirection = (MobSellSyncDirection)Convert.ToInt16(config.SyncDirection);
+                            strTableName = config.TableName;
+                            KeyFields = config.PK_FieldName.Split(',');
+                            indexTable++;
+                            if (strTableName == "SalesPrice" || strTableName == "Vizitat") {
+
+                            }
+                            else
+                                continue;
+                            UserDialogs.Instance.ShowLoading("Sinkronizimi Tabela: " + strTableName + " " + indexTable + "/" + Sinkronizimet.Count);
+                            if (strTableName == "Detyrimet") {
+
+                            }
+                            strFilterUp = config.FilterUp.ToString();
+                            strFilterDwn = config.FilterDown.ToString();
+
+                            if (strFilterUp.Trim() == "")
+                                strFilterUp = "1=1";
+
+                            if (strFilterDwn.Trim() == "")
+                                strFilterDwn = "1=1";
+                            if (strTableName == "Krijimi_Porosive") {
+
+                            }
+                            switch (strTableName) {
+
+                                case "KlientDheLokacion":
+                                case "Klientet":
+                                case "Stoqet": {
+                                        strFilterDwn = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL)";
+                                        strFilterUp = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL)";
+                                        break;
+                                    }
+                                case "SalesPrice": {
+                                        string getOnlyThisWeekKlients = @"SalesCode IN 
+                                                                    (  SELECT IDKlientDheLokacion FROM Vizitat WHERE IDAgjenti ='" + Agjendi.IDAgjenti + @"' ) OR SalesCode='STANDARD' ";
+                                        strFilterDwn = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL) and (" + getOnlyThisWeekKlients + ")";
+                                        strFilterUp = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL) and (" + getOnlyThisWeekKlients + ")";
+                                        break;
+                                    }
+                                case "Vizitat": {
+                                        string AddUPFilter = config.FilterUp.ToString();
+                                        string AddDwnFilter = config.FilterDown.ToString();
+
+                                        strFilterDwn = "DeviceID='" + Agjendi.DeviceID + "'";
+                                        strFilterUp = "DeviceID='" + Agjendi.DeviceID + "'";
+
+                                        if (AddDwnFilter.Trim() != "")
+                                            strFilterDwn += " AND '" + AddDwnFilter + "'";
+                                        if (AddUPFilter.Trim() != "") //if Filter from SyncCOnfig not empty
+                                            strFilterUp += " AND '" + AddUPFilter + "'";
+
+                                        break;
+                                    }
+                                case "Malli_Mbetur": {
+                                        await UpdateMalli_Mbetur();
+                                        break;
+                                    }
+                            }
+                            await Task.Delay(200);
+                            SaveValuesKufijtFaturave(strTableName);
+                            await Task.Delay(200);
+                            #region DoPnSync
+                            switch (MobSyncDirection) {
+
+                                case MobSellSyncDirection.SnapshotSpecial: {
+                                        //Wont't do the snapshot if server returns nothing
+                                        EditorView += "Syncing Mob Sync Direction SnapshotSpecial " + strTableName + " STARTED \n";
+                                        if (strTableName == "Stoqet") {
+                                            _stoqetServer = await GetStoqetCount(Agjendi.Depo);
+                                        }
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.SnapshotSpecial, strFilterDwn, "SyncStatus", Agjendi.Depo);
+                                        var sasiaShitur = (double)await SumDataColumn("Malli_Mbetur", "SasiaShitur");
+                                        var SasiaKthyer = await SumDataColumn("Malli_Mbetur", "SasiaKthyer");
+
+                                        if ((int)sasiaShitur == 0 && (int)SasiaKthyer == 0) {
+                                            if (_stoqetServer != 0) //Nese ka stoke per ngarkim
+                                            {
+                                                CopyStock();
+                                            }
+                                        }
+                                        EditorView += "Syncing Mob Sync SnapshotSpecial Snapshot " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+
+                                case MobSellSyncDirection.Snapshot: {
+                                        EditorView += "Syncing Mob Sync Direction Snapshot " + strTableName + " STARTED \n";
+                                        SyncSuccesful = await sync.SyncTable(strTableName, null, PnSyncDirection.SnapshotDownload, strFilterUp, "", Agjendi.Depo);
+                                        EditorView += "Syncing Mob Sync Direction Snapshot " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+
+                                case MobSellSyncDirection.Download:  //download with insert and Update
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Download " + strTableName + " STARTED \n";
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", "");
+                                        EditorView += "Syncing Mob Sync Direction Download " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+
+                                        break;
+                                    }
+                                case MobSellSyncDirection.Upload: //upload with insert and update
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Upload " + strTableName + " STARTED \n";
+                                        string StatusField = "SyncStatus";
+                                        if (strTableName == "Malli_Mbetur") {
+                                            StatusField = "0";
+                                        }
+                                        else {
+                                            KeyFields = null;
+                                        }
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Upload, strFilterUp, StatusField, "");
+                                        if (SyncSuccesful) {
+                                            switch (strTableName) {
+                                                case "Liferimi": {
+                                                        //SafeDelete("Liferimi", "IDLiferimi");
+                                                        //TODO : UPDATE LIFERIMI API
+                                                        var liferimet = await App.Database.ClearAllLiferimet();
+                                                        //var updateLiferimetResult = await App.ApiClient.PutAsync("")
+                                                        break;
+                                                    }
+                                                case "LiferimiArt": {
+                                                        var liferimetArt = await App.Database.ClearAllLiferimetArt();
+                                                        break;
+
+                                                    }
+                                                case "Porosite": {
+                                                        var porosite = await App.Database.ClearAllPorosite();
+                                                        break;
+                                                    }
+                                                case "PorosiaArt": {
+                                                        var porositeArt = await App.Database.ClearAllPorositeArt();
+                                                        break;
+                                                    }
+                                                case "LEVIZJET_HEADER": {
+                                                        //SafeDelete("LEVIZJET_HEADER", "TransferID");
+                                                        //Snc.ExecuteServerQuery("UPDATE LEVIZJET_HEADER set ImpStatus = 0 where Depo = '" + SyncParams.DeviceID.Replace("-", "") + "' AND ImpStatus =2");
+                                                        var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+                                                        var query = from header in levizjetHeader
+                                                                    where header.Depo == Agjendi.Depo && header.ImpStatus == 2
+                                                                    select header;
+                                                        foreach (var res in query) {
+                                                            res.ImpStatus = 0;
+                                                            await App.Database.SaveLevizjeHeaderAsync(res);
+                                                        }
+                                                        levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+                                                        var levizjetHeaderJson = JsonConvert.SerializeObject(levizjetHeader);
+                                                        var stringContent = new StringContent(levizjetHeaderJson, Encoding.UTF8, "application/json");
+                                                        var result = await App.ApiClient.PutAsync("levizje-header", stringContent);
+                                                        if (!result.IsSuccessStatusCode) {
+                                                            SyncSuccesful = false;
+                                                        }
+                                                        await App.Database.ClearAllLevizjetHeaderAsync();
+                                                        break;
+                                                    }
+                                                case "LEVIZJET_DETAILS": {
+                                                        await App.Database.ClearAllLevizjetDetailsAsync();
+                                                        break;
+                                                    }
+                                                case "Krijimi_Porosive": {
+                                                        await App.Database.ClearAllKrijimiPorosive();
+                                                        break;
+                                                    }
+                                                case "Orders": {
+                                                        await App.Database.ClearAllOrdersAsync();
+                                                        break;
+                                                    }
+                                                case "Order_Details": {
+                                                        //TODO UPDATE ORDER DETAILS
+
+                                                        await App.Database.ClearAllOrderDetailsAsync();
+                                                        SyncSuccesful = true;
+
+                                                        break;
+                                                    }
+
+                                            }
+                                        }
+                                        EditorView += "Syncing Mob Sync Direction Upload " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+
+                                        break;
+                                    }
+                                case MobSellSyncDirection.Bidirectional: //Download and Upload with Update and insert (bidirectional)
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Bidirectional " + strTableName + " STARTED \n";
+                                        //****Now download****
+                                        if (strTableName == "Vizitat") {
+                                            SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", Agjendi.DeviceID);
+                                        }
+                                        else
+                                            SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", Agjendi.Depo);
+                                        //LiveLog(SyncParams, strbSyncLog, strTableName, SyncSuccesful, MobSyncDirection, con, strSessionID);
+                                        EditorView += "Syncing Mob Sync Direction Bidirectional " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+
+                                case MobSellSyncDirection.BidirectionalSpecial: //this Downloads to Device (insert,update) to spec. table, Uploads to tableName+"_upl" (insert,update)
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction BidirectionalSpecial " + strTableName + "STARTED \n";
+                                        //***Upload***SEND DATA TO SPECIFIED TABLENAME+"_upl" WITH INSERT AND UPDATE
+                                        //****Now download**** NORMAL DOWNLOAD WITH INSERT AND UPDATE
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", "");
+                                        EditorView += "Syncing Mob Sync Direction BidirectionalSpecial " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+                            } //END SWRITCH MobSellDirection
+                            #endregion
+                        }
+                    }
+                    else {
+                        UserDialogs.Instance.Alert("Nuk ka tabela per sinkronizim ne SyncConfig");
+                    }
+                }
+                catch (Exception ex) {
+                    UserDialogs.Instance.HideLoading();
+                }
+            }
+            catch (Exception e) {
+                UserDialogs.Instance.HideLoading();
+            }
+            UserDialogs.Instance.HideLoading();
+            UserDialogs.Instance.Alert("Sinkronizimi perfundoi");
         }
 
         public async Task SinkronizoKlientetAsync() {

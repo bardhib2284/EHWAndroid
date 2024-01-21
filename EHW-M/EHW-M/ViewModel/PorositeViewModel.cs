@@ -433,10 +433,10 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Numri i Porosise: " + NrPorosise +"\n");
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 
-                await _printer.printText("\nBleresi: ");
+                await _printer.printText("\nBleresi: " + SelectedKlient.Emri);
                 await _printer.printText("\nAdresa: ");
                 await _printer.printText("\nNRB:   NRF: \n");
-
+                 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
                 await _printer.printText("\nNr Barkodi     Shifra     Pershkrimi                          Sasia\n");

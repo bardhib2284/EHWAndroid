@@ -1247,14 +1247,15 @@ namespace EHWM.ViewModel {
                 var klienti = klientet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti);
                 var klientetDheLokacionet = await App.Database.GetKlientetDheLokacionetAsync();
                 var klientiDheLokacioni = klientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti);
-                await _printer.printText("\nBleresi: " + klienti.Emri + " L02225003J");
+                await _printer.printText("\nBleresi: " + klienti.Emri + " " +  klienti.NIPT);
                 await _printer.printText("\nAdresa: " + klientiDheLokacioni.Adresa + "      9923 \n");
 
                 await _printer.printText(
 "---------------------------------------------------------------------");
-
-                await _printer.printText("\nTRANSPORTUESI: E. H. W. j61804031v");
-                await _printer.printText("\nAdresa: AA951IN (KLAJDI CELA)");
+                var depot = await App.Database.GetDepotAsync();
+                var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
+                await _printer.printText("\nTRANSPORTUES: E. H. W. J61804031V");
+                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + LoginData.Emri + " " + LoginData.Mbiemri + ")");
                 await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
@@ -1275,13 +1276,16 @@ namespace EHWM.ViewModel {
                 string slevizje;
                 string smbetur;
                 string scmimi;
+                SelectedArikujt = new ObservableCollection<Artikulli>((from s in SelectedArikujt
+                                                                             orderby s.IDArtikulli
+                                                                                              select s).ToList());
                 foreach (var art in SelectedArikujt) {
                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri);
                     reservedSpaceForEachElement = 10;
                     emptySpace = "\n                  ";
                     sPranuar = art.BUM;
                     sShitur = String.Format("{0:0.00}", art.Sasia);
-                    sKthyer = String.Format("{0:0.00}", art.CmimiNjesi);
+                    sKthyer = String.Format("{0:0.00}", Math.Round(decimal.Parse((art.CmimiNjesi).ToString()) / 1.2m, 2));
                     slevizje = String.Format("{0:0.00}", Math.Round(decimal.Parse((art.CmimiNjesi * art.Sasia).ToString()) / 1.2m, 2));
                     smbetur = String.Format("{0:0.00}", decimal.Parse((art.CmimiNjesi * art.Sasia).ToString()) - decimal.Parse(slevizje));
                     scmimi = String.Format("{0:0.00}", art.CmimiNjesi * art.Sasia);
@@ -1644,7 +1648,7 @@ namespace EHWM.ViewModel {
 
 
 
-                if (string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
+                if (string.IsNullOrEmpty(lif.TCRQRCodeLink) && string.IsNullOrEmpty(lif.TCRNSLF)) {
                     await _printer.printText("\n");
 
                     await _printer.printText("\n");
@@ -1683,7 +1687,7 @@ namespace EHWM.ViewModel {
                     else
                         smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.IDPorosia + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
                     await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
-                                150/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                                225/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
                                 (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
                                 50,                                                 // brightness
                                 true,                                               // Image Dithering

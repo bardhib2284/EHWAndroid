@@ -13,7 +13,7 @@
                     <RowDefinition Height="2*"/>
                 </Grid.RowDefinitions>
                 <Editor AutoSize="Disabled" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding EditorView}" FontSize="14" HeightRequest="500" />
-                <Button Text="Sink. cmimet" Grid.Row="1" Grid.Column="0"/>
+                <Button Text="Sink. cmimet" Grid.Row="1" Grid.Column="0" Command="{Binding SinkronizoCmimet}"/>
                 <Button Text="Sink. klientet" Grid.Row="1" Grid.Column="1" Command="{Binding SinkronizoKlientet}"/>
                 <Button Text="Azhurno" Grid.Row="2" Grid.ColumnSpan="2" Command="{Binding AzhurnoCommand}"/>
                 <Button Text="Sinkronizo" Grid.Row="3" Grid.ColumnSpan="2" Command="{Binding SinkronizoCommand}"/>
