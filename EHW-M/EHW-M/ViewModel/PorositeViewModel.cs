@@ -229,6 +229,9 @@ namespace EHWM.ViewModel {
                 double teGjitheCmimetTotale = 0f;
                 var tvsh = 0m;
                 var nrBarkodi = 0;
+                SelectedArikujt = new ObservableCollection<Artikulli>((from s in SelectedArikujt
+                                                                       orderby s.IDArtikulli
+                                                                       select s).ToList());
                 foreach (var art in SelectedArikujt) {
                     string prntBuilder = string.Empty;
                     var emriLength = art.Emri.Length;
@@ -446,6 +449,9 @@ namespace EHWM.ViewModel {
                 double teGjitheCmimetTotale = 0f;
                 var tvsh = 0m;
                 var nrBarkodi = 0;
+                Artikujt = new ObservableCollection<Artikulli>((from s in Artikujt
+                                                                orderby s.IDArtikulli
+                                                                       select s).ToList());
                 foreach (var art in Artikujt) {
                     string prntBuilder = string.Empty;
                     var emriLength = art.Emri.Length;

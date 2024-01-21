@@ -543,8 +543,6 @@ namespace EHWM.ViewModel {
         public MposConnectionInformation _connectionInfo;
         public static SemaphoreSlim _printSemaphore = new SemaphoreSlim(1, 1);
         public async Task PrintoFaturenAsync() {
-            OnPrintTest();
-            return;
             await App.Instance.PushAsyncNewPage(new PrinterSelectionPage() { BindingContext = this});
         }
 
@@ -1230,8 +1228,6 @@ namespace EHWM.ViewModel {
                             return;
                     }
                 }
-                OnPrintTest();
-                return;
                 if (SelectedLiferimetEKryera == null) {
                     UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
                     return;
@@ -1255,8 +1251,6 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert("Ju lutem zgjedhni njeren prej faturave");
                     return;
                 }
-                OnPrintTest();
-                return;
                 await OnPrintTextClicked();
             }
         }
@@ -2115,7 +2109,9 @@ namespace EHWM.ViewModel {
                 string sKthyer;
                 string slevizje;
                 string smbetur;
-
+                MalliMbetur = new ObservableCollection<Malli_Mbetur>((from s in MalliMbetur
+                                                                   orderby s.IDArtikulli
+                                                                       select s).ToList());
                 foreach (var art in MalliMbetur) {
                     await _printer.printText(art.IDArtikulli + "   " + art.Emri + "   " + art.Seri);
                     reservedSpaceForEachElement = 10;
