@@ -1342,11 +1342,12 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText(
 "---------------------------------------------------------------------");
-
+                var agjendet = await App.Database.GetAgjendetAsync();
+                var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("\nTransportues: E. H. W. J61804031V");
                 var depot = await App.Database.GetDepotAsync();
                 var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
-                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + LoginData.Emri + " " + LoginData.Mbiemri + ")");
+                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + ")");
                 await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
@@ -1615,7 +1616,6 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n");
                 await _printer.printText("\n");
                 await _printer.printText("\n");
-                var agjendet = await App.Database.GetAgjendetAsync();
                 var agjendi = agjendet.FirstOrDefault(x => x.IDAgjenti == LoginData.IDAgjenti);
                 await _printer.printText("Bleresi                                          Shitesi");
                 var klientiLength = klienti.Emri.Trim();
@@ -1739,7 +1739,7 @@ namespace EHWM.ViewModel {
                 
 
 
-                if (string.IsNullOrEmpty(lif.TCRQRCodeLink) && string.IsNullOrEmpty(lif.TCRNSLF)) {
+                if (string.IsNullOrEmpty(lif.TCRQRCodeLink) || string.IsNullOrEmpty(lif.TCRNSLF)) {
                     await _printer.printText("\n");
 
                     await _printer.printText("\n");
@@ -1767,38 +1767,37 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\n");
                     await _printer.printText("\n");
 
+                    var companyInfo = await App.Database.GetCompanyInfoAsync();
+                    if (lif.PayType == "BANK") {
+                        var smallBarcodeString = string.Empty;
+                        if (!string.IsNullOrEmpty(lif.TCRNIVF)) {
+                            smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.TCRNIVF + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
+                        }
+                        else
+                            smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.IDPorosia + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
+                        await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
+                                    225/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
+                                    (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
+                                    50,                                                 // brightness
+                                    true,                                               // Image Dithering
+                                    true);
+                        await _printer.printText("\n");
 
-                }
-                var companyInfo = await App.Database.GetCompanyInfoAsync();
-                if (lif.PayType == "BANK") {
-                    var smallBarcodeString = string.Empty;
-                    if (!string.IsNullOrEmpty(lif.TCRNIVF)) {
-                        smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.TCRNIVF + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
+                        await _printer.printText("\n");
+                        await _printer.printText("\n");
+                        await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302 \n");
+                        await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616\n");
+                        await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01\n");
+                        await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF\n");
+                        await _printer.printText("\n");
+
                     }
-                    else
-                        smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.IDPorosia + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
-                    await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
-                                225/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
-                                (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment
-                                50,                                                 // brightness
-                                true,                                               // Image Dithering
-                                true);
-                    await _printer.printText("\n");
-
-                    await _printer.printText("\n");
-                    await _printer.printText("\n");
-                    await _printer.printText(" ISP       AL 8820 81120 400000 3044 9935302 \n");
-                    await _printer.printText("RZB        AL 2420 2111 7800 0000 0001 313616\n");
-                    await _printer.printText("PCB        AL 4420 9111 0800 0010 5418 3900 01\n");
-                    await _printer.printText(" BKT       AL 0820 51111 79063 36CL PRCLALLF\n");
-                    await _printer.printText("\n");
-
+                    if (!string.IsNullOrEmpty(lif.TCRQRCodeLink)) {
+                        await _printer.printText("\n");
+                        await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne \n kete Kod QR");
+                    }
                 }
-                if (!string.IsNullOrEmpty(lif.TCRQRCodeLink)) 
-                    {
-                await _printer.printText("\n");
-                await _printer.printText("Te gjitha Informacionet ne lidhje me kete fature, mund te shihen ne \n kete Kod QR");
-                }
+                
                 await _printer.printText("\n");
                 await _printer.printText("\n");
             // Feed to tear-off position (Manual Cutter Position)

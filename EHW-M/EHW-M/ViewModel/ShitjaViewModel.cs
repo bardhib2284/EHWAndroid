@@ -1252,10 +1252,12 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText(
 "---------------------------------------------------------------------");
+                var agjendet = await App.Database.GetAgjendetAsync();
+                var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 var depot = await App.Database.GetDepotAsync();
                 var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("\nTransportues: E. H. W. J61804031V");
-                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + LoginData.Emri + " " + LoginData.Mbiemri + ")");
+                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + ")");
                 await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
@@ -1524,18 +1526,16 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n");
                 await _printer.printText("\n");
                 await _printer.printText("\n");
-                var agjendet = await App.Database.GetAgjendetAsync();
-                var agjendi = agjendet.FirstOrDefault(x => x.IDAgjenti == LoginData.IDAgjenti);
                 await _printer.printText("Bleresi                                          Shitesi");
                 var klientiLength = klienti.Emri.Trim();
-                var agjendiLengh = agjendi.Emri + " " + agjendi.Mbiemri;
+                var agjendiLengh = currAgjendi.Emri + " " + currAgjendi.Mbiemri;
                 var differenceBetweenTheTwo = 60 - agjendiLengh.Length - klientiLength.Length;
                 var emptyString = String.Empty;
                 for (int i = 0; i < differenceBetweenTheTwo; i++) {
                     emptyString += " ";
                 }
 
-                await _printer.printText("\n" + klienti.Emri.Trim() + emptyString + agjendi.Emri + " " + agjendi.Mbiemri);
+                await _printer.printText("\n" + klienti.Emri.Trim() + emptyString + currAgjendi.Emri + " " + currAgjendi.Mbiemri);
                 await _printer.printText("\n");
                 await _printer.printText("\n");
                 await _printer.printText("\n___________________                              ___________________");
