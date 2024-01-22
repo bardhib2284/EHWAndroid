@@ -1305,7 +1305,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                await _printer.printText("Adresa: AA951IN            9923 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("Adresa: AA951IN             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 var liferimi = await App.Database.GetLiferimetAsync();
@@ -1338,15 +1338,15 @@ namespace EHWM.ViewModel {
                 var klientetDheLokacionet = await App.Database.GetKlientetDheLokacionetAsync();
                 var klientiDheLokacioni = klientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti);
                 await _printer.printText("\nBleresi: " + klienti.Emri + " " + klienti.NIPT);
-                await _printer.printText("\nAdresa: " + klientiDheLokacioni.Adresa + "      9923 \n");
+                await _printer.printText("\nAdresa: " + klientiDheLokacioni.Adresa + "       \n");
 
                 await _printer.printText(
 "---------------------------------------------------------------------");
 
-                await _printer.printText("\nTRANSPORTUES: E. H. W. J61804031V");
+                await _printer.printText("\nTransportues: E. H. W. J61804031V");
                 var depot = await App.Database.GetDepotAsync();
                 var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
-                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" +LoginData.Emri + " " + LoginData.Mbiemri + ")");
+                await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + LoginData.Emri + " " + LoginData.Mbiemri + ")");
                 await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");

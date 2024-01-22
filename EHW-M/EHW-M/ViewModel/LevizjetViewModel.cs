@@ -251,7 +251,7 @@ namespace EHWM.ViewModel {
 
                     await _printer.printText("Emri i Nisesit: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                     await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                    await _printer.printText("Adresa: AA951IN            9923 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("Adresa: AA951IN             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 
@@ -292,7 +292,7 @@ namespace EHWM.ViewModel {
                     await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                     await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                    await _printer.printText("\nHyrje nga :  " + currentDepo.Depo);
+                    await _printer.printText("\nHyrje nga :  " + CurrentlySelectedLevizjetHeader.LevizjeNga);
                     await _printer.printText("\nMjeti: " + currentDepo.TARGE);
                     await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss") + " \n");
                     if (CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
@@ -346,7 +346,7 @@ namespace EHWM.ViewModel {
                         emptySpace = "\n                  ";
                         sPranuar = art.BUM;
                         sShitur = String.Format("{0:0.00}", ld.Sasia);
-                        sKthyer = String.Format("{0:0.00}", ld.Cmimi) ;
+                        sKthyer = String.Format("{0:0.00}", (ld.Cmimi / 1.2m)) ;
                         slevizje = String.Format("{0:0.00}", Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2));
                         smbetur = String.Format("{0:0.00}", (decimal.Parse((ld.Cmimi * ld.Sasia).ToString()) - Math.Round((decimal)((ld.Cmimi * ld.Sasia) / 1.2m), 2)));
                         scmimi = String.Format("{0:0.00}", ld.Cmimi * ld.Sasia);
