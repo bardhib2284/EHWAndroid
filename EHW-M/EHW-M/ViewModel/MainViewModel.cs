@@ -1874,8 +1874,8 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n------------------------------------------------------------------------------------------------------------------------------------------");                
 
 
-                await _printer.printText("\nNr Fatura       Klienti       Adresa        Faturim        Inkasim \n");
-                Debug.WriteLine("\n Nr Fatura         Klienti     Adresa       Faturim        Inkasim \n");
+                await _printer.printText("\nNr Fatura       Klienti       Adresa          Faturim         Inkasim\n");
+                Debug.WriteLine("\nNr Fatura       Klienti       Adresa          Faturim      Inkasim \n");
                 await _printer.printText("---------------------------------------------------------------------");
                 decimal faturimiTotal = 0m;
                 decimal inkasimiTotal = 0m;
@@ -1898,8 +1898,8 @@ namespace EHWM.ViewModel {
                         klienti = vizLif.Klienti.Remove(11);
                     }
                     string Kontakt = vizLif.Kontakt;
-                    if (vizLif.Kontakt.Length > 6) {
-                        Kontakt = vizLif.Kontakt.Remove(6);
+                    if (Kontakt.Length > 14) {
+                        Kontakt = vizLif.Kontakt.Remove(14);
                     }
                     if (klienti.Length < 11) {
                         while (klienti.Length < 11) {
@@ -1914,9 +1914,9 @@ namespace EHWM.ViewModel {
                     slevizje = String.Format("{0:0.00}", vizLif.Totali);
                     smbetur = String.Format("{0:0.00}", lif.ShumaPaguar);
 
-                    if (sPranuar.Length < reservedSpaceForEachElement) {
+                    if (sPranuar.Length < reservedSpaceForEachElement - 3) {
                         var index = 1;
-                        while (sPranuar.Length < reservedSpaceForEachElement) {
+                        while (sPranuar.Length < reservedSpaceForEachElement - 3) {
                             if (index > 0) {
                                 sPranuar = sPranuar.Insert(0, " ");
                             }
@@ -1948,7 +1948,7 @@ namespace EHWM.ViewModel {
                         }
                     }
 
-                    if (slevizje.Length < (reservedSpaceForEachElement + 1)) {
+                    if (slevizje.Length < (reservedSpaceForEachElement + 4)) {
                         var index = 1;
                         while (slevizje.Length < (reservedSpaceForEachElement)) {
                             if (index > 0) {
@@ -1970,7 +1970,7 @@ namespace EHWM.ViewModel {
 
                     emptySpace += sPranuar + sShitur + sKthyer + slevizje + smbetur;
 
-                    if (emptySpace.Length > 69) {
+                    if (emptySpace.Length < 70) {
                         bool wasLastEmpty = false;
                         string totalTemp = emptySpace;
                         for (int i = emptySpace.Length - 1; i >= 0; i--) {
@@ -1978,8 +1978,31 @@ namespace EHWM.ViewModel {
                             if (wasLastEmpty) {
                                 if (emptySpace[i] == ' ') {
                                     wasLastEmpty = true;
-                                    totalTemp = totalTemp.Remove(totalTemp[i], 1);
-                                    if (totalTemp.Length <= 69) {
+                                    totalTemp = totalTemp.Remove(i, 1);
+                                    if (totalTemp.Length == 70) {
+                                        emptySpace += " ";
+                                        break;
+                                    }
+                                }
+                            }
+                            if (emptySpace[i] == ' ') {
+                                wasLastEmpty = true;
+                            }
+                            else {
+                                wasLastEmpty = false;
+                            }
+                        }
+                    }
+                    if (emptySpace.Length > 70) {
+                        bool wasLastEmpty = false;
+                        string totalTemp = emptySpace;
+                        for (int i = emptySpace.Length - 1; i >= 0; i--) {
+                            var de = emptySpace[i];
+                            if (wasLastEmpty) {
+                                if (emptySpace[i] == ' ') {
+                                    wasLastEmpty = true;
+                                    totalTemp = totalTemp.Remove(i, 1);
+                                    if (totalTemp.Length == 70) {
                                         emptySpace = totalTemp;
                                         break;
                                     }
@@ -1987,6 +2010,9 @@ namespace EHWM.ViewModel {
                             }
                             if (emptySpace[i] == ' ') {
                                 wasLastEmpty = true;
+                            }
+                            else {
+                                wasLastEmpty = false;
                             }
                         }
                     }
@@ -1999,18 +2025,109 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\n---------------------------------------------------------------------");
 
                 if(faturimiTotal.ToString().Length == 0) {
-                    
-                    var printBuilder = "Nr. Total Fature: " + indexi + "                         "  + String.Format("{0:0.00}", faturimiTotal) + "       " + String.Format("{0:0.00}", inkasimiTotal);
+                    var printBuilder = "Nr. Total Fature: " + indexi + "                            " + String.Format("{0:0.00}", faturimiTotal) + "              " + String.Format("{0:0.00}", inkasimiTotal);
+                    if (printBuilder.Length < 69) {
+                        bool wasLastEmpty = false;
+                        string totalTemp = printBuilder;
+                        for (int i = printBuilder.Length - 1; i >= 0; i--) {
+                            var de = printBuilder[i];
+                            if (wasLastEmpty) {
+                                if (printBuilder[i] == ' ') {
+                                    wasLastEmpty = true;
+                                    totalTemp = totalTemp.Remove(i, 1);
+                                    if (totalTemp.Length == 70) {
+                                        printBuilder += " ";
+                                        break;
+                                    }
+                                }
+                            }
+                            if (printBuilder[i] == ' ') {
+                                wasLastEmpty = true;
+                            }
+                            else {
+                                wasLastEmpty = false;
+                            }
+                        }
+                    }
+                    if (printBuilder.Length > 69) {
+                        bool wasLastEmpty = false;
+                        string totalTemp = printBuilder;
+                        for (int i = printBuilder.Length - 1; i >= 0; i--) {
+                            var de = printBuilder[i];
+                            if (wasLastEmpty) {
+                                if (printBuilder[i] == ' ') {
+                                    wasLastEmpty = true;
+                                    totalTemp = totalTemp.Remove(i, 1);
+                                    if (totalTemp.Length == 70) {
+                                        printBuilder = totalTemp;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (printBuilder[i] == ' ') {
+                                wasLastEmpty = true;
+                            }
+                            else {
+                                wasLastEmpty = false;
+                            }
+                        }
+                    }
                     await _printer.printText(printBuilder);
-                    Debug.WriteLine(printBuilder + " Length : "+ printBuilder.Length);
+                    Debug.WriteLine("\n" +printBuilder + " Length : "+ printBuilder.Length);
                 }
                 else {
-                    var printBuilder = "Nr. Total Fature: " + indexi + "                         " + String.Format("{0:0.00}", faturimiTotal) + "      " + String.Format("{0:0.00}", inkasimiTotal);
+                    var printBuilder = "Nr. Total Fature: " + indexi + "                            " + String.Format("{0:0.00}", faturimiTotal) + "               " + String.Format("{0:0.00}", inkasimiTotal);
+                    if (printBuilder.Length < 69) {
+                        bool wasLastEmpty = false;
+                        string totalTemp = printBuilder;
+                        for (int i = printBuilder.Length - 1; i >= 0; i--) {
+                            var de = printBuilder[i];
+                            if (wasLastEmpty) {
+                                if (printBuilder[i] == ' ') {
+                                    wasLastEmpty = true;
+                                    totalTemp = totalTemp.Remove(i, 1);
+                                    if (totalTemp.Length == 69) {
+                                        printBuilder += " ";
+                                        break;
+                                    }
+                                }
+                            }
+                            if (printBuilder[i] == ' ') {
+                                wasLastEmpty = true;
+                            }
+                            else {
+                                wasLastEmpty = false;
+                            }
+                        }
+                    }
+                    if (printBuilder.Length > 69) {
+                        bool wasLastEmpty = false;
+                        string totalTemp = printBuilder;
+                        for (int i = printBuilder.Length - 1; i >= 0; i--) {
+                            var de = printBuilder[i];
+                            if (wasLastEmpty) {
+                                if (printBuilder[i] == ' ') {
+                                    wasLastEmpty = true;
+                                    totalTemp = totalTemp.Remove(i, 1);
+                                    if (totalTemp.Length == 69) {
+                                        printBuilder = totalTemp;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (printBuilder[i] == ' ') {
+                                wasLastEmpty = true;
+                            }
+                            else {
+                                wasLastEmpty = false;
+                            }
+                        }
+                    }
                     await _printer.printText(printBuilder);
-                    Debug.WriteLine(printBuilder + " Length : " + printBuilder.Length);
+                    Debug.WriteLine("\n" + printBuilder + " Length : " + printBuilder.Length);
                 }
-                var printBuilderi = "                                            " + String.Format("{0:0.00}", faturimiTotal) + "      " + String.Format("{0:0.00}", inkasimiTotal);
-                Debug.WriteLine(printBuilderi + " Length : " + printBuilderi.Length);
+                var printBuilderi = "                                              " + String.Format("{0:0.00}", faturimiTotal) + "    " + String.Format("{0:0.00}", inkasimiTotal);
+                Debug.WriteLine("\n" + printBuilderi + " Length : " + printBuilderi.Length);
 
                 await _printer.printText(" \n");
                 await _printer.printText("\n");
@@ -3014,7 +3131,7 @@ namespace EHWM.ViewModel {
                     IDPorosia = lif.IDPorosia,
                     IDVizita = porosite.FirstOrDefault(x => x.IDPorosia == lif.IDPorosia).IDVizita,
                     Klienti = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti).KontaktEmriMbiemri,
-                    Kontakt = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti).EmriLokacionit,
+                    Kontakt = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti).Adresa,
                     NrFat = lif.NrLiferimit,
                     Totali = decimal.Parse(lif.CmimiTotal.ToString()),
                     ListaEArtikujve = new List<Artikulli>(),

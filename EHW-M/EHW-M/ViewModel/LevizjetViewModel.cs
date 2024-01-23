@@ -337,7 +337,8 @@ namespace EHWM.ViewModel {
                 string scmimi;
                 CurrentlySelectedLevizjetDetails = new ObservableCollection<LevizjetDetails>((from s in CurrentlySelectedLevizjetDetails
                                                     orderby s.IDArtikulli
-                                                            select s).ToList());
+                                                    select s).ToList());
+
                 foreach (var ld in CurrentlySelectedLevizjetDetails) {
                     foreach (var art in Artikujt) {
                         if (art.IDArtikulli != ld.IDArtikulli) continue;
@@ -683,7 +684,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.printText("\n");
                 await _printer.printText("(emri,mbiemri,nensh.)   (emri,mbiemri,nensh.)   (emri,mbiemri,nensh.)");
-                if (string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRQRCodeLink)) {
+                if (string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRQRCodeLink) || string.IsNullOrEmpty(CurrentlySelectedLevizjetHeader.TCRNSLFSH)) {
                     await _printer.printText("                       Dokument i pa fiskalizuar");
                 }
                 else {

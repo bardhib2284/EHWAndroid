@@ -6,25 +6,25 @@
     <ContentPage.Content>
         <StackLayout >
 
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="10">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="5">
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                     <Label Text="Nr.Fat: " FontSize="16"/>
-                    <Label Text="{Binding SelectedLiferimetEKryera.NrFat}" FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.NrFat}" FontSize="14" FontAttributes="Bold"/>
                 </StackLayout>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
                     <Label Text="Data: " FontSize="16"/>
-                    <Label Text="{Binding SelectedLiferimetEKryera.Data,StringFormat='{}{0:dd.MM.yyyy}'}" FontSize="16"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Data,StringFormat='{}{0:dd.MM.yyyy}'}" FontSize="14" FontAttributes="Bold"/>
                 </StackLayout>
             </StackLayout>
 
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="10">
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="5">
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
-                    <Label Text="Kontakt: " FontSize="16"/>
-                    <Label Text="{Binding SelectedLiferimetEKryera.Klienti}" FontSize="16"/>
+                    <Label Text="Kontakt: " FontSize="14"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Klienti}" FontSize="14" FontAttributes="Bold"/>
                 </StackLayout>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="EndAndExpand">
-                    <Label Text="Vendi: " FontSize="16"/>
-                    <Label Text="{Binding SelectedLiferimetEKryera.Kontakt,StringFormat='{}{0:dd.MM.yyyy}'}" FontSize="16"/>
+                    <Label Text="Vendi:" FontSize="14"/>
+                    <Label Text="{Binding SelectedLiferimetEKryera.Kontakt,StringFormat='{}{0:dd.MM.yyyy}'}" LineBreakMode="WordWrap" FontSize="14" FontAttributes="Bold"/>
                 </StackLayout>
             </StackLayout>
 
