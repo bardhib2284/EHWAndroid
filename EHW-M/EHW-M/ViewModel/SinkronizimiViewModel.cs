@@ -1295,6 +1295,8 @@ namespace EHWM.ViewModel {
 
         //**********************************SYNCALL METHOD (Application Specific)*********************************************
         public async Task<bool> AzhurnoAsync() {
+            UserDialogs.Instance.Alert("Çaktivizuar për versionin tjetër!");
+            return false;
             bool success = true;
             #region InitializeSync
             GC.Collect();
@@ -2468,6 +2470,17 @@ namespace EHWM.ViewModel {
                                             var saved = await App.Database.SaveVizitatAsync(listOfClientsWithDepo);
 
                                             if (saved != -1) {
+                                                currentVizitat = await App.Database.GetVizitatAsync();
+                                                foreach (var vizita in currentVizitat) {
+                                                    vizita.SyncStatus = 1;
+                                                }
+                                                var jsonRequest = JsonConvert.SerializeObject(currentVizitat);
+                                                var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                                                var vizitatPostResponse = await App.ApiClient.PutAsync("vizitat", stringContent);
+                                                if (vizitatPostResponse.IsSuccessStatusCode) {
+                                                    return true;
+                                                }
+                                                return false;
                                                 return true;
                                             }
                                             else {
