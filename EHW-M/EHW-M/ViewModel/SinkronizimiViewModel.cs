@@ -2706,11 +2706,14 @@ namespace EHWM.ViewModel {
                             if (tableName == "Klientet") {
                                 if (SqlCondition != null) {
                                     if (SqlCondition.Contains("Depo")) {
-                                        var ClientWithDepoResponse = await App.ApiClient.GetAsync("clients?depo=" + Depo);
+                                        var ClientWithDepoResponse = await App.ApiClient.GetAsync("clients/all");
                                         var ClientWithDepoResult = await ClientWithDepoResponse.Content.ReadAsStringAsync();
                                         if (ClientWithDepoResponse.IsSuccessStatusCode) {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<Klientet>>(ClientWithDepoResult);
                                             await App.Database.ClearAllKlientet();
+                                            if (listOfClientsWithDepo.Count > 0) {
+                                                listOfClientsWithDepo = listOfClientsWithDepo.Where(x => x.Depo.Trim() == Depo.Trim() || string.IsNullOrEmpty(x.Depo.Trim())).ToList();
+                                            }
                                             var currentClients = await App.Database.GetKlientetAsync();
                                             await App.Database.SaveKlienteteAsync(listOfClientsWithDepo);
                                             currentClients = await App.Database.GetKlientetAsync();
@@ -2957,6 +2960,8 @@ namespace EHWM.ViewModel {
                                         var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
                                         var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
                                         salesPrices.AddRange(SalePrice);
+                                        await App.Database.SaveSalesPricesAsync(salesPrices);
+                                        salesPrices.Clear();
                                     }
                                     else
                                         return false;

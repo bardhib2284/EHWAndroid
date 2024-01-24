@@ -3385,7 +3385,7 @@ namespace EHWM.ViewModel {
                                     Message = "Modifikuar manualisht, pa fiskalizuar",
                                     RegisterDate = DateTime.Now,
                                     SyncStatus = 0,
-                                    TCRCode = LoginData.TCRCode,
+                                    TCRCode = Configurimi.KodiTCR,
                                     TCRSyncStatus = 0,
                                 };
                                 await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -3402,7 +3402,7 @@ namespace EHWM.ViewModel {
                                 Message = "Modifikuar manualisht, pa fiskalizuar",
                                 RegisterDate = DateTime.Now,
                                 SyncStatus = 0,
-                                TCRCode = LoginData.TCRCode,
+                                TCRCode = Configurimi.KodiTCR,
                                 TCRSyncStatus = 0,
                             };
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -3519,6 +3519,7 @@ namespace EHWM.ViewModel {
                             if (cReg != null) {
                                 EshteRuajtuarArka = true;
                                 CashRegister = cReg;
+                                CashRegister.TCRCode = Configurimi.KodiTCR;
                             }
                             else {
                                 UserDialogs.Instance.HideLoading();
@@ -3531,7 +3532,7 @@ namespace EHWM.ViewModel {
                                     Message = "Modifikuar manualisht, pa fiskalizuar",
                                     RegisterDate = DateTime.Now,
                                     SyncStatus = 0,
-                                    TCRCode = LoginData.TCRCode,
+                                    TCRCode = Configurimi.KodiTCR,
                                     TCRSyncStatus = 0,
                                 };
                                 await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -3548,7 +3549,7 @@ namespace EHWM.ViewModel {
                                 Message = "Modifikuar manualisht, pa fiskalizuar",
                                 RegisterDate = DateTime.Now,
                                 SyncStatus = 0,
-                                TCRCode = LoginData.TCRCode,
+                                TCRCode = Configurimi.KodiTCR,
                                 TCRSyncStatus = 0,
                             };
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
