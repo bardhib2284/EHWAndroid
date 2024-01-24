@@ -434,7 +434,7 @@ namespace EHWM.ViewModel {
                             LevizjeIDN = nf != null ? nf.LevizjeIDN : (int?)null,
                             nf.Viti
                         };
-            if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, agjendi.TCRCode, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+            if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
                 UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                 return;
             }
@@ -2629,7 +2629,7 @@ namespace EHWM.ViewModel {
                             Latitude = location?.Latitude.ToString(),
                             IDKthimi = NrFatKthim,
                             NumriFisk = _NumriFisk,
-                            TCR = agjendi.TCRCode,
+                            TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
                             TCROperatorCode = agjendi.OperatorCode,
                             TCRBusinessCode = query.FirstOrDefault().BusinessUnitCode, // TODO FIND BUSINESSUNITCODE
                             TCRIssueDateTime = DateTime.Now.Date,
@@ -3475,8 +3475,6 @@ namespace EHWM.ViewModel {
                     if (LoginData.IDAgjenti != null && LoginData.token != null) {
                         App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", LoginData.token);
                         App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        Configurimi.KodiTCR = LoginData.TCRCode;
-                        Configurimi.KodiIOperatorit = LoginData.OperatorCode;
                         Configurimi.Token = LoginData.token;
                         Configurimi.Shfrytezuesi = LoginData.IDAgjenti;
                         Configurimi.Paisja = LoginData.DeviceID;
@@ -3702,7 +3700,7 @@ namespace EHWM.ViewModel {
                 return;
             }
             if (SelectedVizita.IDStatusiVizites == "6") {
-                UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
+                UserDialogs.Instance.Alert("Vizita veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
             //if (SelectedVizita.IDStatusiVizites != "1") {
@@ -3926,6 +3924,9 @@ namespace EHWM.ViewModel {
             return _result;
         }
         public bool DatesAreInTheSameWeek(DateTime date1, DateTime date2) {
+            if(date1.Date == DateTime.MinValue) {
+                date1 = DateTime.Now;
+            }
             var cal = System.Globalization.DateTimeFormatInfo.CurrentInfo.Calendar;
             var d1 = date1.Date.AddDays(-1 * (int)cal.GetDayOfWeek(date1));
             var d2 = date2.Date.AddDays(-1 * (int)cal.GetDayOfWeek(date2));

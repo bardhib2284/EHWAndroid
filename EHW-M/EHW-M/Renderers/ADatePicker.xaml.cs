@@ -105,42 +105,47 @@ namespace EHWM.Renderers
             return _ret;
         }
         private void Pickerinho_SelectedIndexChanged(object sender, EventArgs e) {
-            var bc = App.Instance.MainViewModel;
-            SelectedDayAndDate = DitetEJaves[pickerinho.SelectedIndex] as DayAndDate;
-            CurrentDate = DitetEJaves[pickerinho.SelectedIndex].Date;
-            if(App.Instance.MainPage is NavigationPage np) {
-                if(np.CurrentPage is ClientsPage cp) {
-                    bc.SearchedVizitat.Clear();
-                    if (CurrentDate == DateTime.MinValue) {
-                        foreach(var date in DitetEJaves) {
-                            if (date.Day == "Java")
-                                continue;
-                            foreach(var viz in bc.VizitatFilteredByDate) {
-                                if(viz.DataPlanifikimit.Value.Date == date.Date.Date && viz.DataPlanifikimit.Value.Year == date.Date.Year && viz.DataPlanifikimit.Value.Month == date.Date.Month) {
-                                    bc.SearchedVizitat.Add(viz);
+            try {
+                var bc = App.Instance.MainViewModel;
+                SelectedDayAndDate = DitetEJaves[pickerinho.SelectedIndex] as DayAndDate;
+                CurrentDate = DitetEJaves[pickerinho.SelectedIndex].Date;
+                if (App.Instance.MainPage is NavigationPage np) {
+                    if (np.CurrentPage is ClientsPage cp) {
+                        bc.SearchedVizitat.Clear();
+                        if (CurrentDate == DateTime.MinValue) {
+                            foreach (var date in DitetEJaves) {
+                                if (date.Day == "Java")
+                                    continue;
+                                foreach (var viz in bc.VizitatFilteredByDate) {
+                                    if (viz.DataPlanifikimit.Value.Date == date.Date.Date && viz.DataPlanifikimit.Value.Year == date.Date.Year && viz.DataPlanifikimit.Value.Month == date.Date.Month) {
+                                        bc.SearchedVizitat.Add(viz);
+                                    }
                                 }
                             }
+                            cp.AllClientsListVisibility(false);
+                            cp.SearchedClientsListVisibility(true);
+                            bc.FilterDate = CurrentDate;
+                            bc.AllClientsList = false;
+                            bc.SearchedClientsList = true;
+                            bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
+                            return;
                         }
-                        cp.AllClientsListVisibility(false);
-                        cp.SearchedClientsListVisibility(true);
-                        bc.FilterDate = CurrentDate;
-                        bc.AllClientsList = false;
-                        bc.SearchedClientsList = true;
-                        bc.SearchedVizitat = new ObservableCollection<Vizita>( bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
-                        return;
-                    }
-                    else {
-                        cp.AllClientsListVisibility(false);
-                        cp.SearchedClientsListVisibility(true);
+                        else {
+                            cp.AllClientsListVisibility(false);
+                            cp.SearchedClientsListVisibility(true);
+                        }
                     }
                 }
+
+                bc.FilterDate = CurrentDate;
+                bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
+                bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
+                bc.AllClientsList = false;
+                bc.SearchedClientsList = true;
             }
-                
-            bc.FilterDate = CurrentDate;
-            bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
-            bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
-            bc.AllClientsList = false;
-            bc.SearchedClientsList = true;
+            catch(Exception ex) {
+
+            }
         }
 
         private void DatePicker_DateSelected(object sender, DateChangedEventArgs e) {

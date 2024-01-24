@@ -189,7 +189,7 @@ namespace EHWM.ViewModel {
                                         {
                                             CashAmount = CashShumaTotale,
                                             DepositType =  CashDepositOperationSTypePCL.WITHDRAW,
-                                            TCRCode = Agjendi.TCRCode,
+                                            TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
                                             SendDateTime = DateTime.Now,
                                             SubseqDelivTypeSType = -1
                                         };
@@ -204,7 +204,7 @@ namespace EHWM.ViewModel {
                                             Message = "",
                                             RegisterDate = DateTime.Now,
                                             SyncStatus = 0,
-                                            TCRCode = Agjendi.TCRCode,
+                                            TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
                                             TCRSyncStatus = 0,
                                         };
                                         await App.Database.SaveCashRegisterAsync(newCashRegister);
@@ -336,8 +336,8 @@ namespace EHWM.ViewModel {
                     Longitude = "8",
                     Latitude = "8",
                     NumriFisk = _LevizjeIDN,
-                    TCR = Agjendi.TCRCode,
-                    TCROperatorCode = Agjendi.OperatorCode,
+                    TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
+                    TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
                     TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit,
                     NrPorosis = NumriPorosive.NrPorosise
                 };
@@ -419,7 +419,7 @@ namespace EHWM.ViewModel {
                         {
                             Numri_Levizjes = h.NumriLevizjes,
                             DeviceID = h.Depo,
-                            OperatorCode = "OperatorCode",
+                            OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
                             InvOrdNum = (int)h.NumriFisk,
                             InvNum = h.NumriFisk + "/" + DateTime.Now.Year,
                             SendDatetime = (DateTime)h.Data,
@@ -447,8 +447,8 @@ namespace EHWM.ViewModel {
                     req.InvNum = inv.InvNum.ToString();
                     req.DeviceID = inv.DeviceID;
                     req.MobileRefId = inv.InvOrdNum.ToString();
-                    req.OperatorCode = Agjendi.OperatorCode;
-                    req.TCRCode = Agjendi.TCRCode;
+                    req.OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                    req.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
                     req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                     req.SendDatetime = inv.SendDatetime;
                     req.SubseqDelivTypeSType = -1; //ONLINE
@@ -470,8 +470,8 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRSyncStatus = -1;
                             levizjaHeader.TCRIssueDateTime = DateTime.Now;
                             levizjaHeader.TCRQRCodeLink = null;
-                            levizjaHeader.TCR = Agjendi.TCRCode;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = null;
                             levizjaHeader.TCRNSLFSH = null;
@@ -499,8 +499,8 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRSyncStatus = 1;
                             levizjaHeader.TCRIssueDateTime = DateTime.Now;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                            levizjaHeader.TCR = Agjendi.TCRCode;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
                             levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -529,8 +529,8 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRSyncStatus = -1;
                                     levizjaHeader.TCRIssueDateTime = DateTime.Now;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                                    levizjaHeader.TCR = Agjendi.TCRCode;
-                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
                                     levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -557,8 +557,8 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRSyncStatus = -1;
                                     levizjaHeader.TCRIssueDateTime = DateTime.Now;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                                    levizjaHeader.TCR = Agjendi.TCRCode;
-                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
                                     levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -589,8 +589,8 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRSyncStatus = 4;
                             levizjaHeader.TCRIssueDateTime = DateTime.Now;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                            levizjaHeader.TCR = Agjendi.TCRCode;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
                             levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -653,7 +653,7 @@ namespace EHWM.ViewModel {
                                  IDLiferimi = l.IDLiferimi.ToString(),
                                  NrLiferimit = l.NrLiferimit,
                                  DeviceID = l.Depo,
-                                 OperatorCode = "OperatorCode", // Replace with the actual operator code
+                                 OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit, // Replace with the actual operator code
                                  InvoiceSType = "Cash GJITHMON", // Replace with the actual invoice type
                                  InvNum = l.NumriFisk + "/" + DateTime.Now.Year,
                                  InvOrdNum = Convert.ToInt32(l.NumriFisk),
@@ -708,8 +708,8 @@ namespace EHWM.ViewModel {
                     req.IsReverseCharge = inv.IsReverseCharge;
                     req.IssueDateTimeRef = inv.IssueDateTimeRef;
                     req.MobileRefId = inv.InvOrdNum.ToString();
-                    req.OperatorCode = Agjendi.OperatorCode;
-                    req.TCRCode = Agjendi.TCRCode;
+                    req.OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                    req.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
                     req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                     //if (inv.PaymentMethodTypesType.ToUpper() == "BANK")
                     //    req.PaymentMethodTypeSType = PaymentMethodTypeSType.CARD;
@@ -722,7 +722,7 @@ namespace EHWM.ViewModel {
                     }
                     else {
                         req.PaymentMethodTypeSType = PaymentMethodTypeSTypePCL.BANKNOTE;
-                        req.InvNum = inv.InvNum + "/" + Agjendi.TCRCode;
+                        req.InvNum = inv.InvNum + "/" + App.Instance.MainViewModel.Configurimi.KodiTCR;
                     }
 
                     req.PaymentMethodTypeSTypeSpecified = true;
@@ -764,8 +764,8 @@ namespace EHWM.ViewModel {
                             liferimiToUpdate.TCRSyncStatus = -1;
                             liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                             liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                            liferimiToUpdate.TCR = Agjendi.TCRCode;
-                            liferimiToUpdate.TCROperatorCode = Agjendi.OperatorCode;
+                            liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                            liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
                             liferimiToUpdate.UUID = log.ResponseUUID;
                             liferimiToUpdate.EIC = log.EIC;
@@ -795,8 +795,8 @@ namespace EHWM.ViewModel {
                                 liferimiToUpdate.TCRSyncStatus = -1;
                                 liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                liferimiToUpdate.TCR = Agjendi.TCRCode;
-                                liferimiToUpdate.TCROperatorCode = Agjendi.OperatorCode;
+                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                 liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
                                 liferimiToUpdate.UUID = log.ResponseUUID;
                                 liferimiToUpdate.EIC = log.EIC;
@@ -826,8 +826,8 @@ namespace EHWM.ViewModel {
                                 liferimiToUpdate.TCRSyncStatus = -1;
                                 liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                liferimiToUpdate.TCR = Agjendi.TCRCode;
-                                liferimiToUpdate.TCROperatorCode = Agjendi.OperatorCode;
+                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                 liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
                                 liferimiToUpdate.UUID = log.ResponseUUID;
                                 liferimiToUpdate.EIC = log.EIC;
@@ -857,8 +857,8 @@ namespace EHWM.ViewModel {
                             liferi.TCRSyncStatus = 4;
                             liferi.TCRIssueDateTime = DateTime.Now;
                             liferi.TCRQRCodeLink = log.QRCodeLink;
-                            liferi.TCR = Agjendi.TCRCode;
-                            liferi.TCROperatorCode = Agjendi.OperatorCode;
+                            liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                            liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             liferi.TCRBusinessCode = liferi.TCRBusinessCode;
                             liferi.UUID = log.ResponseUUID;
                             liferi.EIC = log.EIC;
@@ -887,8 +887,8 @@ namespace EHWM.ViewModel {
                             liferi.TCRSyncStatus = -2;
                             liferi.TCRIssueDateTime = DateTime.Now;
                             liferi.TCRQRCodeLink = log.QRCodeLink;
-                            liferi.TCR = Agjendi.TCRCode;
-                            liferi.TCROperatorCode = Agjendi.OperatorCode;
+                            liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                            liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             liferi.TCRBusinessCode = liferi.TCRBusinessCode;
                             liferi.UUID = log.ResponseUUID;
                             liferi.EIC = log.EIC;
@@ -918,8 +918,8 @@ namespace EHWM.ViewModel {
                                 lif.TCRSyncStatus = -3;
                                 lif.TCRIssueDateTime = DateTime.Now;
                                 lif.TCRQRCodeLink = log.QRCodeLink;
-                                lif.TCR = Agjendi.TCRCode;
-                                lif.TCROperatorCode = Agjendi.OperatorCode;
+                                lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                lif.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                 lif.TCRBusinessCode = lif.TCRBusinessCode;
                                 lif.UUID = log.ResponseUUID;
                                 lif.EIC = log.EIC;
@@ -1749,6 +1749,8 @@ namespace EHWM.ViewModel {
                     result[5] = quer.LevizjeIDN.ToString();
                     result[6] = quer.Viti.ToString();
                     App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit = quer.BusinessUnitCode;
+                    App.Instance.MainViewModel.Configurimi.KodiTCR = quer.TCRCode;
+                    App.Instance.MainViewModel.Configurimi.KodiIOperatorit = quer.OperatorCode;
                     await App.Database.SaveConfigurimiAsync(App.Instance.MainViewModel.Configurimi);
                 }
                 return result;
@@ -2744,10 +2746,13 @@ namespace EHWM.ViewModel {
                             if(tableName == "KlientDheLokacion") {
                                 if (SqlCondition != null) {
                                     if (SqlCondition.Contains("Depo")) {
-                                        var ClientWithDepoResponse = await App.ApiClient.GetAsync("location?depo=" + Depo);
+                                        var ClientWithDepoResponse = await App.ApiClient.GetAsync("location/all");
                                         var ClientWithDepoResult = await ClientWithDepoResponse.Content.ReadAsStringAsync();
                                         if (ClientWithDepoResponse.IsSuccessStatusCode) {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<KlientDheLokacion>>(ClientWithDepoResult);
+                                            if(listOfClientsWithDepo.Count > 0) {
+                                                listOfClientsWithDepo = listOfClientsWithDepo.Where(x => x.Depo.Trim() == Depo.Trim() || string.IsNullOrEmpty(x.Depo.Trim())).ToList();
+                                            }
                                             await App.Database.ClearAllKlientetDheLokacion();
                                             var currentClients = await App.Database.GetKlientetDheLokacionetAsync();
                                             await App.Database.SaveKlientetDheLokacionet(listOfClientsWithDepo);

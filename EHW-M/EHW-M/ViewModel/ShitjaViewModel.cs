@@ -449,7 +449,7 @@ namespace EHWM.ViewModel {
                             Latitude = location?.Latitude.ToString(),
                             IDKthimi = null, // TODO KTHIMI FIX IF KTHIM
                             NumriFisk = _NumriFisk,
-                            TCR = agjendi.TCRCode,
+                            TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
                             TCROperatorCode = agjendi.OperatorCode,
                             TCRBusinessCode = query.FirstOrDefault().BusinessUnitCode, // TODO FIND BUSINESSUNITCODE
                             TCRIssueDateTime = DateTime.Now.Date,
@@ -996,7 +996,7 @@ namespace EHWM.ViewModel {
                                 nf.Viti
                             };
 
-                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, agjendi.TCRCode, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
                     UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                     return;
                 }
@@ -1065,7 +1065,7 @@ namespace EHWM.ViewModel {
                                 nf.Viti
                             };
 
-                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, agjendi.TCRCode, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
                     UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                     return;
                 }

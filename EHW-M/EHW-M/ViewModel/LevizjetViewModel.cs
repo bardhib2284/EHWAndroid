@@ -977,7 +977,7 @@ namespace EHWM.ViewModel {
                     NumriDaljes = "0",
                     NumriFisk = topLevizjeIDN.LevizjeIDN,
                     SyncStatus = 0,
-                    TCR = Agjendi.TCRCode,
+                    TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
                     TCRBusinessUnitCode = query?.FirstOrDefault().BusinessUnitCode,
                     TCRIssueDateTime = Agjendi.TCRRegisteredDateTime,
                     TCROperatorCode = query?.FirstOrDefault().OperatorCode,
@@ -1095,7 +1095,7 @@ namespace EHWM.ViewModel {
                     req.DeviceID = inv.DeviceID;
                     req.MobileRefId = inv.InvOrdNum.ToString();
                     req.OperatorCode = Agjendi.OperatorCode;
-                    req.TCRCode = Agjendi.TCRCode;
+                    req.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
                     req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                     req.SendDatetime = inv.SendDatetime;
                     req.SubseqDelivTypeSType = -1; //ONLINE
@@ -1117,7 +1117,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRSyncStatus = -1;
                             levizjaHeader.TCRIssueDateTime = DateTime.Now;
                             levizjaHeader.TCRQRCodeLink = null;
-                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = null;
@@ -1146,7 +1146,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRSyncStatus = 1;
                             levizjaHeader.TCRIssueDateTime = DateTime.Now;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
@@ -1176,7 +1176,7 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRSyncStatus = -1;
                                     levizjaHeader.TCRIssueDateTime = DateTime.Now;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                                    levizjaHeader.TCR = Agjendi.TCRCode;
+                                    levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
@@ -1204,7 +1204,7 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRSyncStatus = -1;
                                     levizjaHeader.TCRIssueDateTime = DateTime.Now;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                                    levizjaHeader.TCR = Agjendi.TCRCode;
+                                    levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
@@ -1236,7 +1236,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRSyncStatus = 4;
                             levizjaHeader.TCRIssueDateTime = DateTime.Now;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                            levizjaHeader.TCR = Agjendi.TCRCode;
+                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
