@@ -3475,6 +3475,15 @@ namespace EHWM.ViewModel {
                     if (LoginData.IDAgjenti != null && LoginData.token != null) {
                         App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", LoginData.token);
                         App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        if(string.IsNullOrEmpty(Configurimi.KodiTCR)) {
+                            var sync = await SinkronizoFiskalizimin();
+                            if (!sync) {
+                                UserDialogs.Instance.Alert("Problem me sikronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                UserDialogs.Instance.HideLoading();
+                                return;
+                            }
+                        }
+
                         Configurimi.Token = LoginData.token;
                         Configurimi.Shfrytezuesi = LoginData.IDAgjenti;
                         Configurimi.Paisja = LoginData.DeviceID;
@@ -3553,7 +3562,7 @@ namespace EHWM.ViewModel {
 
                         await App.Database.SaveCashRegisterAsync(CashRegister);
 
-
+                        UserDialogs.Instance.ShowLoading("Duke u kycur...");
 
                         
                         if(CashRegister.TCRSyncStatus <= 0) {
@@ -3607,6 +3616,180 @@ namespace EHWM.ViewModel {
             }
             
         }
+
+        public List<Depot> Depot { get; set; }
+        public List<Agjendet> Agjendet { get; set; }
+        public List<NumriFisk> NumratFiskal { get; set; }
+        public List<FiskalizimiKonfigurimet> FiskalizimiKonfigurimet { get; set; }
+        public async Task<string[]> GetConfigurationByIDAgjentiAsync() {
+            string[] result = new string[7];
+            if (Depot == null) {
+                var depotResult = await App.ApiClient.GetAsync("depot");
+                if (depotResult.IsSuccessStatusCode) {
+                    var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                    Depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                }
+            }
+            if (Agjendet == null) {
+                Agjendet = new List<Agjendet> { LoginData };
+            }
+            NumratFiskal = await App.Database.GetNumratFiskalAsync();
+            if (NumratFiskal.Count < 1) {
+                var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
+                var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+                if (numratFiskalResult.IsSuccessStatusCode) {
+                    var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
+                    NumratFiskal = numratFiskal;
+                    await App.Database.SaveNumratFiskalAsync(NumratFiskal);
+                }
+            }
+            FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
+            if (FiskalizimiKonfigurimet.Count < 1) {
+                var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
+                if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
+                    var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
+                    FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
+                    await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
+                }
+                else {
+                    FiskalizimiKonfigurimet = new List<FiskalizimiKonfigurimet>
+                    {
+                        new FiskalizimiKonfigurimet
+                        {
+                        ID = 6,
+                        TAGNR = "AA795IN",
+                        TCRCode = "fa248ng165",
+                        BusinessUnitCode = "oq060zj804"
+                        }
+                    };
+                }
+
+            }
+            try {
+
+
+                //TODO : FIX FISKALIZIMI KONFIGURIMET FROM API
+                var query = from a in Agjendet
+                            join d in Depot on a.Depo equals d.Depo
+                            join fk in FiskalizimiKonfigurimet on d.TAGNR equals fk.TAGNR
+                            join nf in NumratFiskal on fk.TCRCode equals nf.TCRCode into nfGroup
+                            from nf in nfGroup.DefaultIfEmpty()
+                            where a.IDAgjenti.ToLower() == LoginData.IDAgjenti.ToLower()
+                            select new
+                            {
+                                a.IDAgjenti,
+                                d.TAGNR,
+                                fk.TCRCode,
+                                a.OperatorCode,
+                                fk.BusinessUnitCode,
+                                nf.IDN,
+                                LevizjeIDN = nf != null ? nf.LevizjeIDN : (int?)null,
+                                nf.Viti
+                            };
+                foreach (var quer in query) {
+                    result[0] = quer.TAGNR;
+                    result[1] = quer.TCRCode;
+                    result[2] = quer.OperatorCode;
+                    result[3] = quer.BusinessUnitCode;
+                    result[4] = quer.IDN.ToString();
+                    result[5] = quer.LevizjeIDN.ToString();
+                    result[6] = quer.Viti.ToString();
+                    Configurimi.KodiINjesiseSeBiznesit = quer.BusinessUnitCode;
+                    Configurimi.KodiTCR = quer.TCRCode;
+                    Configurimi.KodiIOperatorit = quer.OperatorCode;
+                    await App.Database.SaveConfigurimiAsync(App.Instance.MainViewModel.Configurimi);
+                }
+                return result;
+            }
+            catch (Exception ex) {
+                //PnUtils.DbUtils.WriteExeptionErrorLog(ex);
+            }
+            return null;
+        }
+
+        public async Task<bool> SinkronizoFiskalizimin() {
+            //SyncLloji = 1 -- update all
+            //SyncLloji = 2 -- mos bej update numrinFisk
+            string[] config = await GetConfigurationByIDAgjentiAsync();
+
+            string TAGNR, TCRCode, OperatorCode, BusinessUnitCode, IDN, LevijeIDN, Viti;
+
+            var result = "";
+
+            if (config != null) {
+                TAGNR = config[0];
+                TCRCode = config[1];
+                OperatorCode = config[2];
+                BusinessUnitCode = config[3];
+                IDN = config[4];
+                LevijeIDN = config[5];
+                Viti = config[6];
+
+                DataSet dsConfig = null;
+                try {
+                    var numriFiskal = await App.Database.GetNumratFiskalAsync();
+                    var numriFisk = numriFiskal.FirstOrDefault(x => x.Depo == LoginData.Depo);
+                    if (numriFisk == null) {
+                        var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk/" + LoginData.Depo);
+                        var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+                        if (numratFiskalResult.IsSuccessStatusCode) {
+                            var numratFiskal = JsonConvert.DeserializeObject<NumriFisk>(numratFiskalResponse);
+                            numriFisk = numratFiskal;
+                            var resultInsert = await App.Database.SaveNumriFiskalAsync(numratFiskal);
+                        }
+                    }
+                    if (numriFisk == null) {
+                        // Insert new record
+                        var newNumriFisk = new NumriFisk
+                        {
+                            IDN = int.Parse(config[4]),
+                            LevizjeIDN = int.Parse(config[5]),
+                            Viti = int.Parse(config[6]),
+                            Depo = LoginData.IDAgjenti,
+                            TCRCode = config[1]
+                        };
+
+                        var resultInsert = await App.Database.SaveNumriFiskalAsync(newNumriFisk);
+                        if (resultInsert != -1) {
+                            return true;
+                        }
+                        else {
+                            UserDialogs.Instance.Alert("Shenimet nuk u shtuan me sukses");
+                            return false;
+                        }
+                    }
+                    else {
+                        // Update existing record
+
+                        var jsonRequest = JsonConvert.SerializeObject(numriFisk);
+                        var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                        var putResult = await App.ApiClient.PutAsync("numri-fisk", stringContent);
+                        if (putResult.IsSuccessStatusCode) {
+                            return true;
+
+                        }
+                        //else {
+                        //    UserDialogs.Instance.Alert("Shenimet nuk u shtuan me sukses");
+                        //    return false;
+
+                        //}
+                        return false;
+                    }
+                }
+                catch (Exception ex) {
+
+                    //MessageBox.Show("Gabim, Nuk mund te ruhen konfigurimet e fiskalizimit!");
+                    UserDialogs.Instance.Alert("Gabim, Nuk mund te ruhen konfigurimet e fiskalizimit!");
+                    return false;
+                }
+            }
+            else {
+                //MessageBox.Show("Lidhja me MobSales ka deshtura ose nuk jane regjistruar konfigurimet per fiskalizim ne MobSales");
+                UserDialogs.Instance.Alert("Lidhja me MobSales ka deshtuar ose nuk jane regjistruar konfigurimet per fiskalizim ne MobSales");
+                return false;
+            }
+        }
+
 
         public async Task GeneratePDFAsync() {
             // Create a new PDF document
