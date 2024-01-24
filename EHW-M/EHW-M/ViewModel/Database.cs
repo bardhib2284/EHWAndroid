@@ -909,6 +909,13 @@ namespace EHWM.ViewModel
                 return -1;
             }
         }
+        public async Task<int> DeleteLiferimi(Liferimi ep) {
+            try {
+                return await _database.DeleteAsync(ep);
+            }catch(Exception e) {
+                return -1;
+            }
+        }
         public async Task<int> DeleteEvidencaPagesave(EvidencaPagesave ep) {
             try {
                 return await _database.DeleteAsync(ep);

@@ -228,7 +228,7 @@ namespace EHWM.ViewModel {
                         req.IssueDateTimeRef = inv.IssueDateTimeRef;
                         req.MobileRefId = inv.InvOrdNum.ToString();
                         req.OperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
-                        req.TCRCode = App.Instance.MainViewModel.LoginData.TCRCode;
+                        req.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
                         req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                         //if (inv.PaymentMethodTypesType.ToUpper() == "BANK")
                         //    req.PaymentMethodTypeSType = PaymentMethodTypeSType.CARD;
@@ -241,7 +241,7 @@ namespace EHWM.ViewModel {
                         }
                         else {
                             req.PaymentMethodTypeSType = PaymentMethodTypeSTypePCL.BANKNOTE;
-                            req.InvNum = inv.InvNum + "/" + App.Instance.MainViewModel.LoginData.TCRCode;
+                            req.InvNum = inv.InvNum + "/" + App.Instance.MainViewModel.Configurimi.KodiTCR;
                         }
 
                         req.PaymentMethodTypeSTypeSpecified = true;
@@ -285,7 +285,7 @@ namespace EHWM.ViewModel {
                                 liferimiToUpdate.TCRSyncStatus = -1;
                                 liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                liferimiToUpdate.TCR = App.Instance.MainViewModel.LoginData.TCRCode;
+                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
                                 liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
                                 liferimiToUpdate.UUID = log.ResponseUUID;
@@ -316,7 +316,7 @@ namespace EHWM.ViewModel {
                                     liferimiToUpdate.TCRSyncStatus = -1;
                                     liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.LoginData.TCRCode;
+                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
                                     liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
                                     liferimiToUpdate.UUID = log.ResponseUUID;
@@ -347,7 +347,7 @@ namespace EHWM.ViewModel {
                                     liferimiToUpdate.TCRSyncStatus = -1;
                                     liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.LoginData.TCRCode;
+                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
                                     liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
                                     liferimiToUpdate.UUID = log.ResponseUUID;
@@ -378,7 +378,7 @@ namespace EHWM.ViewModel {
                                 liferi.TCRSyncStatus = 4;
                                 liferi.TCRIssueDateTime = DateTime.Now;
                                 liferi.TCRQRCodeLink = log.QRCodeLink;
-                                liferi.TCR = App.Instance.MainViewModel.LoginData.TCRCode;
+                                liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferi.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
                                 liferi.TCRBusinessCode = liferi.TCRBusinessCode;
                                 liferi.UUID = log.ResponseUUID;
@@ -406,7 +406,7 @@ namespace EHWM.ViewModel {
                                 liferi.TCRSyncStatus = -2;
                                 liferi.TCRIssueDateTime = DateTime.Now;
                                 liferi.TCRQRCodeLink = log.QRCodeLink;
-                                liferi.TCR = App.Instance.MainViewModel.LoginData.TCRCode;
+                                liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferi.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
                                 liferi.TCRBusinessCode = liferi.TCRBusinessCode;
                                 liferi.UUID = log.ResponseUUID;
@@ -435,7 +435,7 @@ namespace EHWM.ViewModel {
                                     lif.TCRSyncStatus = -3;
                                     lif.TCRIssueDateTime = DateTime.Now;
                                     lif.TCRQRCodeLink = log.QRCodeLink;
-                                    lif.TCR = App.Instance.MainViewModel.LoginData.TCRCode;
+                                    lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     lif.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
                                     lif.TCRBusinessCode = lif.TCRBusinessCode;
                                     lif.UUID = log.ResponseUUID;
