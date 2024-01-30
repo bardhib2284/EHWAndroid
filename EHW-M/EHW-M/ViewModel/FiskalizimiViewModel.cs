@@ -70,10 +70,14 @@ namespace EHWM.ViewModel {
             if(SelectedIndex == 0) {
                 if (SelectedCashRegister == null) {
                     UserDialogs.Instance.Alert("Nuk ka element te selektuar per te fiskalizuar, ju lutem selektoni njerin nga elementet ne liste", "Verejtje");
+                    UserDialogs.Instance.HideLoading();
+
                     return;
                 }
                 if (SelectedCashRegister.TCRSyncStatus == 1) {
                     UserDialogs.Instance.Alert("Cash register eshte e fiskalizuar, ju lutem provoni levizje tjeter", "Verejtje");
+                    UserDialogs.Instance.HideLoading();
+
                     return;
                 }
                 RegisterCashDepositInputRequestPCL registerCashDepositInputRequestPCL = new RegisterCashDepositInputRequestPCL
@@ -106,11 +110,15 @@ namespace EHWM.ViewModel {
             else if(SelectedIndex == 1) {
                 if (SelectedLiferimi == null) {
                     UserDialogs.Instance.Alert("Nuk ka element te selektuar per te fiskalizuar, ju lutem selektoni njerin nga elementet ne liste", "Verejtje");
+                    UserDialogs.Instance.HideLoading();
+
                     return;
                 }
                 if (SelectedLiferimi.TCRSyncStatus == 1) {
-                    UserDialogs.Instance.Alert("Fatura eshte e fiskalizuar, ju lutem provoni levizje tjeter", "Verejtje");
-                    return;
+                    //UserDialogs.Instance.Alert("Fatura eshte e fiskalizuar, ju lutem provoni fature tjeter", "Verejtje");
+                    //UserDialogs.Instance.HideLoading();
+
+                    //return;
                 }
                 UserDialogs.Instance.ShowLoading("Filloi procesi i fiskalizimit");
                 await FiskalizoTCRInvoice(SelectedLiferimi.IDLiferimi.ToString());
@@ -120,10 +128,14 @@ namespace EHWM.ViewModel {
             else if(SelectedIndex == 2) {
                 if (SelectedLevizja == null) {
                     UserDialogs.Instance.Alert("Nuk ka element te selektuar per te fiskalizuar, ju lutem selektoni njerin nga elementet ne liste", "Verejtje");
+                    UserDialogs.Instance.HideLoading();
+
                     return;
                 }
                 if(SelectedLevizja.TCRSyncStatus == 1) {
                     UserDialogs.Instance.Alert("Levizja eshte e fiskalizuar, ju lutem provoni levizje tjeter", "Verejtje");
+                    UserDialogs.Instance.HideLoading();
+
                     return;
                 }
                 UserDialogs.Instance.ShowLoading("Filloi procesi i fiskalizimit");
@@ -139,8 +151,8 @@ namespace EHWM.ViewModel {
             liferimetArt = liferimetArt.Take(1).ToList();
             var query = from l2 in liferimet
                         join la2 in liferimetArt on l2.IDLiferimi equals la2.IDLiferimi
-                        where 
-                              l2.DeviceID == App.Instance.MainViewModel.LoginData.DeviceID &&
+                        where (l2.TCRSyncStatus == 0 || l2.TCRSyncStatus == null) &&
+                              l2.DeviceID == Agjendi.DeviceID &&
                               string.Equals(l2.IDLiferimi.ToString().Trim(), idLiferimi.Trim(), StringComparison.OrdinalIgnoreCase)
                         group la2 by la2.IDLiferimi into g
                         select new MapperHeader
@@ -344,7 +356,7 @@ namespace EHWM.ViewModel {
                                                     .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                                 if (liferimiToUpdate != null) {
-                                    liferimiToUpdate.TCRSyncStatus = -1;
+                                    liferimiToUpdate.TCRSyncStatus = 1;
                                     liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                     liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;

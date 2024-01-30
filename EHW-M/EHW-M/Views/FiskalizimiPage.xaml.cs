@@ -17,7 +17,13 @@ namespace EHWM.Views {
             pickerItemSource.ItemsSource = new List<string> { "REGJISTRIMI I ARKES", "SHITJET" ,"LEVIZJET"};
             pickerItemSource.SelectedIndexChanged += PickerItemSource_SelectedIndexChanged;
         }
+        protected override void OnAppearing() {
+            base.OnAppearing();
+            pickerItemSource.SelectedIndex = 0;
+            var bc = (FiskalizimiViewModel)BindingContext;
 
+            bc.SelectedIndex = 0;
+        }
         private void PickerItemSource_SelectedIndexChanged(object sender, EventArgs e) {
             var bc = (FiskalizimiViewModel)BindingContext;
 

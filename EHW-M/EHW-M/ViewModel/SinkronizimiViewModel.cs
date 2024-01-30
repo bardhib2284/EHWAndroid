@@ -281,6 +281,17 @@ namespace EHWM.ViewModel {
             var artikujt = await App.Database.GetArtikujtAsync();
             var result = levizjetHeader.Where(header => header.LevizjeNe == "PG1" && header.Longitude == "8" && header.Latitude == "8").ToList();
             if (result.Count == 0) {
+                var sm = malliMbetur
+                            .Join(salesPrice,
+                                m => m.IDArtikulli,
+                                ss => ss.ItemNo,
+                                (m, ss) => new { m, ss });
+                var sma = sm.Join(artikujt,
+                                a => a.m.IDArtikulli,
+                                m => m.IDArtikulli,
+                                (a, m) => new { a, m });
+
+                var smaw = sma.Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.1m && joinedTables.a.m.Depo == Agjendi.Depo);
                 var total = malliMbetur
                             .Join(salesPrice,
                                 m => m.IDArtikulli,
@@ -290,7 +301,7 @@ namespace EHWM.ViewModel {
                                 a => a.m.IDArtikulli,
                                 m => m.IDArtikulli,
                                 (a, m) => new { a, m })
-                            .Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && joinedTables.a.m.SasiaMbetur > 0 && joinedTables.a.m.Depo == Agjendi.Depo)
+                            .Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.1m && joinedTables.a.m.Depo == Agjendi.Depo)
                             .Sum(joinedTables => joinedTables.a.ss.UnitPrice * joinedTables.a.m.SasiaMbetur);
 
                 var _LevizjeIDN = numriFisk
@@ -433,7 +444,7 @@ namespace EHWM.ViewModel {
                             MobileRefId = "M-06"
                         };
 
-            List<Models.WTNModels.MapperLines> mapperLinesList = query.Distinct().ToList();
+            List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
 
             if (mapperHeaderList.Count > 0) {
 
@@ -618,6 +629,12 @@ namespace EHWM.ViewModel {
         public async Task SyncTCRInvoices(int resync) {
 
             var liferimi = await App.Database.GetLiferimetAsync();
+            var liferimiTemp = liferimi;
+            foreach(var lif in liferimiTemp) {
+                if(lif.TCRSyncStatus > 0) {
+                    liferimi.Remove(lif);
+                }
+            }
             var liferimiArt = await App.Database.GetLiferimetArtAsync();
             var query = from l in liferimi
                         join la2 in liferimiArt on l.IDLiferimi equals la2.IDLiferimi
@@ -2951,32 +2968,29 @@ namespace EHWM.ViewModel {
                             //SALESPRICE
                             if(tableName == "SalesPrice") {
                                 var clear = await App.Database.ClearAllSalesPrice();
+                                
+                                var salesPricesResult = await App.ApiClient.GetAsync("prices/depo/" + Depo);
+                                //var salesPricesResult = await App.ApiClient.GetAsync("prices");
+                                if (salesPricesResult.IsSuccessStatusCode) {
+                                    var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
+                                    var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
 
-                                var klientetDheLokacionet = await App.Database.GetKlientetDheLokacionetAsync();
-                                var salesPrices = new List<SalesPrice>();
-                                foreach (var klient in klientetDheLokacionet) {
-                                    var salesPricesResult = await App.ApiClient.GetAsync("prices/" + klient.IDKlientDheLokacion);
-                                    if (salesPricesResult.IsSuccessStatusCode) {
-                                        var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
-                                        var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
-                                        salesPrices.AddRange(SalePrice);
-                                        await App.Database.SaveSalesPricesAsync(salesPrices);
-                                        salesPrices.Clear();
+                                    var resulti = await App.Database.SaveSalesPricesAsync(SalePrice);
+                                    if (resulti > 0) {
+                                        var standardSalesPriceResult = await App.ApiClient.GetAsync("prices/STANDARD");
+                                        if (standardSalesPriceResult.IsSuccessStatusCode) {
+                                            var standardSalesPriceResponse = await standardSalesPriceResult.Content.ReadAsStringAsync();
+                                            var salePricesStandard = JsonConvert.DeserializeObject<List<SalesPrice>>(standardSalesPriceResponse);
+                                            resulti = await App.Database.SaveSalesPricesAsync(SalePrice);
+                                            if (resulti > 0) {
+                                                result = true;
+                                            }
+                                        }
+                                        result = true;
                                     }
-                                    else
-                                        return false;
                                 }
-                                var standardSalesPriceResult = await App.ApiClient.GetAsync("prices/STANDARD");
-                                if(standardSalesPriceResult.IsSuccessStatusCode) {
-                                    var standardSalesPriceResponse = await standardSalesPriceResult.Content.ReadAsStringAsync();
-                                    var salePricesStandard = JsonConvert.DeserializeObject<List<SalesPrice>>(standardSalesPriceResponse);
-                                    salesPrices.AddRange(salePricesStandard);
-                                }
-
-                                var resulti = await App.Database.SaveSalesPricesAsync(salesPrices);
-                                if (resulti > 0) {
-                                    result = true;
-                                }
+                                else
+                                    return false;
                                 //TODO UNCOMMENT WHEN SYNC ALL IS FINISHED IMPLEMENTED BECAUSE TAKES A LOT OF TIME TO FINISH
                                 return true;
                             }
