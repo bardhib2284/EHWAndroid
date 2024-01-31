@@ -447,7 +447,7 @@ namespace EHWM.ViewModel {
                             Depo = VizitaESelektuar.IDAgjenti,
                             Longitude = location?.Longitude.ToString(),
                             Latitude = location?.Latitude.ToString(),
-                            IDKthimi = NrFatKthim > 0 ? NrFatKthim : null, // TODO KTHIMI FIX IF KTHIM
+                            IDKthimi = NrFatKthim > 0 ? NrFatKthim.ToString() : null, // TODO KTHIMI FIX IF KTHIM
                             NumriFisk = _NumriFisk,
                             TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
                             TCROperatorCode = agjendi.OperatorCode,
@@ -1838,8 +1838,25 @@ namespace EHWM.ViewModel {
                 SalesPrices = new ObservableCollection<SalesPrice>( await App.Database.GetSalesPriceAsync());
                 //SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
                 //MalliMbetur = new ObservableCollection<Malli_Mbetur>(await App.Database.GetMalliMbeturAsync());
+                var salePrice = SalesPrices?.FirstOrDefault(x => x.SalesCode == VizitaESelektuar.IDKlientDheLokacion)?.UnitPrice;
+                if(App.Instance.DoIHaveInternetNoAlert()) {
+                    if (salePrice == null) {
+                        var salesPricesResult = await App.ApiClient.GetAsync("prices/" + VizitaESelektuar.IDKlientDheLokacion);
+                        //var salesPricesResult = await App.ApiClient.GetAsync("prices");
+                        if (salesPricesResult.IsSuccessStatusCode) {
+                            var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
+                            var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
+                            await App.Database.SaveSalesPricesAsync(SalePrice);
+                        }
+                    }
+                }
+                SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
+
+
                 foreach (var artikulli in Artikujt) {
-                    artikulli.CmimiNjesi = SalesPrices?.FirstOrDefault(x=> x.ItemNo == artikulli.IDArtikulli)?.UnitPrice;
+                    salePrice = SalesPrices?.FirstOrDefault(x=> x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion)?.UnitPrice;
+                    
+                    artikulli.CmimiNjesi = salePrice;
                     var MalliiMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == artikulli.IDArtikulli && x.Depo == VizitaESelektuar.IDAgjenti);
                     if (MalliiMbetur != null) {
                         artikulli.Sasia = MalliiMbetur.SasiaMbetur;

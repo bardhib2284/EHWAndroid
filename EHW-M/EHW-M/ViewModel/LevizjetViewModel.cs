@@ -997,7 +997,7 @@ namespace EHWM.ViewModel {
                         IDArtikulli = artikulli.IDArtikulli,
                         Njesia_matese = artikulli.BUM,
                         NumriLevizjes = levizjaHeader.NumriLevizjes,
-                        Seri = artikulli.Shifra,
+                        Seri = artikulli.Seri,
                         SyncStatus = 0,
                         TCRSyncStatus = 0,
                         Totali = decimal.Parse(artikulli.CmimiTotal.ToString())

@@ -2981,7 +2981,7 @@ namespace EHWM.ViewModel {
                                         if (standardSalesPriceResult.IsSuccessStatusCode) {
                                             var standardSalesPriceResponse = await standardSalesPriceResult.Content.ReadAsStringAsync();
                                             var salePricesStandard = JsonConvert.DeserializeObject<List<SalesPrice>>(standardSalesPriceResponse);
-                                            resulti = await App.Database.SaveSalesPricesAsync(SalePrice);
+                                            resulti = await App.Database.SaveSalesPricesAsync(salePricesStandard);
                                             if (resulti > 0) {
                                                 result = true;
                                             }
@@ -3574,15 +3574,6 @@ namespace EHWM.ViewModel {
         }
 
         private async Task<bool> CreateUpdateScriptLevizjetHeaderDetails(List<LevizjetDetails> OrderDetails) {
-            foreach (var levizjeDetail in OrderDetails) {
-                if (levizjeDetail.Seri == null) {
-                    levizjeDetail.Seri = levizjeDetail.IDArtikulli;
-                }
-                if (levizjeDetail.NumriLevizjes == null) {
-                    levizjeDetail.NumriLevizjes = "1";
-                }
-                await App.Database.UpdateLevizjeDetailsAsync(levizjeDetail);
-            }
             var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
             var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
             var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
