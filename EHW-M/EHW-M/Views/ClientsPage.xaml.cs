@@ -98,6 +98,9 @@ namespace EHWM.Views {
             base.OnDisappearing();
             if (lastCell != null)
                 lastCell.View.BackgroundColor = Color.Transparent;
+            var bc = (MainViewModel)BindingContext;
+            if (bc != null)
+                bc.SelectedVizita = null;
         }
     }
 }

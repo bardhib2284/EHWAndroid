@@ -128,8 +128,6 @@ namespace EHWM.Renderers
                             return;
                         }
                         else {
-                            cp.AllClientsListVisibility(true);
-                            cp.SearchedClientsListVisibility(false);
                             bc.AllClientsList = true;
                             bc.SearchedClientsList = false;
                         }
