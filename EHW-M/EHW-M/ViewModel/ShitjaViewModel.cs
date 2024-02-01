@@ -447,7 +447,7 @@ namespace EHWM.ViewModel {
                             Depo = VizitaESelektuar.IDAgjenti,
                             Longitude = location?.Longitude.ToString(),
                             Latitude = location?.Latitude.ToString(),
-                            IDKthimi = NrFatKthim > 0 ? NrFatKthim : null, // TODO KTHIMI FIX IF KTHIM
+                            IDKthimi = NrFatKthim > 0 ? NrFatKthim.ToString() : null, // TODO KTHIMI FIX IF KTHIM
                             NumriFisk = _NumriFisk,
                             TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
                             TCROperatorCode = agjendi.OperatorCode,

@@ -70,8 +70,8 @@ namespace EHWM.Views {
                         App.Instance.MainViewModel.RegjistroVizitenVizita.Klienti = App.Instance.MainViewModel.KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.KontaktEmriMbiemri ?? string.Empty;
                         v.Vendi = App.Instance.MainViewModel.KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.EmriLokacionit ?? string.Empty;
                         v.Klienti = App.Instance.MainViewModel.KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.KontaktEmriMbiemri ?? string.Empty;
-                        
-                        if(v.Vendi == string.Empty || v.Klienti == string.Empty) {
+                        v.Adresa = App.Instance.MainViewModel.KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.Adresa ?? string.Empty;
+                        if (v.Vendi == string.Empty || v.Klienti == string.Empty) {
                             UserDialogs.Instance.Alert("Vizita nuk mund te krijohet per kete klient, nuk gjendet klient dhe lokacion per kete klient");
                             App.Instance.MainViewModel.RegjistroVizitenVizita = null;
                             return;

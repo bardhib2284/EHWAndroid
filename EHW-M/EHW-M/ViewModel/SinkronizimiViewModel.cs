@@ -2999,26 +2999,20 @@ namespace EHWM.ViewModel {
                                 var numratEFaturave = await App.Database.GetNumriFaturaveAsync();
                                 var numri = numratEFaturave.FirstOrDefault(x => x.KOD == Depo);
                                 if(numri != null) {
-                                    var numriIfATURES = new List<NumriFaturave> { numri };
-                                    var jsonRequest = JsonConvert.SerializeObject(numriIfATURES);
-                                    var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                                    var NumriFaturavePutResponse = await App.ApiClient.PutAsync("fatura", stringContent);
-                                    if (NumriFaturavePutResponse.IsSuccessStatusCode) {
-                                        var NumriFaturaveResponse = await App.ApiClient.GetAsync("fatura");
-                                        var NumriFaturaveResult = await NumriFaturaveResponse.Content.ReadAsStringAsync();
-                                        if (NumriFaturaveResponse.IsSuccessStatusCode) {
-                                            var listOfNumriFaturave = JsonConvert.DeserializeObject<List<NumriFaturave>>(NumriFaturaveResult);
-                                            await App.Database.ClearAllNumriFaturaveAsync();
-                                            var currentNumriFaturave = await App.Database.GetNumriFaturaveAsync();
-                                            await App.Database.SaveNumriFaturaveAllAsync(listOfNumriFaturave);
-                                            currentNumriFaturave = await App.Database.GetNumriFaturaveAsync();
-                                            return true;
-                                        }
-                                        else {
-                                            UserDialogs.Instance.HideLoading();
-                                            UserDialogs.Instance.Alert("Error ne NumriFaturave : SyncTable");
-                                            return false;
-                                        }
+                                    var NumriFaturaveResponse = await App.ApiClient.GetAsync("fatura");
+                                    var NumriFaturaveResult = await NumriFaturaveResponse.Content.ReadAsStringAsync();
+                                    if (NumriFaturaveResponse.IsSuccessStatusCode) {
+                                        var listOfNumriFaturave = JsonConvert.DeserializeObject<List<NumriFaturave>>(NumriFaturaveResult);
+                                        await App.Database.ClearAllNumriFaturaveAsync();
+                                        var currentNumriFaturave = await App.Database.GetNumriFaturaveAsync();
+                                        await App.Database.SaveNumriFaturaveAllAsync(listOfNumriFaturave);
+                                        currentNumriFaturave = await App.Database.GetNumriFaturaveAsync();
+                                        return true;
+                                    }
+                                    else {
+                                        UserDialogs.Instance.HideLoading();
+                                        UserDialogs.Instance.Alert("Error ne NumriFaturave : SyncTable");
+                                        return false;
                                     }
                                 }
                                 else {

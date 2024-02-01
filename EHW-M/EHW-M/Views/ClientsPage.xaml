@@ -11,7 +11,7 @@
             </StackLayout>
             <StackLayout Orientation="Horizontal" HeightRequest="60">
                 <Label Text="Adresa:" VerticalTextAlignment="Center" WidthRequest="100"/>
-                <Entry Text="{Binding SelectedVizita.Vendi}" WidthRequest="270" IsEnabled="False" HorizontalOptions="FillAndExpand"/>
+                <Entry Text="{Binding SelectedVizita.Adresa}" WidthRequest="270" IsEnabled="False" HorizontalOptions="FillAndExpand"/>
             </StackLayout>
             <StackLayout Orientation="Horizontal" HeightRequest="60" HorizontalOptions="FillAndExpand">
                 <Label Text="Data Filter: " WidthRequest="75" VerticalTextAlignment="Center"  HorizontalTextAlignment="Start"/>

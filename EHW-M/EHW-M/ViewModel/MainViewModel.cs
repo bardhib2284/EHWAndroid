@@ -3358,6 +3358,17 @@ namespace EHWM.ViewModel {
                     return;
                 }
                 UserDialogs.Instance.ShowLoading("Duke u kycur...");
+                var vizitat = await App.Database.GetVizitatAsync();
+                if(vizitat != null) {
+                    if (vizitat.Count > 0) 
+                    {
+                        foreach(var viz in vizitat) {
+                            if(viz.DataPlanifikimit.Value.AddDays(8) <=  DateTime.Now) {
+                                await App.Database.DeleteVizita(viz);
+                            }
+                        }
+                    }
+                }
                 if(!App.Instance.DoIHaveInternetNoAlert()) { 
                     if(string.IsNullOrEmpty(Configurimi.Token)) {
                         App.Instance.DoIHaveInternet();
@@ -4147,7 +4158,8 @@ namespace EHWM.ViewModel {
                     if (v.DataPlanifikimit != null) {
                         v.Klienti = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.KontaktEmriMbiemri ?? string.Empty;
                         v.Vendi = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.EmriLokacionit ?? string.Empty;
-                        if(v.IDStatusiVizites == "1") {
+                        v.Adresa = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.Adresa ?? string.Empty;
+                        if (v.IDStatusiVizites == "1") {
 
                         }
                         if(v.Klienti != string.Empty && v.Vendi != string.Empty) {

@@ -94,6 +94,11 @@ namespace EHWM.ViewModel
         public async Task<int> ClearAllCompanyInfo() {
             return await _database.DeleteAllAsync<CompanyInfo>();
         }
+
+        public async Task<int> DeleteVizita(Vizita viz) {
+            return await _database.DeleteAsync(viz);
+        }
+        
         public async Task<int> ClearAllVizitat() {
             return await _database.DeleteAllAsync<Vizita>();
         }
