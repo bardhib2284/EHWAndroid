@@ -44,8 +44,8 @@ namespace EHW_M {
             InitializeComponent();
             ApiClient = new HttpClient();
             ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-            MainViewModel = new MainViewModel();
             LoginPage mp = new LoginPage();
+            MainViewModel = new MainViewModel();
             NavigationPage navigationPage = new NavigationPage(mp) { BarBackgroundColor = Color.LightBlue };
             mp.BindingContext = MainViewModel;
             MainPage = navigationPage;

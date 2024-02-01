@@ -31,6 +31,7 @@ using Plugin.BxlMpXamarinSDK.Abstractions;
 using Plugin.BxlMpXamarinSDK;
 using System.Threading;
 using Plugin.Connectivity;
+using EHWM.Renderers;
 
 namespace EHWM.ViewModel {
     public class MainViewModel : BaseViewModel {
@@ -353,7 +354,7 @@ namespace EHWM.ViewModel {
         public async Task LogoutAsync() {
             LoginPage mp = new LoginPage();
             NavigationPage navigationPage = new NavigationPage(mp) { BarBackgroundColor = Color.LightBlue };
-            mp.BindingContext = new MainViewModel();
+            mp.BindingContext = App.Instance.MainViewModel;
             App.Instance.MainPage = navigationPage;
             App.ApiClient = new HttpClient();
             App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
@@ -4141,6 +4142,7 @@ namespace EHWM.ViewModel {
             Vizitat = new ObservableCollection<Vizita>(vizitatLokale);
             KlientetDheLokacionet = new ObservableCollection<KlientDheLokacion>(KlientetDheLokacionetLokale);
             VizitatFilteredByDate = new ObservableCollection<Vizita>();
+            SearchedVizitat = new ObservableCollection<Vizita>();
             StatusetEVizites = await App.Database.GetStatusiVizitesAsync();
             foreach (var v in Vizitat) {
                 if(KlientetDheLokacionet != null) {
@@ -4163,10 +4165,11 @@ namespace EHWM.ViewModel {
             VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderByDescending(x => x.IDStatusiVizites));
             ClientsPage ClientsPage = new ClientsPage();
             ClientsPage.BindingContext = this;
+            await Task.Delay(400);
             await App.Instance.PushAsyncNewPage(ClientsPage);
             UserDialogs.Instance.HideLoading();
         }
-
+        public ADatePicker ADatePicker;
         public async Task OpenPorositeAsync() {
             UserDialogs.Instance.ShowLoading("Loading..");
             PorositePage PorositePage = new PorositePage();

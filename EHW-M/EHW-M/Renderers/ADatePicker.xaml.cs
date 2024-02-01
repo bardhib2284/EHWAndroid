@@ -22,7 +22,7 @@ namespace EHWM.Renderers
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class ADatePicker : ContentView, INotifyPropertyChanged {
         public ObservableCollection<DayAndDate> DitetEJaves { get; set; }
-        
+        public ObservableCollection<Vizita> LastSearchedVizitat { get; set; }
         private DayAndDate _date;
         public DayAndDate SelectedDayAndDate {
             get { return _date; }
@@ -59,13 +59,6 @@ namespace EHWM.Renderers
                 pickerinho.SelectedIndex = 0;
             }
             SelectedDayAndDate = pickerinho.SelectedItem as DayAndDate;
-            CurrentDate = DateTime.Now;
-            App.Instance.MainViewModel.FilterDate = CurrentDate;
-            if(App.Instance.MainViewModel.VizitatFilteredByDate != null) {
-                App.Instance.MainViewModel.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(App.Instance.MainViewModel.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Day == App.Instance.MainViewModel.FilterDate.Day));
-            }
-            App.Instance.MainViewModel.AllClientsList = false;
-            App.Instance.MainViewModel.SearchedClientsList = true;
         }
 
         public void FixData() {
@@ -109,6 +102,7 @@ namespace EHWM.Renderers
         private void Pickerinho_SelectedIndexChanged(object sender, EventArgs e) {
             try {
                 var bc = App.Instance.MainViewModel;
+                bc.ADatePicker = this;
                 SelectedDayAndDate = DitetEJaves[pickerinho.SelectedIndex] as DayAndDate;
                 CurrentDate = DitetEJaves[pickerinho.SelectedIndex].Date;
                 if (App.Instance.MainPage is NavigationPage np) {
@@ -130,11 +124,14 @@ namespace EHWM.Renderers
                             bc.AllClientsList = false;
                             bc.SearchedClientsList = true;
                             bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
+                            LastSearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
                             return;
                         }
                         else {
-                            cp.AllClientsListVisibility(false);
-                            cp.SearchedClientsListVisibility(true);
+                            cp.AllClientsListVisibility(true);
+                            cp.SearchedClientsListVisibility(false);
+                            bc.AllClientsList = true;
+                            bc.SearchedClientsList = false;
                         }
                     }
                 }
@@ -142,8 +139,10 @@ namespace EHWM.Renderers
                 bc.FilterDate = CurrentDate;
                 bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
                 bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
+                LastSearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
                 bc.AllClientsList = false;
                 bc.SearchedClientsList = true;
+
             }
             catch(Exception ex) {
 
