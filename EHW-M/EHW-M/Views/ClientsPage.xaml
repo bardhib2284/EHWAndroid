@@ -48,7 +48,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SearchedVizitat}" SelectionMode="Single" ItemTapped="ListView_ItemTapped" IsVisible="{Binding SearchedClientsList}">
+            <ListView x:Name="SearchedClientsList" ItemsSource="{Binding SearchedVizitat}" SelectionMode="None" ItemTapped="ListView_ItemTapped" IsVisible="{Binding SearchedClientsList}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell Tapped="ViewCell_Tapped">

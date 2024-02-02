@@ -19,6 +19,7 @@ namespace EHWM.Models {
         public string NrFatures { get; set; }
         public Single ShumaPaguar { get; set; }
         public bool Aprovuar { get; set; }
+        [JsonProperty("exportStatus")]
         public int Export_Status { get; set; }
         public string LLOJDOK { get; set; }
         public string PayType { get; set; }

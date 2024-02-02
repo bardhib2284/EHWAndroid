@@ -1744,14 +1744,15 @@ namespace EHWM.ViewModel {
                 SelectedArikujt = new ObservableCollection<Artikulli>();
             }
             if (CurrentlySelectedArtikulli == null) return;
-            if (CurrentlySelectedArtikulli.Seri.Trim().Length == 0) {
-                UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
-                return;
-            }
             if (string.IsNullOrEmpty(CurrentlySelectedArtikulli.Seri)) {
                 UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
                 return;
             }
+            if (CurrentlySelectedArtikulli.Seri.Trim().Length == 0) {
+                UserDialogs.Instance.Alert("Arikulli qe keni zgjedhur nuk ka seri, ju lutemi mbusheni fushen SERI", "Verejtje", "Ok");
+                return;
+            }
+
             if (!KthimMalli) {
                 if (Sasia <= 0) {
                     UserDialogs.Instance.Alert("Ju lutemi permiresoni sasin, duhet te jete me shume se 0.00", "Verejtje", "Ok");

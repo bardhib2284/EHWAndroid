@@ -5,7 +5,8 @@
     <ContentPage.Content>
         <StackLayout Orientation="Vertical" Padding="20" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <Label Text="Serveri"/>
-            <Entry Text="{Binding Configurimi.Serveri,Mode=TwoWay}" x:Name="serveri"/>
+            <Picker x:Name="apiPicker" ItemsSource="{Binding LinqetPerAPI}" ItemDisplayBinding="{Binding Linku}" SelectedIndexChanged="Picker_SelectedIndexChanged"/>
+            <Entry Text="{Binding Configurimi.Serveri,Mode=TwoWay}" x:Name="serveri" IsVisible="false"/>
 
             <Label Text="Databaza"/>
             <Entry Text="{Binding Configurimi.Databaza}"/>

@@ -32,6 +32,7 @@ namespace EHWM.ViewModel {
     public class PorositeViewModel : BaseViewModel{
 
         public List<KrijimiPorosive> KrijimiPorosives { get; set; }
+        public System.Action RefreshScrollDown;
 
         public List<Klientet> Klientet { get; set; }
         public Agjendet Agjendi { get; set; }
@@ -94,6 +95,9 @@ namespace EHWM.ViewModel {
 
         }
 
+        public void Scroll() {
+            RefreshScrollDown.Invoke();
+        }
         public async Task PrintoFaturenAsync() {
             await App.Instance.PushAsyncNewPage(new PrinterSelectionPage() { BindingContext = this });
         }
@@ -817,7 +821,7 @@ namespace EHWM.ViewModel {
                 var g = e.Message;
             }
         }
-
+        public Artikulli LastKnownArtikulliForScroll { get; set; }
         public async Task ZgjedhArtikullinAsync() {
             try {
                 UserDialogs.Instance.ShowLoading("Duke hapur artikujt");
@@ -827,8 +831,8 @@ namespace EHWM.ViewModel {
 
 
                 await App.Instance.PushAsyncNewModal(zgjidhArtikullinModalPage);
+                Scroll();
                 UserDialogs.Instance.HideLoading();
-
             }
             catch (Exception e) {
                 var g = e.Message;

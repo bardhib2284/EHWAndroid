@@ -14,6 +14,12 @@ using Xamarin.Essentials;
 using EHWM.DependencyInjections;
 using EHWM.DependencyInjections.FiskalizationExtraModels;
 using System.Globalization;
+using System.Diagnostics;
+using EHWM.Models;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace EHW_M {
     public partial class App : Application {
@@ -59,8 +65,59 @@ namespace EHW_M {
             //    TCRCode = "fa248ng165"
             //};
             FiskalizationService = DependencyService.Get<IFiskalizationService>();
+
+            var minutes = TimeSpan.FromMinutes(5f);
+
+            Device.StartTimer(minutes, () => {
+                Device.BeginInvokeOnMainThread(
+                    async () =>
+                    {
+                        var liferimet = await Database.GetLiferimetAsync();
+                        await CreateUpdateScriptLiferimi(liferimet);
+                    });
+
+                return true;
+            });
         }
 
+        private async Task<bool> CreateUpdateScriptLiferimi(List<Liferimi> Liferimi) {
+            try {
+                foreach (var lif in Liferimi) {
+                    lif.Export_Status = 2;
+                    lif.KohaLiferimit = DateTime.Now;
+                }
+                var vizitatJson = JsonConvert.SerializeObject(Liferimi);
+                var conf = await Database.GetConfigurimiAsync();
+                if (string.IsNullOrEmpty(API_URL_BASE)) {
+                    API_URL_BASE = conf.Serveri;
+                }
+                HttpClient httpClient = new HttpClient();
+                httpClient.BaseAddress = new Uri(API_URL_BASE);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+                var stringContent = new StringContent(vizitatJson, Encoding.UTF8, "application/json");
+                var result = await httpClient.PostAsync("liferimi", stringContent);
+                if (result.IsSuccessStatusCode) {
+                    return true;
+                }
+                else {
+                    foreach (var viz in Liferimi) {
+                        viz.SyncStatus = 0;
+                        await App.Database.SaveLiferimiAsync(viz);
+                    }
+                }
+                return false;
+            }catch(Exception e) {
+                if(e is UriFormatException ufe) {
+                    UserDialogs.Instance.Alert("Linku I API't eshte gabim, ju lutemi rregullojeni linkun tek konfigurimi");
+                    return false;
+                }
+                else {
+                    UserDialogs.Instance.Alert("Gabim i panjohur, ju lutem raportojeni tek ASEE : " + e.Message);
+                    return false;
+                }
+            }
+            
+        }
         protected override void OnStart() {
         }
 

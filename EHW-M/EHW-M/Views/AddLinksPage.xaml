@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.AddLinksPage">
+    <ContentPage.Content>
+        <StackLayout HorizontalOptions="FillAndExpand" Padding="20">
+
+            <StackLayout HorizontalOptions="FillAndExpand">
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Linqet per API" HorizontalOptions="StartAndExpand"/>
+
+                    <Button Text="Shto Linkun Per API" Command="{Binding CreateLinkunPerAPICommand}" HorizontalOptions="EndAndExpand"/>
+                </StackLayout>
+                <Frame BorderColor="Black">
+                    <ListView ItemsSource="{Binding LinqetPerAPI}" >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout>
+                                        <Label Text="{Binding Linku}"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+            </StackLayout>
+
+            <StackLayout HorizontalOptions="FillAndExpand" >
+                <StackLayout Orientation="Horizontal" >
+                    <Label Text="Linqet per Fiskalizim" HorizontalOptions="StartAndExpand"/>
+
+                    <Button Text="Shto Linkun Per Fiskalizim" Command="{Binding CreateLinkunPerFiskalizimCommand}" HorizontalOptions="EndAndExpand"/>
+                </StackLayout>
+                <ListView ItemsSource="{Binding LinqetPerFiskalizim}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout>
+                                    <Label Text="{Binding Linku}"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+            
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

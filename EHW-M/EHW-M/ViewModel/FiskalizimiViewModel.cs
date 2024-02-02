@@ -54,8 +54,8 @@ namespace EHWM.ViewModel {
         public ICommand FiskalizoItemEZgjedhurCommand { get; set; }
         public FiskalizimiViewModel(FiskalizimiViewModelNavigationParams fiskalizimiViewModelNavigationParams) {
             if(fiskalizimiViewModelNavigationParams != null) {
-                LiferimetList = new ObservableCollection<Liferimi>(fiskalizimiViewModelNavigationParams.Liferimet);
-                CashRegisterList = new ObservableCollection<CashRegister>(fiskalizimiViewModelNavigationParams.CashRegisters);
+                LiferimetList = new ObservableCollection<Liferimi>(fiskalizimiViewModelNavigationParams.Liferimet.Where(x=> x.TCRSyncStatus <= 0));
+                CashRegisterList = new ObservableCollection<CashRegister>(fiskalizimiViewModelNavigationParams.CashRegisters.Where(x=> x.TCRSyncStatus <= 0));
                 LevizjetList = new ObservableCollection<LevizjetHeader>(fiskalizimiViewModelNavigationParams.Levizjet);
             }
             Agjendi = App.Instance.MainViewModel.LoginData;
@@ -115,10 +115,10 @@ namespace EHWM.ViewModel {
                     return;
                 }
                 if (SelectedLiferimi.TCRSyncStatus == 1) {
-                    //UserDialogs.Instance.Alert("Fatura eshte e fiskalizuar, ju lutem provoni fature tjeter", "Verejtje");
-                    //UserDialogs.Instance.HideLoading();
+                    UserDialogs.Instance.Alert("Fatura eshte e fiskalizuar, ju lutem provoni fature tjeter", "Verejtje");
+                    UserDialogs.Instance.HideLoading();
 
-                    //return;
+                    return;
                 }
                 UserDialogs.Instance.ShowLoading("Filloi procesi i fiskalizimit");
                 await FiskalizoTCRInvoice(SelectedLiferimi.IDLiferimi.ToString());
@@ -151,7 +151,7 @@ namespace EHWM.ViewModel {
             liferimetArt = liferimetArt.Take(1).ToList();
             var query = from l2 in liferimet
                         join la2 in liferimetArt on l2.IDLiferimi equals la2.IDLiferimi
-                        where (l2.TCRSyncStatus == 0 || l2.TCRSyncStatus == null) &&
+                        where (l2.TCRSyncStatus <= 0 || l2.TCRSyncStatus == null) &&
                               l2.DeviceID == Agjendi.DeviceID &&
                               string.Equals(l2.IDLiferimi.ToString().Trim(), idLiferimi.Trim(), StringComparison.OrdinalIgnoreCase)
                         group la2 by la2.IDLiferimi into g
@@ -286,8 +286,37 @@ namespace EHWM.ViewModel {
 
 
                         ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
+                        if(log == null) {
+                            liferimet = await App.Database.GetLiferimetAsync();
+                            liferimetArt = await App.Database.GetLiferimetArtAsync();
+                            var liferimiToUpdate = liferimet
+                                                .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                        if (log.Status == StatusPCL.Ok) {
+                            if (liferimiToUpdate != null) {
+                                liferimiToUpdate.TCRSyncStatus = 1;
+                                liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                liferimiToUpdate.TCRQRCodeLink = null;
+                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
+                                liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                liferimiToUpdate.UUID = null;
+                                liferimiToUpdate.EIC = null;
+                                liferimiToUpdate.TCRNSLF = null;
+                                liferimiToUpdate.TCRNIVF = null;
+                                liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                                await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                var liferimiArtToUpdate = liferimetArt
+                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                foreach (var art in liferimiArtToUpdate) {
+                                    art.TCRSyncStatus = 2;
+                                    await App.Database.SaveLiferimiArtAsync(art);
+                                }
+                            }
+                        }
+                        else if (log.Status == StatusPCL.Ok) {
                             liferimet = await App.Database.GetLiferimetAsync();
                             liferimetArt = await App.Database.GetLiferimetArtAsync();
                             var liferimiToUpdate = liferimet

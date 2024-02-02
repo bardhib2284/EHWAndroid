@@ -14,7 +14,7 @@
                 </Frame>
 
                 <Frame Padding="10" BorderColor="Black" x:Name="allKrijoArtikujt">
-                    <ListView x:Name="testKrijoList" ItemsSource="{Binding Artikujt}" RowHeight="50" ItemTapped="testList_ItemTapped">
+                    <ListView x:Name="testKrijoList" ItemsSource="{Binding Artikujt}" ItemTapped="testList_ItemTapped">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -28,7 +28,7 @@
                 </Frame>
 
                 <Frame Padding="10" BorderColor="Black" IsVisible="false" x:Name="searchedKrijoArtikujt">
-                    <ListView  ItemsSource="{Binding SearchedArtikujt}" RowHeight="50" ItemTapped="testList_ItemTapped" CachingStrategy="RecycleElement">
+                    <ListView x:Name="testKrijoSearchList" ItemsSource="{Binding SearchedArtikujt}" RowHeight="50" ItemTapped="testList_ItemTapped" CachingStrategy="RecycleElement">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

@@ -3698,11 +3698,6 @@ namespace EHWM.ViewModel {
             return false;
         }
         private async Task<bool> CreateUpdateScriptLiferimi(List<Liferimi> Liferimi) {
-            foreach (var lif in Liferimi) {
-                if (lif.TCRIssueDateTime.Year < 2000) {
-                    lif.TCRIssueDateTime = DateTime.Now;
-                }
-            }
             var vizitatJson = JsonConvert.SerializeObject(Liferimi);
 
             var stringContent = new StringContent(vizitatJson, Encoding.UTF8, "application/json");

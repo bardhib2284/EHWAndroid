@@ -15,9 +15,21 @@ namespace EHWM.Views {
     public partial class ZgjidhArtikullinModalPage : ContentPage {
         public ZgjidhArtikullinModalPage() {
             InitializeComponent();
-
         }
-
+        protected override void OnAppearing() {
+            base.OnAppearing();
+            var bc = BindingContext;
+            if(bc is PorositeViewModel pvm) {
+                pvm.RefreshScrollDown = () =>
+                {
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        if(pvm.LastKnownArtikulliForScroll != null)
+                            testKrijoList.ScrollTo(pvm.Artikujt.FirstOrDefault(x=> x.IDArtikulli == pvm.LastKnownArtikulliForScroll.IDArtikulli), ScrollToPosition.Center, false);
+                    });
+                };
+            }
+        }
         private async void testList_ItemTapped(object sender, ItemTappedEventArgs e) {
             if (e.Item != null) {
                 if(BindingContext is ShitjaViewModel viewModel) {
@@ -46,6 +58,8 @@ namespace EHWM.Views {
                 else if (BindingContext is PorositeViewModel porositeViewModel) {
                     if (porositeViewModel != null) {
                         porositeViewModel.CurrentlySelectedArtikulli = e.Item as Artikulli;
+                        porositeViewModel.LastKnownArtikulliForScroll = e.Item as Artikulli;
+
                         if (string.IsNullOrEmpty(porositeViewModel.CurrentlySelectedArtikulli.Seri)) {
                             //viewModel.EnableSeri = true;
                         }

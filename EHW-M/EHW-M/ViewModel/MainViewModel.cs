@@ -67,6 +67,9 @@ namespace EHWM.ViewModel {
         public ICommand GoToMbetjaMallitCommand { get; set; }
         public ICommand HapInkasimetCommand { get; set; }
         public ICommand PrintTestCommand { get; set; }
+        public ICommand GoToAddLinksCommand { get; set; }
+        public ICommand CreateLinkunPerFiskalizimCommand { get; set; }
+        public ICommand CreateLinkunPerAPICommand { get; set; }
 
 
         public bool DissapearingFromShitjaPage { get; set; }
@@ -212,6 +215,9 @@ namespace EHWM.ViewModel {
             GoToMbetjaMallitCommand = new Command(async () => await GoToMbetjaMallitAsync());
             HapInkasimetCommand = new Command(async () => await HapInkasimetAsync());
             PrintTestCommand = new Command(async () => await PrintoFaturenAsync());
+            GoToAddLinksCommand = new Command(async () => await GoToAddLinksAsync());
+            CreateLinkunPerFiskalizimCommand = new Command(async () => { await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerFiskalizimiPopup() { BindingContext = this }); });
+            CreateLinkunPerAPICommand = new Command(async () => { await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerAPIPopup() { BindingContext = this }); });
 
 
             FilterDate = DateTime.Now;
@@ -225,6 +231,12 @@ namespace EHWM.ViewModel {
             FilterMinDate = DateTime.Now.Date.AddDays(-(currentDay - 1));
             FilterMaxDate = dtFisrtDate.AddDays(7);
             al = new AgjendiLogin();
+            LinqetPerAPI = new ObservableCollection<Linqet>();
+            LinqetPerFiskalizim = new ObservableCollection<Linqet>();
+        }
+
+        private async Task GoToAddLinksAsync() {
+            await App.Instance.PushAsyncNewPage(new AddLinksPage() { BindingContext = this }); ;
         }
 
         public ObservableCollection<Malli_Mbetur> MalliMbetur { get; set; }
@@ -3093,7 +3105,6 @@ namespace EHWM.ViewModel {
             }
             else
                 UserDialogs.Instance.Alert("Configurimi nuk u ruajt me sukses, ju lutem provoni perseri!", "Deshtim", "Ok");
-
         }
 
         public async Task GoToConfigurimiAsync() {
@@ -3101,6 +3112,9 @@ namespace EHWM.ViewModel {
             if(Configurimi == null) {
                 Configurimi = new Configurimi{ ID = 1};
             }
+            var linqet = await App.Database.GetAllLinqetAsync();
+            LinqetPerAPI = new ObservableCollection<Linqet>(linqet.Where(x => x.Tipi == "API"));
+            LinqetPerFiskalizim = new ObservableCollection<Linqet>(linqet.Where(x => x.Tipi == "FISKALIZIMI"));
             await App.Instance.PushAsyncNewPage(new ConfigurimiPage() { BindingContext = this});
         }
         public List<string> DitetEJaves = new List<string> { "E Hënë", "E Martë", "E Mërkurë", "E Enjte", "E Premte", "E Shtunë", "E Diel" };
@@ -3324,6 +3338,13 @@ namespace EHWM.ViewModel {
                 
                 if (Configurimi != null) {
                     if (Configurimi.Serveri != null) {
+                        if(!string.IsNullOrEmpty(Configurimi.Shfrytezuesi))
+                        {
+                            if (al.perdoruesi.ToLower() != Configurimi.Shfrytezuesi.ToLower()) {
+                                UserDialogs.Instance.Alert("Paisja eshte konfiguruar per depon : " + Configurimi.Shfrytezuesi + " ju lutem kycuni me depon ne fjale");
+                                return;
+                            }
+                        }
                         App.ApiClient.BaseAddress = new Uri(Configurimi.Serveri);
                         App.Instance.WebServerFiskalizimiUrl = Configurimi.URLFiskalizim;
                         var depot = await App.Database.GetDepotAsync();
@@ -3626,7 +3647,10 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.HideLoading();
                 }
             }catch(Exception e) {
-
+                if (e is UriFormatException ufe) {
+                    UserDialogs.Instance.Alert("Linku I API't eshte gabim, ju lutemi rregullojeni linkun tek konfigurimi");
+                    UserDialogs.Instance.HideLoading();
+                }
             }
             
         }
@@ -4131,6 +4155,9 @@ namespace EHWM.ViewModel {
             return d1 == d2;
         }
         public ObservableCollection<Vizita> Vizitat { get; set; }
+        public ObservableCollection<Linqet> LinqetPerAPI { get; set; }
+        public ObservableCollection<Linqet> LinqetPerFiskalizim { get; set; }
+
         private ObservableCollection<Vizita> vizitatFilteredByDate;
         private string _llojDok;
 

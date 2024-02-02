@@ -46,6 +46,7 @@ namespace EHWM.ViewModel
             _database.CreateTableAsync<FiskalizimiKonfigurimet>();
             _database.CreateTableAsync<Arsyejet>();
             _database.CreateTableAsync<NumriPorosive>();
+            _database.CreateTableAsync<Linqet>();
         }
 
         public async Task<List<Table>> QueryAsync(string query) {
@@ -679,6 +680,15 @@ namespace EHWM.ViewModel
             }
         }
 
+        public async Task<int> SaveLinkuAsync(Linqet a) {
+            try {
+                return await _database.InsertAsync(a);
+            }
+            catch(Exception e) {
+                return -1;
+            }
+        }
+
         public async Task<int> SaveLiferimetAsync(List<Liferimi> a) {
             try {
                 return await _database.InsertAllAsync(a);
@@ -688,6 +698,14 @@ namespace EHWM.ViewModel
             }
         }
 
+        public async Task<int> UpdateLinkuAsync(Linqet a) {
+            try {
+                return await _database.UpdateAsync(a);
+            }
+            catch(Exception e) {
+                return -1;
+            }
+        }
         public async Task<int> UpdateLiferimiArtAsync(LiferimiArt a) {
             try {
                 return await _database.UpdateAsync(a);
@@ -987,6 +1005,14 @@ namespace EHWM.ViewModel
             try {
                 var res = await _database.Table<Stoqet>().ToListAsync();
                 return res.Where(x => x.Depo == deviceID).ToList();
+            }
+            catch(Exception e) {
+                return null;
+            }
+        }
+        public async Task<List<Linqet>> GetAllLinqetAsync() {
+            try {
+                return await _database.Table<Linqet>().ToListAsync();
             }
             catch(Exception e) {
                 return null;
