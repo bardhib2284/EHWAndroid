@@ -32,6 +32,7 @@ namespace EHWM.Views {
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e) {
             var bc = (MainViewModel)BindingContext;
             bc.SelectedVizita = (e.Item as Vizita);
+            bc.LastSelectedVizita = (e.Item as Vizita);
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e) {

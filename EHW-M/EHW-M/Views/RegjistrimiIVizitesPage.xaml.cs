@@ -20,10 +20,10 @@ namespace EHWM.Views {
         protected override async void OnAppearing() {
             base.OnAppearing();
             var bc = (MainViewModel)BindingContext;
-            if(bc.SelectedVizita != null) {
-                if(bc.SelectedVizita.IDKlientDheLokacion != null) {
+            if(bc.LastSelectedVizita != null) {
+                if(bc.LastSelectedVizita.IDKlientDheLokacion != null) {
                     var kdl = await App.Database.GetKlientetDheLokacionetAsync();
-                    pickerForClients.SelectedIndex = bc.Clients.IndexOf(bc.Clients.FirstOrDefault(x => x.IDKlienti == kdl.FirstOrDefault(y => y.IDKlientDheLokacion == bc.SelectedVizita.IDKlientDheLokacion).IDKlienti));
+                    pickerForClients.SelectedIndex = bc.Clients.IndexOf(bc.Clients.FirstOrDefault(x => x.IDKlienti == kdl.FirstOrDefault(y => y.IDKlientDheLokacion == bc.LastSelectedVizita.IDKlientDheLokacion).IDKlienti));
                 }
                 else {
                     UserDialogs.Instance.Alert("Vizita e selektuar nuk ka klient te lidhur me viziten, ju lutem raportoni problemin, dhe ri-zgjedhni klientin perseri");

@@ -159,6 +159,16 @@ namespace EHWM.ViewModel {
             }
         }
 
+        private Vizita _LastSelectedVizita;
+        public Vizita LastSelectedVizita {
+            get {
+                return _LastSelectedVizita;
+            }
+            set {
+                SetProperty(ref _LastSelectedVizita, value);
+            }
+        }
+
         private Agjendet _CurrentAgent;
         public Agjendet CurrentAgent {
             get { return _CurrentAgent; }
