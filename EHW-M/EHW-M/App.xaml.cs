@@ -74,8 +74,8 @@ namespace EHW_M {
                     {
                         var liferimet = await Database.GetLiferimetAsync();
                         await CreateUpdateScriptLiferimi(liferimet);
-                        var malliMbetur = await Database.GetMalliMbeturAsync();
-                        await CreateUpdateScriptMalli_Mbetur(malliMbetur);
+                        //var malliMbetur = await Database.GetMalliMbeturAsync();
+                        //await CreateUpdateScriptMalli_Mbetur(malliMbetur);
                     });
 
                 return true;

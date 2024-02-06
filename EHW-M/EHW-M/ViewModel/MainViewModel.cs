@@ -2684,7 +2684,7 @@ namespace EHWM.ViewModel {
                                 DataPageses = DateTime.Now,
                                 DataPerPagese = DateTime.Now,
                                 DeviceID = agjendi.DeviceID,
-                                ExportStatus = 1,
+                                ExportStatus = 0,
                                 IDAgjenti = agjendi.IDAgjenti,
                                 IDKlienti = SelectedLiferimetEKryera.IDKlienti,
                                 NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
@@ -2704,7 +2704,7 @@ namespace EHWM.ViewModel {
                                 DataPageses = DateTime.Now,
                                 DataPerPagese = DateTime.Now,
                                 DeviceID = agjendi.DeviceID,
-                                ExportStatus = 1,
+                                ExportStatus = 0,
                                 IDAgjenti = agjendi.IDAgjenti,
                                 IDKlienti = SelectedLiferimetEKryera.IDKlienti,
                                 NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
@@ -3179,7 +3179,7 @@ namespace EHWM.ViewModel {
 
                 if (decimal.Parse(lif.CmimiTotal.ToString()) < 0) {
                     AllLiferimetEKryeraKthimet -= decimal.Parse(lif.CmimiTotal.ToString());
-                    AllLiferimetEKryeraInkasimet -= decimal.Parse(lif.ShumaPaguar.ToString());
+                    AllLiferimetEKryeraInkasimet -=  Math.Abs(decimal.Parse(lif.ShumaPaguar.ToString()));
                 }
                 else if (decimal.Parse(lif.CmimiTotal.ToString()) >= 0) {
                     AllLiferimetEKryeraCmimiTotal += decimal.Parse(lif.CmimiTotal.ToString());
