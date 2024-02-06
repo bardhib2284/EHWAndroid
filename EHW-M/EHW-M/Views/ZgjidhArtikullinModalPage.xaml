@@ -14,10 +14,10 @@
                 </Frame>
 
                 <Frame Padding="10" BorderColor="Black" x:Name="allKrijoArtikujt">
-                    <ListView x:Name="testKrijoList" ItemsSource="{Binding Artikujt}" ItemTapped="testList_ItemTapped">
+                    <ListView x:Name="testKrijoList" ItemsSource="{Binding Artikujt}" SelectionMode="Single" ItemTapped="testList_ItemTapped">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <ViewCell>
+                                <ViewCell Tapped="ViewCell_Tapped">
                                     <StackLayout Orientation="Horizontal" Spacing="40">
                                         <Label Text="{Binding Emri}" FontSize="12" VerticalTextAlignment="Center" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
                                     </StackLayout>

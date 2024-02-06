@@ -74,10 +74,37 @@ namespace EHW_M {
                     {
                         var liferimet = await Database.GetLiferimetAsync();
                         await CreateUpdateScriptLiferimi(liferimet);
+                        var malliMbetur = await Database.GetMalliMbeturAsync();
+                        await CreateUpdateScriptMalli_Mbetur(malliMbetur);
                     });
 
                 return true;
             });
+        }
+        private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
+            foreach (var mall in OrderDetasails) {
+                mall.Data = DateTime.Now;
+                mall.Export_Status = 2;
+            }
+            var conf = await Database.GetConfigurimiAsync();
+            if (string.IsNullOrEmpty(API_URL_BASE)) {
+                API_URL_BASE = conf.Serveri;
+            }
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(API_URL_BASE);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+            var OrderDetailsJson = JsonConvert.SerializeObject(OrderDetasails);
+            var stringContent = new StringContent(OrderDetailsJson, Encoding.UTF8, "application/json");
+            var result = await httpClient.PostAsync("malli-mbetur", stringContent);
+            if (result.IsSuccessStatusCode) {
+                return true;
+            }
+            foreach (var porosia in OrderDetasails) {
+                porosia.SyncStatus = 0;
+                porosia.Export_Status = 0;
+            }
+            await App.Database.UpdateAllMalliMbeturAsync(OrderDetasails);
+            return false;
         }
 
         private async Task<bool> CreateUpdateScriptLiferimi(List<Liferimi> Liferimi) {
@@ -102,6 +129,7 @@ namespace EHW_M {
                 else {
                     foreach (var viz in Liferimi) {
                         viz.SyncStatus = 0;
+                        viz.Export_Status = 0;
                         await App.Database.SaveLiferimiAsync(viz);
                     }
                 }

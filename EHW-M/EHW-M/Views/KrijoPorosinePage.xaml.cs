@@ -27,5 +27,11 @@ namespace EHWM.Views {
             bc.CurrentlySelectedArtikulli = (sender as ListView).SelectedItem as Artikulli;
 
         }
+
+        protected override void OnAppearing() {
+            base.OnAppearing();
+            var bc = (PorositeViewModel)BindingContext;
+            testList.SelectedItem = bc.CurrentlySelectedArtikulli;
+        }
     }
 }

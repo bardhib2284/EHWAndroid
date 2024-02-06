@@ -24,8 +24,11 @@ namespace EHWM.Views {
                 {
                     Device.BeginInvokeOnMainThread(() =>
                     {
-                        if(pvm.LastKnownArtikulliForScroll != null)
-                            testKrijoList.ScrollTo(pvm.Artikujt.FirstOrDefault(x=> x.IDArtikulli == pvm.LastKnownArtikulliForScroll.IDArtikulli), ScrollToPosition.Center, false);
+                        if(pvm.LastKnownArtikulliForScroll != null) {
+                            testKrijoList.ScrollTo(pvm.Artikujt.FirstOrDefault(x => x.IDArtikulli == pvm.LastKnownArtikulliForScroll.IDArtikulli), ScrollToPosition.Center, false);
+                            testKrijoList.SelectedItem = pvm.Artikujt.FirstOrDefault(x => x.IDArtikulli == pvm.LastKnownArtikulliForScroll.IDArtikulli);
+                        }
+                            
                     });
                 };
             }
@@ -104,5 +107,18 @@ namespace EHWM.Views {
             }
 
         }
+
+        ViewCell lastCell;
+        private void ViewCell_Tapped(object sender, EventArgs e) {
+            if(lastCell != null)
+                lastCell.View.BackgroundColor = Color.Transparent;
+            var viewCell = (ViewCell)sender;
+            if (viewCell.View != null) {
+                viewCell.View.BackgroundColor = Color.Gray;
+                lastCell = viewCell;
+            }
+        }
+
+
     }
 }

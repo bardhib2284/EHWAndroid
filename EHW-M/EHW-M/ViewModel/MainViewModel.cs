@@ -2914,7 +2914,7 @@ namespace EHWM.ViewModel {
                                                 .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                             if (liferimiToUpdate != null) {
-                                liferimiToUpdate.TCRSyncStatus = -1;
+                                liferimiToUpdate.TCRSyncStatus = 1;
                                 liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
@@ -2932,7 +2932,7 @@ namespace EHWM.ViewModel {
                                         .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                                 foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = 2;
+                                    art.TCRSyncStatus = 1;
                                     await App.Database.UpdateLiferimiArtAsync(art);
                                 }
                             }
