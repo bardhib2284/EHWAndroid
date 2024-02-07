@@ -293,7 +293,7 @@ namespace EHWM.ViewModel {
                                                 .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                             if (liferimiToUpdate != null) {
-                                liferimiToUpdate.TCRSyncStatus = 1;
+                                liferimiToUpdate.TCRSyncStatus = -1;
                                 liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                 liferimiToUpdate.TCRQRCodeLink = null;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
@@ -311,7 +311,7 @@ namespace EHWM.ViewModel {
                                         .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                                 foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = 2;
+                                    art.TCRSyncStatus = -1;
                                     await App.Database.SaveLiferimiArtAsync(art);
                                 }
                             }
@@ -323,7 +323,7 @@ namespace EHWM.ViewModel {
                                                 .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                             if (liferimiToUpdate != null) {
-                                liferimiToUpdate.TCRSyncStatus = -1;
+                                liferimiToUpdate.TCRSyncStatus = 1;
                                 liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
@@ -341,7 +341,7 @@ namespace EHWM.ViewModel {
                                         .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                                 foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = 2;
+                                    art.TCRSyncStatus = 1;
                                     await App.Database.SaveLiferimiArtAsync(art);
                                 }
                             }
@@ -385,7 +385,7 @@ namespace EHWM.ViewModel {
                                                     .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                                 if (liferimiToUpdate != null) {
-                                    liferimiToUpdate.TCRSyncStatus = 1;
+                                    liferimiToUpdate.TCRSyncStatus = -1;
                                     liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                     liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
@@ -473,7 +473,7 @@ namespace EHWM.ViewModel {
                                     .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
                                 foreach (var lif in liferimiToUpdate) {
-                                    lif.TCRSyncStatus = -3;
+                                    lif.TCRSyncStatus = -1;
                                     lif.TCRIssueDateTime = DateTime.Now;
                                     lif.TCRQRCodeLink = log.QRCodeLink;
                                     lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
