@@ -64,6 +64,9 @@ namespace EHWM.ViewModel
             return result.Count > 0;
         }
 
+        public async Task<int> ClearAllCashRegistersAsync() {
+            return await _database.DeleteAllAsync<CashRegister>();
+        }
         public async Task<int> ClearAllLevizjetDetailsAsync() {
             return await _database.DeleteAllAsync<LevizjetDetails>();
         }
