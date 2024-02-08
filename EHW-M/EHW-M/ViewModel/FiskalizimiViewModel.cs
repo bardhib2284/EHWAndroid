@@ -312,7 +312,7 @@ namespace EHWM.ViewModel {
 
                                 foreach (var art in liferimiArtToUpdate) {
                                     art.TCRSyncStatus = -1;
-                                    await App.Database.SaveLiferimiArtAsync(art);
+                                    await App.Database.UpdateLiferimiArtAsync(art);
                                 }
                             }
                         }
@@ -342,7 +342,7 @@ namespace EHWM.ViewModel {
 
                                 foreach (var art in liferimiArtToUpdate) {
                                     art.TCRSyncStatus = 1;
-                                    await App.Database.SaveLiferimiArtAsync(art);
+                                    await App.Database.UpdateLiferimiArtAsync(art);
                                 }
                             }
                         }
@@ -374,7 +374,7 @@ namespace EHWM.ViewModel {
 
                                     foreach (var art in liferimiArtToUpdate) {
                                         art.TCRSyncStatus = -1;
-                                        await App.Database.SaveLiferimiArtAsync(art);
+                                        await App.Database.UpdateLiferimiArtAsync(art);
                                     }
                                 }
                             }
@@ -404,7 +404,7 @@ namespace EHWM.ViewModel {
 
                                     foreach (var art in liferimiArtToUpdate) {
                                         art.TCRSyncStatus = -1;
-                                        await App.Database.SaveLiferimiArtAsync(art);
+                                        await App.Database.UpdateLiferimiArtAsync(art);
                                     }
                                 }
                             }
@@ -434,7 +434,7 @@ namespace EHWM.ViewModel {
 
                             foreach (var art in liferimiArtToUpdate) {
                                 art.TCRSyncStatus = 4;
-                                await App.Database.SaveLiferimiArtAsync(art);
+                                await App.Database.UpdateLiferimiArtAsync(art);
                             }
                         }
                         else if (log.Status == StatusPCL.InProcess) {
@@ -462,7 +462,7 @@ namespace EHWM.ViewModel {
 
                             foreach (var art in liferimiArtToUpdate) {
                                 art.TCRSyncStatus = -2;
-                                await App.Database.SaveLiferimiArtAsync(art);
+                                await App.Database.UpdateLiferimiArtAsync(art);
                             }
                         }
                         else {
@@ -491,7 +491,7 @@ namespace EHWM.ViewModel {
 
                                 foreach (var art in liferimiArtToUpdate) {
                                     art.TCRSyncStatus = -1;
-                                    await App.Database.SaveLiferimiArtAsync(art);
+                                    await App.Database.UpdateLiferimiArtAsync(art);
                                 }
                             }
                             catch (Exception ex) {
