@@ -222,6 +222,7 @@ namespace EHWM.ViewModel {
 
                     List<TCRLiferimi> invoiceObject = ClassMapper.MapHeadersAndLines(mapperHeaderList, mapperLineList);
                     foreach (TCRLiferimi inv in invoiceObject) {
+
                         RegisterInvoiceInputRequestPCL req = new RegisterInvoiceInputRequestPCL();
                         req.Buyer = inv.Buyer;
                         req.InvoiceItems = inv.Items.ToList();
@@ -285,7 +286,7 @@ namespace EHWM.ViewModel {
 
 
                         ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
-                        if(log == null) {
+                        if (log == null) {
                             liferimet = await App.Database.GetLiferimetAsync();
                             liferimetArt = await App.Database.GetLiferimetArtAsync();
                             var liferimiToUpdate = liferimet
@@ -343,6 +344,10 @@ namespace EHWM.ViewModel {
                                     art.TCRSyncStatus = 1;
                                     await App.Database.UpdateLiferimiArtAsync(art);
                                 }
+
+                                var lifToRemoveFromList = LiferimetList
+                                                .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                                LiferimetList.Remove(lifToRemoveFromList);
                             }
                         }
                         else if (log.Status == StatusPCL.FaultCode) {
