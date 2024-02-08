@@ -188,7 +188,7 @@ namespace EHWM.ViewModel {
                                  InvoiceSType = "Cash GJITHMON",
                                  InvNum = l.NumriFisk + "/" + DateTime.Now.Year,
                                  InvOrdNum = Convert.ToInt32(l.NumriFisk),
-                                 SendDatetime = l.KohaLiferimit,
+                                 SendDatetime = DateTime.Now,
                                  IsIssuerInVAT = true,
                                  TaxFreeAmt = Math.Round(0d, 2),
                                  PaymentMethodTypesType = l.PayType,
@@ -214,7 +214,8 @@ namespace EHWM.ViewModel {
                                  TypeRef = "CORRECTIVE|DEBIT|CREDIT",
                                  IsCorrectiveInv = false,
                                  CardNumber = "",
-                                 IsReverseCharge = false
+                                 IsReverseCharge = false,
+                                 
                              };
 
                 if (mapperHeaderList.Count > 0) {
