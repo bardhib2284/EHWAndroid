@@ -148,7 +148,6 @@ namespace EHWM.ViewModel {
         public async Task FiskalizoTCRInvoice(string idLiferimi) {
             var liferimet = await App.Database.GetLiferimetAsync();
             var liferimetArt = await App.Database.GetLiferimetArtAsync();
-            liferimetArt = liferimetArt.Take(1).ToList();
             var query = from l2 in liferimet
                         join la2 in liferimetArt on l2.IDLiferimi equals la2.IDLiferimi
                         where (l2.TCRSyncStatus <= 0 || l2.TCRSyncStatus == null) &&
