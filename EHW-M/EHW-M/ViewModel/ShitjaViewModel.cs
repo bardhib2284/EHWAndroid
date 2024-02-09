@@ -182,8 +182,15 @@ namespace EHWM.ViewModel {
             UserDialogs.Instance.ShowLoading("Duke perfunduar faturen");
             var liferimet = await App.Database.GetLiferimetAsync();
             var liferimetToday = liferimet.Where(x=> x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
-
-            var niptTotal = liferimetToday.Sum(x=> x.ShumaPaguar);
+            var klietns = await App.Database.GetKlientetAsync();
+            var currClient = klietns.FirstOrDefault(x => x.IDKlienti == VizitaESelektuar.IDKlientDheLokacion);
+            klietns = klietns.Where(x => x.NIPT == currClient.NIPT).ToList();
+            var lifForNipt = new List<Liferimi>();
+            foreach(var lif in liferimetToday) {
+                if (klietns.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti) != null)
+                    lifForNipt.Add(lif);
+            }
+            var niptTotal = lifForNipt.Sum(x=> x.ShumaPaguar);
             if (niptTotal >= 150000) {
                 UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
                 UserDialogs.Instance.HideLoading();
