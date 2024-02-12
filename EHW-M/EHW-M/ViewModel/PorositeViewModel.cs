@@ -76,7 +76,9 @@ namespace EHWM.ViewModel {
             Klientet = PorositeViewModelNavigationParameters.Klientet;
             Agjendi = PorositeViewModelNavigationParameters.Agjendi;
             NrRendor = PorositeViewModelNavigationParameters.NrRendor;
-            Data = DateTime.Now;
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
+            Data = MyTimeInWesternEurope;
             SubTitle = "Lista e porosive "  + Data.AddDays(-7).ToString("dd/MM/yyyy") + " - " + Data.ToString("dd/MM/yyyy");
             KrijimiPorosives = PorositeViewModelNavigationParameters.KrijimiPorosives;
             ShtoKlientinCommand = new Command(ShtoKlientinNeListe);
@@ -212,12 +214,13 @@ namespace EHWM.ViewModel {
                 await _printer.printText(
 "---------------------------------------------------------------------\n");
 
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Adresa: Autostrada Tirane Durres \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Tel: 048 200 711        04 356 085 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Depo: " + Agjendi.Depo + "\n");
-                await _printer.printText("Data: " + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "\n");
+                await _printer.printText("Data: " + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:mm:ss") + "\n");
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 
                 await _printer.printText("\nBleresi: ");
@@ -636,13 +639,14 @@ namespace EHWM.ViewModel {
         public async Task RegjistroAsync() 
         {
             Location loc = await Xamarin.Essentials.Geolocation.GetLastKnownLocationAsync();
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             Orders order = new Orders
             {
                 ID = Guid.NewGuid(),
                 DeviceID = Agjendi.DeviceID,
                 IDAgjenti = Agjendi.IDAgjenti,
-                Data = DateTime.Now,
+                Data = MyTimeInWesternEurope,
                 Depo = Agjendi.Depo,
                 IDKlientDheLokacion = SelectedKlient?.IDKlienti,
                 IDOrder = NrPorosise,
@@ -780,10 +784,12 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Zgjedhni klientin fillimisht", "Verejtje", "Ok");
                 return;
             }
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
             KrijimiPorosive krijimiPorosive = new KrijimiPorosive
             {
                 KPID = Guid.NewGuid(),
-                Data_Regjistrimit = DateTime.Now,
+                Data_Regjistrimit = MyTimeInWesternEurope,
                 IDKlienti = SelectedKlient.IDKlienti,
                 Emri = SelectedKlient?.Emri,
                 Depo = Agjendi.Depo,
@@ -853,7 +859,9 @@ namespace EHWM.ViewModel {
         }
 
         public async Task GoToKrijoPorosineAsync() {
-            NrPorosise = "PRS-" + App.Instance.MainViewModel.LoginData.DeviceID + "-" + DateTime.Now.ToString("yyMMdd")+ "-" + NrRendor.ToString("00");
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
+            NrPorosise = "PRS-" + App.Instance.MainViewModel.LoginData.DeviceID + "-" + MyTimeInWesternEurope.ToString("yyMMdd")+ "-" + NrRendor.ToString("00");
             KrijoPorosinePage kpPorosia = new KrijoPorosinePage();
             kpPorosia.BindingContext = this;
             SelectedKlient = Klientet.FirstOrDefault(x => x.Depo.Trim() == Agjendi.Depo && x.Emri.Contains(Agjendi.Depo));

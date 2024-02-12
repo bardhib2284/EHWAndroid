@@ -118,7 +118,7 @@ namespace EHWM.ViewModel {
         }
 
         public string Title { get; set; }
-        public DateTime TodayDate => DateTime.Now;
+        public DateTime TodayDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
         public ShitjaViewModel(ShitjaNavigationParameters navigationParameters) {
             Sasia = 0;
             if(navigationParameters.VizitaEHapur != null) {
@@ -146,7 +146,8 @@ namespace EHWM.ViewModel {
             IncreaseSasiaCommand = new Command(IncreaseSasia);
             DecreaseSasiaCommand = new Command(DecreaseSasia);
             FshijArtikullinCommand = new Command(FshijArtikullinAsync);
-            DataEPageses = DateTime.Now;
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DataEPageses = MyTimeInWesternEurope;
             SearchedArtikujt = new ObservableCollection<Artikulli>();
             KrijoPorosine = false;
         }
@@ -419,12 +420,14 @@ namespace EHWM.ViewModel {
                                     };
                         var nrPorosise = await App.Database.GetNumriPorosiveAsync();
                         var nrPor = nrPorosise.FirstOrDefault(x => x.TIPI == "SHITJE");
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
                         if (nrPor == null) {
                             nrPor = new NumriPorosive
                             {
                                 TIPI = "SHITJE",
                                 NrPorosise = 01,
-                                Date = DateTime.Now,
+                                Date = MyTimeInWesternEurope,
                             };
                             await App.Database.SaveNumriPorosiveAsync(nrPor);
                         }
@@ -434,11 +437,11 @@ namespace EHWM.ViewModel {
                         Liferimi liferimi = new Liferimi
                         {
                             IDLiferimi = IDLiferimi,
-                            DataLiferuar = DateTime.Now.Date,
-                            KohaLiferuar = DateTime.Now.ToLocalTime(),
+                            DataLiferuar = MyTimeInWesternEurope.Date,
+                            KohaLiferuar = MyTimeInWesternEurope,
                             TitulliLiferimit = "",
-                            DataLiferimit = DateTime.Now.Date,
-                            KohaLiferimit = DateTime.Now.ToLocalTime(),
+                            DataLiferimit = MyTimeInWesternEurope,
+                            KohaLiferimit = MyTimeInWesternEurope,
                             IDPorosia = IDPorosi,
                             Liferuar = 1,
                             NrLiferimit = NrFatures.ToString(),
@@ -459,7 +462,7 @@ namespace EHWM.ViewModel {
                             TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
                             TCROperatorCode = agjendi.OperatorCode,
                             TCRBusinessCode = query.FirstOrDefault().BusinessUnitCode, // TODO FIND BUSINESSUNITCODE
-                            TCRIssueDateTime = DateTime.Now.Date,
+                            TCRIssueDateTime = MyTimeInWesternEurope.Date,
                             NrPorosis = nrPor.NrPorosise
                         };
                         liferimi.TotaliPaTVSH = float.Parse(Math.Round(liferimi.CmimiTotal / 1.2f, 2).ToString());
@@ -495,7 +498,7 @@ namespace EHWM.ViewModel {
                         await FiskalizoTCRInvoice(IDLiferimi.ToString());
 
                         VizitaESelektuar.IDStatusiVizites = "6";
-                        VizitaESelektuar.DataRealizimit = DateTime.Now;
+                        VizitaESelektuar.DataRealizimit = MyTimeInWesternEurope;
                         VizitaESelektuar.SyncStatus = 0;
                         await App.Database.UpdateVizitaAsync(VizitaESelektuar);
                         App.Instance.MainViewModel.SelectedVizita = null;
@@ -514,14 +517,14 @@ namespace EHWM.ViewModel {
                             EvidencaPagesave evidencaPagesave = new EvidencaPagesave
                             {
                                 Borxhi = 0,
-                                DataPageses = DateTime.Now,
-                                DataPerPagese = DateTime.Now,
+                                DataPageses = MyTimeInWesternEurope,
+                                DataPerPagese = MyTimeInWesternEurope,
                                 DeviceID = agjendi.DeviceID,
                                 ExportStatus = 0,
                                 IDAgjenti = agjendi.IDAgjenti,
                                 IDKlienti = VizitaESelektuar.IDKlientDheLokacion,
                                 NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
-                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + DateTime.Now.ToString(),
+                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + MyTimeInWesternEurope.ToString(),
                                 PayType = liferimi.PayType,
                                 ShumaPaguar = liferimi.ShumaPaguar,
                                 ShumaTotale = liferimi.CmimiTotal,
@@ -534,14 +537,14 @@ namespace EHWM.ViewModel {
                             EvidencaPagesave evidencaPagesave = new EvidencaPagesave
                             {
                                 Borxhi = liferimi.ShumaPaguar,
-                                DataPageses = DateTime.Now,
-                                DataPerPagese = DateTime.Now,
+                                DataPageses = MyTimeInWesternEurope,
+                                DataPerPagese = MyTimeInWesternEurope,
                                 DeviceID = agjendi.DeviceID,
                                 ExportStatus = 0,
                                 IDAgjenti = agjendi.IDAgjenti,
                                 IDKlienti = VizitaESelektuar.IDKlientDheLokacion,
                                 NrFatures = liferimi.NumriFisk.ToString() + "/" + liferimi.KohaLiferuar.Year,
-                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + DateTime.Now.ToString(),
+                                NrPageses = App.Instance.MainViewModel.LoginData.DeviceID + "-|-" + MyTimeInWesternEurope.ToString(),
                                 PayType = liferimi.PayType,
                                 ShumaPaguar = 0,
                                 ShumaTotale = liferimi.CmimiTotal,
@@ -930,7 +933,9 @@ namespace EHWM.ViewModel {
 
 
         public async Task RegjistroAsync() {
-            App.Instance.MainViewModel.TodaysDate = DateTime.Now;
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
+            App.Instance.MainViewModel.TodaysDate = MyTimeInWesternEurope;
             await App.Instance.MainViewModel.FixDataVizualizimit();
             //await App.Instance.MainPage.Navigation.PushAsync(new PrinterSelectionPage() { BindingContext = this });
 
@@ -1077,14 +1082,15 @@ namespace EHWM.ViewModel {
                     return;
                 }
             }
+
             if (VizitaESelektuar.DataAritjes == null)
-                VizitaESelektuar.DataAritjes = DateTime.Now;
+                VizitaESelektuar.DataAritjes = MyTimeInWesternEurope;
             var FaturaArritjes = VizitaESelektuar.DataAritjes;
             
             if(FaturaArritjes != null) {
-                DateTime dp = DateTime.Now;
-                DateTime dl = DateTime.Now;
-                DateTime KohaPorosise = DateTime.Now.ToLocalTime();
+                DateTime dp = MyTimeInWesternEurope;
+                DateTime dl = MyTimeInWesternEurope;
+                DateTime KohaPorosise = MyTimeInWesternEurope.ToLocalTime();
                 //update porosite
                 var porosite = await App.Database.GetPorositeAsync();
                 var location = await Geolocation.GetLastKnownLocationAsync();
@@ -1093,15 +1099,15 @@ namespace EHWM.ViewModel {
                     IDPorosia = IDPorosi,
                     IDVizita = VizitaESelektuar.IDVizita,
                     NrPorosise = NrFatures.ToString(),
-                    DataPerLiferim = DateTime.Now,
-                    DataPorosise = DateTime.Now,
+                    DataPerLiferim = MyTimeInWesternEurope,
+                    DataPorosise = MyTimeInWesternEurope,
                     StatusiPorosise = 1,
                     DeviceID = VizitaESelektuar.DeviceID,
                     NrDetalet = SelectedArikujt.Count(),
                     Longitude = location?.Longitude.ToString(),
                     Latitude = location?.Latitude.ToString(),
                     SyncStatus = 0,
-                    OraPorosise = DateTime.Now,
+                    OraPorosise = MyTimeInWesternEurope,
                     TitulliPorosise = null,
                 };
                 //SEND POROSIA TO API SO 
@@ -1239,9 +1245,10 @@ namespace EHWM.ViewModel {
                 }
                 await _printer.printText(
 "---------------------------------------------------------------------");
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"));
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -1672,7 +1679,7 @@ namespace EHWM.ViewModel {
                         await _printer.printText("\n");
                         await _printer.printText("\n");
 
-                        await _printer.printText("                     Afati per pagese : " + DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy") + "\n");
+                        await _printer.printText("                     Afati per pagese : " + MyTimeInWesternEurope.AddMonths(1).ToString("dd.MM.yyyy") + "\n");
                     }
                     await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(lif.TCRQRCodeLink),
                                 300/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
@@ -1687,10 +1694,10 @@ namespace EHWM.ViewModel {
                     if (lif.PayType == "BANK") {
                         var smallBarcodeString = string.Empty;
                         if (!string.IsNullOrEmpty(lif.TCRNIVF)) {
-                            smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.TCRNIVF + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
+                            smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.TCRNIVF + ";" + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
                         }
                         else
-                            smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.IDPorosia + ";" + DateTime.Now.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
+                            smallBarcodeString = companyInfo.FirstOrDefault(x => x.Item == "NIPT").Value + ";" + companyInfo.FirstOrDefault(x => x.Item == "Shitesi").Value + ";" + lif.IDPorosia + ";" + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:ss") + ";" + String.Format("{0:###0.00}", lif.CmimiTotal) + "ALL;;;";
                         await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GenerateQRCode(smallBarcodeString),
                                     225/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
                                     (int)MPosAlignment.MPOS_ALIGNMENT_CENTER,           // Alignment

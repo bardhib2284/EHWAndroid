@@ -161,7 +161,9 @@ namespace EHWM.ViewModel {
                             TotaliMeTVSH = g.Sum(x => Math.Round(x.Totali, 2)),
                             TVSH = g.Sum(x => Math.Round(x.Totali - x.TotaliPaTVSH, 2))
                         };
+            DateTime MyTime = DateTime.UtcNow;
 
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
             List<MapperHeader> mapperHeaderList = query.ToList();
             if (mapperHeaderList.Count > 0) {
                 var klientet = await App.Database.GetKlientetAsync();
@@ -188,7 +190,7 @@ namespace EHWM.ViewModel {
                                  InvoiceSType = "Cash GJITHMON",
                                  InvNum = l.NumriFisk + "/" + DateTime.Now.Year,
                                  InvOrdNum = Convert.ToInt32(l.NumriFisk),
-                                 SendDatetime = DateTime.Now,
+                                 SendDatetime = MyTimeInWesternEurope,
                                  IsIssuerInVAT = true,
                                  TaxFreeAmt = Math.Round(0d, 2),
                                  PaymentMethodTypesType = l.PayType,
@@ -210,7 +212,7 @@ namespace EHWM.ViewModel {
                                  Item_VR = (double)Math.Round(decimal.Parse(ci.Value.ToString()), 2),
                                  MobileRefId = "",
                                  IICRef = "",
-                                 IssueDateTimeRef = DateTime.Now,
+                                 IssueDateTimeRef = MyTimeInWesternEurope,
                                  TypeRef = "CORRECTIVE|DEBIT|CREDIT",
                                  IsCorrectiveInv = false,
                                  CardNumber = "",
@@ -295,7 +297,7 @@ namespace EHWM.ViewModel {
 
                             if (liferimiToUpdate != null) {
                                 liferimiToUpdate.TCRSyncStatus = -1;
-                                liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferimiToUpdate.TCRQRCodeLink = null;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -325,7 +327,7 @@ namespace EHWM.ViewModel {
 
                             if (liferimiToUpdate != null) {
                                 liferimiToUpdate.TCRSyncStatus = 1;
-                                liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -360,7 +362,7 @@ namespace EHWM.ViewModel {
 
                                 if (liferimiToUpdate != null) {
                                     liferimiToUpdate.TCRSyncStatus = -1;
-                                    liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                    liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                     liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -391,7 +393,7 @@ namespace EHWM.ViewModel {
 
                                 if (liferimiToUpdate != null) {
                                     liferimiToUpdate.TCRSyncStatus = -1;
-                                    liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                    liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                     liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -422,7 +424,7 @@ namespace EHWM.ViewModel {
 
                             foreach (var liferi in liferimiToUpdate) {
                                 liferi.TCRSyncStatus = 4;
-                                liferi.TCRIssueDateTime = DateTime.Now;
+                                liferi.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferi.TCRQRCodeLink = log.QRCodeLink;
                                 liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferi.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -450,7 +452,7 @@ namespace EHWM.ViewModel {
 
                             foreach (var liferi in liferimiToUpdate) {
                                 liferi.TCRSyncStatus = -2;
-                                liferi.TCRIssueDateTime = DateTime.Now;
+                                liferi.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferi.TCRQRCodeLink = log.QRCodeLink;
                                 liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferi.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -479,7 +481,7 @@ namespace EHWM.ViewModel {
 
                                 foreach (var lif in liferimiToUpdate) {
                                     lif.TCRSyncStatus = -1;
-                                    lif.TCRIssueDateTime = DateTime.Now;
+                                    lif.TCRIssueDateTime = MyTimeInWesternEurope;
                                     lif.TCRQRCodeLink = log.QRCodeLink;
                                     lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     lif.TCROperatorCode = App.Instance.MainViewModel.LoginData.OperatorCode;
@@ -560,7 +562,9 @@ namespace EHWM.ViewModel {
                             Item_Q = Math.Round((decimal)l.Sasia, 2),
                             MobileRefId = "M-06"
                         };
+            DateTime MyTime = DateTime.UtcNow;
 
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
             List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
 
             if (mapperHeaderList.Count > 0) {
@@ -596,7 +600,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = -1;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = null;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -625,7 +629,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = 1;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -655,7 +659,7 @@ namespace EHWM.ViewModel {
 
                                 if (levizjaHeader != null) {
                                     levizjaHeader.TCRSyncStatus = -1;
-                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -683,7 +687,7 @@ namespace EHWM.ViewModel {
 
                                 if (levizjaHeader != null) {
                                     levizjaHeader.TCRSyncStatus = -1;
-                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -715,7 +719,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = 4;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;

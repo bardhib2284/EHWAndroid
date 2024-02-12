@@ -733,12 +733,13 @@ namespace EHWM.ViewModel {
             NumriFraturave = await App.Database.GetNumriFaturaveIDAsync(Agjendi.IDAgjenti);
             var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
             NumriPorosive = gNumriPorosive.FirstOrDefault(x=> x.TIPI == "LEVIZJE");
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
             if (NumriPorosive == null) {
                 NumriPorosive = new NumriPorosive
                 {
                     TIPI = "LEVIZJE",
                     NrPorosise = 01,
-                    Date = DateTime.Now,
+                    Date = MyTimeInWesternEurope,
                 };
                 await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
             }
@@ -960,9 +961,10 @@ namespace EHWM.ViewModel {
                                 nf.Viti
                             };
                 var transferId = Guid.NewGuid();
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
                 var levizjaHeader = new LevizjetHeader
                 {
-                    Data = DateTime.Now,
+                    Data = MyTimeInWesternEurope,
                     IDAgjenti = Agjendi.IDAgjenti,
                     Depo = Agjendi.Depo,
                     LevizjeNga = Nga ? Agjendi.Depo : SelectedKlientet.Depo,
@@ -1107,6 +1109,7 @@ namespace EHWM.ViewModel {
                     req.StartPointSTypeSpecified = true;
                     req.FromDeviceId = inv.FromDevice;
                     req.ToDeviceId = inv.ToDevice;
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                     ResultLogPCL log = App.Instance.FiskalizationService.RegisterWTN(req);
                     if (log == null) {
@@ -1115,7 +1118,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = -1;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = null;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -1144,7 +1147,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = 1;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -1174,7 +1177,7 @@ namespace EHWM.ViewModel {
 
                                 if (levizjaHeader != null) {
                                     levizjaHeader.TCRSyncStatus = -1;
-                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -1202,7 +1205,7 @@ namespace EHWM.ViewModel {
 
                                 if (levizjaHeader != null) {
                                     levizjaHeader.TCRSyncStatus = -1;
-                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
@@ -1234,7 +1237,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = 4;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;

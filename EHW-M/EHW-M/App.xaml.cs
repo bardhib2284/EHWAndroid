@@ -111,7 +111,10 @@ namespace EHW_M {
             try {
                 foreach (var lif in Liferimi) {
                     lif.Export_Status = 2;
-                    lif.KohaLiferimit = DateTime.Now;
+                    DateTime MyTime = DateTime.UtcNow;
+
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
+                    lif.KohaLiferimit = MyTimeInWesternEurope;
                 }
                 var vizitatJson = JsonConvert.SerializeObject(Liferimi);
                 var conf = await Database.GetConfigurimiAsync();

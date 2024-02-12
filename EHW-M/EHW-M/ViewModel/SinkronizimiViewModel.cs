@@ -170,13 +170,14 @@ namespace EHWM.ViewModel {
                                 var cashRegister = await App.Database.GetCashRegisterAsync();
                                 var levizjetHeaderList = await App.Database.GetLevizjetHeaderAsync();
                                 var checkMalliMbetur = levizjetHeaderList.OrderByDescending(x => x.Data).FirstOrDefault();
+                                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
-                                DateTime DataCashRegister = DateTime.Now.Date.AddDays(-5);
+                                DateTime DataCashRegister = MyTimeInWesternEurope.Date.AddDays(-5);
                                 if (cashRegister.Count > 0) {
                                     DataCashRegister = cashRegister.FirstOrDefault().RegisterDate;
                                 }
 
-                                DateTime DataLevizjes = DateTime.Now.Date.AddDays(-5);
+                                DateTime DataLevizjes = MyTimeInWesternEurope.Date.AddDays(-5);
                                 if (checkMalliMbetur != null) {
                                     DataLevizjes = (DateTime)checkMalliMbetur.Data;
                                 }
@@ -184,13 +185,13 @@ namespace EHWM.ViewModel {
                                 decimal CashShumaTotale = _LiferimetShuma; //+_getInitialCash;
 
                                 try {
-                                    if (DateTime.Now.Date >= DataCashRegister.Date) {
+                                    if (MyTimeInWesternEurope.Date >= DataCashRegister.Date) {
                                         RegisterCashDepositInputRequestPCL cashDepositRequest = new RegisterCashDepositInputRequestPCL
                                         {
                                             CashAmount = CashShumaTotale,
                                             DepositType =  CashDepositOperationSTypePCL.WITHDRAW,
                                             TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
-                                            SendDateTime = DateTime.Now,
+                                            SendDateTime = MyTimeInWesternEurope,
                                             SubseqDelivTypeSType = -1
                                         };
 
@@ -202,7 +203,7 @@ namespace EHWM.ViewModel {
                                             DeviceID = Agjendi.DeviceID,
                                             ID = Guid.NewGuid(),
                                             Message = "",
-                                            RegisterDate = DateTime.Now,
+                                            RegisterDate = MyTimeInWesternEurope,
                                             SyncStatus = 0,
                                             TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
                                             TCRSyncStatus = 0,
@@ -228,7 +229,7 @@ namespace EHWM.ViewModel {
                                     }
 
                                     //if (!(checkMalliMbetur.Rows.Count > 0))
-                                    if (DateTime.Now > DataLevizjes) {
+                                    if (MyTimeInWesternEurope > DataLevizjes) {
                                         await FiskalizoMalliMbetur();
                                     }
                                     Sync sync = new Sync();
@@ -318,12 +319,14 @@ namespace EHWM.ViewModel {
                     .FirstOrDefault();
                 var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
                 var NumriPorosive = gNumriPorosive.FirstOrDefault(x => x.TIPI == "LEVIZJE");
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
                 if (NumriPorosive == null) {
                     NumriPorosive = new NumriPorosive
                     {
                         TIPI = "LEVIZJE",
                         NrPorosise = 01,
-                        Date = DateTime.Now,
+                        Date = MyTimeInWesternEurope,
                     };
                     await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
                 }
@@ -336,7 +339,7 @@ namespace EHWM.ViewModel {
                     NumriLevizjes = _NrFatures.ToString(),
                     LevizjeNga = Agjendi.IDAgjenti,
                     LevizjeNe = "PG1",
-                    Data = DateTime.Now, // Assuming you want the current date and time
+                    Data = MyTimeInWesternEurope, // Assuming you want the current date and time
                     Totali = (decimal?)total,
                     IDAgjenti = Agjendi.IDAgjenti,
                     SyncStatus = 0,
@@ -397,6 +400,8 @@ namespace EHWM.ViewModel {
         }
 
         public async Task RegisterTCRWTN(string nrLevizjes) {
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
             var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
             var depot = await App.Database.GetDepotAsync();
             var result = from lh in levizjetHeader
@@ -410,7 +415,7 @@ namespace EHWM.ViewModel {
                          {
                              Numri_Levizjes = lh.NumriLevizjes,
                              InvOrdNum = (int)lh.NumriFisk,
-                             InvNum = lh.NumriFisk + "/" + DateTime.Now.Year,
+                             InvNum = lh.NumriFisk + "/" + MyTimeInWesternEurope.Year,
                              ValueOfGoods = Math.Round((decimal)lh.Totali, 2),
                              FromDevice = d_nga.TAGNR,
                              ToDevice = d_ne.TAGNR,
@@ -432,7 +437,7 @@ namespace EHWM.ViewModel {
                             DeviceID = h.Depo,
                             OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
                             InvOrdNum = (int)h.NumriFisk,
-                            InvNum = h.NumriFisk + "/" + DateTime.Now.Year,
+                            InvNum = h.NumriFisk + "/" + MyTimeInWesternEurope.Year,
                             SendDatetime = (DateTime)h.Data,
                             ValueOfGoods = Math.Round((decimal)h.Totali, 2),
                             StartPointSType = "SALE",
@@ -479,7 +484,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = -1;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = null;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -508,7 +513,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = 1;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -538,7 +543,7 @@ namespace EHWM.ViewModel {
 
                                 if (levizjaHeader != null) {
                                     levizjaHeader.TCRSyncStatus = -1;
-                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -566,7 +571,7 @@ namespace EHWM.ViewModel {
 
                                 if (levizjaHeader != null) {
                                     levizjaHeader.TCRSyncStatus = -1;
-                                    levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -598,7 +603,7 @@ namespace EHWM.ViewModel {
 
                         if (levizjaHeader != null) {
                             levizjaHeader.TCRSyncStatus = 4;
-                            levizjaHeader.TCRIssueDateTime = DateTime.Now;
+                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -657,6 +662,7 @@ namespace EHWM.ViewModel {
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
                 var artikujt = await App.Database.GetArtikujtAsync();
                 var companyInfo = await App.Database.GetCompanyInfoAsync();
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 var query2 = from l in liferimi
                              join la in liferimiArt on l.IDLiferimi equals la.IDLiferimi
@@ -672,7 +678,7 @@ namespace EHWM.ViewModel {
                                  DeviceID = l.Depo,
                                  OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit, // Replace with the actual operator code
                                  InvoiceSType = "Cash GJITHMON", // Replace with the actual invoice type
-                                 InvNum = l.NumriFisk + "/" + DateTime.Now.Year,
+                                 InvNum = l.NumriFisk + "/" + MyTimeInWesternEurope.Year,
                                  InvOrdNum = Convert.ToInt32(l.NumriFisk),
                                  SendDatetime = l.KohaLiferimit,
                                  IsIssuerInVAT = true,
@@ -696,7 +702,7 @@ namespace EHWM.ViewModel {
                                  Item_VR = (double)Math.Round(decimal.Parse(ci.Value.ToString()), 2),
                                  MobileRefId = "",
                                  IICRef = "",
-                                 IssueDateTimeRef = DateTime.Now,
+                                 IssueDateTimeRef = MyTimeInWesternEurope,
                                  TypeRef = "CORRECTIVE|DEBIT|CREDIT",
                                  IsCorrectiveInv = false,
                                  CardNumber = "",
@@ -779,7 +785,7 @@ namespace EHWM.ViewModel {
 
                         if (liferimiToUpdate != null) {
                             liferimiToUpdate.TCRSyncStatus = -1;
-                            liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                            liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                             liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                             liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -810,7 +816,7 @@ namespace EHWM.ViewModel {
 
                             if (liferimiToUpdate != null) {
                                 liferimiToUpdate.TCRSyncStatus = -1;
-                                liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -841,7 +847,7 @@ namespace EHWM.ViewModel {
 
                             if (liferimiToUpdate != null) {
                                 liferimiToUpdate.TCRSyncStatus = -1;
-                                liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                 liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -872,7 +878,7 @@ namespace EHWM.ViewModel {
 
                         foreach (var liferi in liferimiToUpdate) {
                             liferi.TCRSyncStatus = 4;
-                            liferi.TCRIssueDateTime = DateTime.Now;
+                            liferi.TCRIssueDateTime = MyTimeInWesternEurope;
                             liferi.TCRQRCodeLink = log.QRCodeLink;
                             liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -902,7 +908,7 @@ namespace EHWM.ViewModel {
 
                         foreach (var liferi in liferimiToUpdate) {
                             liferi.TCRSyncStatus = -2;
-                            liferi.TCRIssueDateTime = DateTime.Now;
+                            liferi.TCRIssueDateTime = MyTimeInWesternEurope;
                             liferi.TCRQRCodeLink = log.QRCodeLink;
                             liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                             liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -933,7 +939,7 @@ namespace EHWM.ViewModel {
 
                             foreach (var lif in liferimiToUpdate) {
                                 lif.TCRSyncStatus = -3;
-                                lif.TCRIssueDateTime = DateTime.Now;
+                                lif.TCRIssueDateTime = MyTimeInWesternEurope;
                                 lif.TCRQRCodeLink = log.QRCodeLink;
                                 lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                 lif.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
@@ -1637,9 +1643,11 @@ namespace EHWM.ViewModel {
 
         private async Task<bool> UpdateMalli_Mbetur() {
             bool a = false;
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
             var malliMbetur = await App.Database.GetMalliMbeturAsyncWithDepo(Agjendi.Depo);
             foreach(var malli in malliMbetur) {
-                malli.Data = DateTime.Now;
+                malli.Data = MyTimeInWesternEurope;
                 malli.SyncStatus = 0;
             }
             var result = await App.Database.UpdateAllMalliMbeturAsync(malliMbetur);
@@ -3609,8 +3617,9 @@ namespace EHWM.ViewModel {
             return false;
         }
         private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
-            foreach(var mall in OrderDetasails) {
-                mall.Data = DateTime.Now;
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            foreach (var mall in OrderDetasails) {
+                mall.Data = MyTimeInWesternEurope;
                 mall.Export_Status = 0;
             }
             var OrderDetailsJson = JsonConvert.SerializeObject(OrderDetasails);
