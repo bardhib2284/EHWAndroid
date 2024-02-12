@@ -462,7 +462,7 @@ namespace EHWM.ViewModel {
                             TCRIssueDateTime = DateTime.Now.Date,
                             NrPorosis = nrPor.NrPorosise
                         };
-                        liferimi.TotaliPaTVSH = liferimi.CmimiTotal / 1.2f;
+                        liferimi.TotaliPaTVSH = float.Parse(Math.Round(liferimi.CmimiTotal / 1.2f, 2).ToString());
                         await App.Database.SaveLiferimiAsync(liferimi);
                         var porositeArtForPorosiaID = await App.Database.GetPorositeArtAsyncWithPorosiaID(IDPorosi);
                         foreach (var porosArt in porositeArtForPorosiaID) {
@@ -482,8 +482,8 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                                 Totali = (float)(porosArt.CmimiAktual * porosArt.SasiaPorositur),
                             };
-                            liferimiArt.TotaliPaTVSH = liferimiArt.Totali / 1.2f;
-                            liferimiArt.VlefteTVSH = liferimiArt.Totali - liferimiArt.TotaliPaTVSH;
+                            liferimiArt.TotaliPaTVSH = float.Parse(Math.Round(liferimiArt.Totali / 1.2f,2).ToString());
+                            liferimiArt.VlefteTVSH = float.Parse(Math.Round(liferimiArt.Totali - liferimiArt.TotaliPaTVSH, 2).ToString());
                             var saveResult = await App.Database.SaveLiferimiArtAsync(liferimiArt);
                             if (saveResult == -1) {
                                 UserDialogs.Instance.Alert("Problem ne ruajtjen e liferimit ART tek regjistro");
