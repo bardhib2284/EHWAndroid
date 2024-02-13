@@ -1,6 +1,7 @@
 ﻿using Acr.UserDialogs;
 using EHW_M;
 using EHWM.Models;
+using EHWM.Services;
 using EHWM.ViewModel;
 using Rg.Plugins.Popup.Extensions;
 using Rg.Plugins.Popup.Pages;
@@ -19,15 +20,39 @@ namespace EHWM.Views.Popups {
         public RegjistroLinkunPerFiskalizimiPopup() {
             InitializeComponent();
         }
-
-        private async void Button_Clicked(object sender, EventArgs e) {
+        protected override void OnAppearing() {
+            base.OnAppearing();
             var bc = (MainViewModel)BindingContext;
             if (bc != null) {
-                Linqet linqet = new Linqet { Linku = entri.Text, Tipi = "FISKALIZIMI" };
-                await App.Database.SaveLinkuAsync(linqet);
-                UserDialogs.Instance.Alert("Linku u shtua me sukses");
+                if (bc.EditLinks) {
+                    entri.Text = bc.LinkuPerFiskPerEdit.Linku;
+                    titulli.Text = bc.LinkuPerFiskPerEdit.Titulli;
+                    edit.IsVisible = true;
+                }
+                else
+                    save.IsVisible = true;
+            }
+        }
+        private async void Button_Clicked(object sender, EventArgs e) {
+            var bc = (MainViewModel)BindingContext;
+            if (bc.EditLinks) {
+                Linqet linqet = bc.LinqetPerFiskalizim.FirstOrDefault(x => x.Id == bc.LinkuPerFiskPerEdit.Id);
+                linqet.Linku = entri.Text;
+                linqet.Titulli = titulli.Text;
+                await App.Database.UpdateLinkuAsync(linqet);
+                UserDialogs.Instance.Alert("Linku u editua me sukses");
                 await App.Instance.MainPage.Navigation.PopPopupAsync(true);
-                bc.LinqetPerFiskalizim.Add(linqet);
+                bc.LinqetPerFiskalizim.Remove(linqet);
+                bc.LinqetPerFiskalizim.Insert(0, linqet);
+            }
+            else {
+                if (bc != null) {
+                    Linqet linqet = new Linqet { Linku = entri.Text, Tipi = "FISKALIZIMI", Titulli = titulli.Text };
+                    await App.Database.SaveLinkuAsync(linqet);
+                    UserDialogs.Instance.Alert("Linku u shtua me sukses");
+                    await App.Instance.MainPage.Navigation.PopPopupAsync(true);
+                    bc.LinqetPerFiskalizim.Add(linqet);
+                }
             }
         }
     }

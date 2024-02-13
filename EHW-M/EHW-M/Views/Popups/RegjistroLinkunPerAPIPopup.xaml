@@ -25,9 +25,18 @@
         Padding="20, 20, 20, 20" CornerRadius="20">
         <StackLayout>
             <Label Text="REGJISTRO LINKUN PER API"/>
-            <Entry x:Name="entri" />
+            <StackLayout >
+                <Label Text="Linku" />
+                <Entry x:Name="entri"/>
+            </StackLayout>
 
-            <Button Text="REGJISTRO" Clicked="Button_Clicked"/>
+            <StackLayout>
+                <Label Text="Titulli"/>
+                <Entry x:Name="titulli" />
+            </StackLayout>
+
+            <Button x:Name="save" Text="REGJISTRO" Clicked="Button_Clicked" IsVisible="false"/>
+            <Button x:Name="edit" Text="EDITO" Clicked="Button_Clicked" IsVisible="false"/>
         </StackLayout>
 
     </Frame>

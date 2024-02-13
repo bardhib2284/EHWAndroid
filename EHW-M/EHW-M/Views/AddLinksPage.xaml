@@ -10,20 +10,23 @@
                 <StackLayout Orientation="Horizontal">
                     <Label Text="Linqet per API" HorizontalOptions="StartAndExpand" VerticalTextAlignment="Center"/>
 
-                    <Button Text="  Shto Linkun Per API  " Command="{Binding CreateLinkunPerAPICommand}" HorizontalOptions="EndAndExpand"/>
+                    <Button Text="  Shto Linkun Per API  " HeightRequest="40" FontSize="11" Command="{Binding CreateLinkunPerAPICommand}" HorizontalOptions="EndAndExpand"/>
                 </StackLayout>
                 <Frame BorderColor="Black">
-                    <ListView ItemsSource="{Binding LinqetPerAPI}" >
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <ViewCell>
-                                    <StackLayout>
-                                        <Label Text="{Binding Linku}"/>
-                                    </StackLayout>
-                                </ViewCell>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                    <StackLayout>
+                        <ListView ItemsSource="{Binding LinqetPerAPI}" ItemTapped="ListView_ItemTapped">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout>
+                                            <Label Text="{Binding Linku}"/>
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <Button Margin="0" Padding="0" x:Name="apiEdit" WidthRequest="80" HorizontalOptions="End" Text="Edito" HeightRequest="40" Command="{Binding EditLinkunPerAPICommand}" IsVisible="false" Clicked="Button_Clicked"/>
+                    </StackLayout>
                 </Frame>
 
             </StackLayout>
@@ -32,23 +35,26 @@
                 <StackLayout Orientation="Horizontal" >
                     <Label Text="Linqet per Fiskalizim" HorizontalOptions="StartAndExpand" VerticalTextAlignment="Center"/>
 
-                    <Button Text=" Shto Linkun Per Fiskalizim " Command="{Binding CreateLinkunPerFiskalizimCommand}" HorizontalOptions="EndAndExpand"/>
+                    <Button Text="   Shto Linkun Per Fiskalizim   " FontSize="11" HeightRequest="40" Command="{Binding CreateLinkunPerFiskalizimCommand}" HorizontalOptions="EndAndExpand"/>
                 </StackLayout>
                 <Frame>
-                    <ListView ItemsSource="{Binding LinqetPerFiskalizim}">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <ViewCell>
-                                    <StackLayout>
-                                        <Label Text="{Binding Linku}"/>
-                                    </StackLayout>
-                                </ViewCell>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                    <StackLayout>
+                        <ListView ItemsSource="{Binding LinqetPerFiskalizim}" ItemTapped="ListView_ItemTapped_1">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout>
+                                            <Label Text="{Binding Linku}"/>
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <Button Margin="0" Padding="0" x:Name="fiskEdit" WidthRequest="80" HorizontalOptions="End" Text="Edito" HeightRequest="40" Command="{Binding EditLinkunPerFiskCommand}" IsVisible="false" Clicked="Button_Clicked"/>
+                    </StackLayout>
                 </Frame>
             </StackLayout>
-            
+
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
