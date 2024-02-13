@@ -10,5 +10,6 @@ namespace EHWM.Models {
         public string Linku { get; set; }
         public string Tipi { get; set; }
         public bool IsActive { get; set; }
+        public string Titulli { get; set; }
     }
 }

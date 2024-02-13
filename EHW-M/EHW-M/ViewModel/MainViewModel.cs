@@ -70,6 +70,8 @@ namespace EHWM.ViewModel {
         public ICommand GoToAddLinksCommand { get; set; }
         public ICommand CreateLinkunPerFiskalizimCommand { get; set; }
         public ICommand CreateLinkunPerAPICommand { get; set; }
+        public ICommand EditLinkunPerAPICommand { get; set; }
+        public ICommand EditLinkunPerFiskCommand { get; set; }
 
 
         public bool DissapearingFromShitjaPage { get; set; }
@@ -191,6 +193,7 @@ namespace EHWM.ViewModel {
         private int currentDay;
         private DateTime DataCal = System.DateTime.Now.Date, dtFisrtDate, dtLastDate;
 
+        public bool EditLinks { get; set; }
         public MainViewModel() {
             OpenKlientet = new Command(async () => await OpenKlientetAsync());
             OpenSinkronizimiCommand = new Command(async () => await OpenSinkronizimiAsync());
@@ -226,10 +229,12 @@ namespace EHWM.ViewModel {
             HapInkasimetCommand = new Command(async () => await HapInkasimetAsync());
             PrintTestCommand = new Command(async () => await PrintoFaturenAsync());
             GoToAddLinksCommand = new Command(async () => await GoToAddLinksAsync());
-            CreateLinkunPerFiskalizimCommand = new Command(async () => { await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerFiskalizimiPopup() { BindingContext = this }); });
-            CreateLinkunPerAPICommand = new Command(async () => { await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerAPIPopup() { BindingContext = this }); });
+            CreateLinkunPerFiskalizimCommand = new Command(async () => { EditLinks = false; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerFiskalizimiPopup() { BindingContext = this }); });
 
+            CreateLinkunPerAPICommand = new Command(async () => { EditLinks = false; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerAPIPopup() { BindingContext = this }); });
 
+            EditLinkunPerAPICommand = new Command(async () => { EditLinks = true; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerAPIPopup() { BindingContext = this }); });
+            EditLinkunPerFiskCommand = new Command(async () => { EditLinks = true; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerFiskalizimiPopup() { BindingContext = this }); });
             FilterDate = DateTime.Now;
             FilterMinDate = DateTime.Now.AddDays(-7);
             FilterMaxDate = DateTime.Now.AddDays(7);
@@ -3125,6 +3130,16 @@ namespace EHWM.ViewModel {
             var linqet = await App.Database.GetAllLinqetAsync();
             LinqetPerAPI = new ObservableCollection<Linqet>(linqet.Where(x => x.Tipi == "API"));
             LinqetPerFiskalizim = new ObservableCollection<Linqet>(linqet.Where(x => x.Tipi == "FISKALIZIMI"));
+            foreach(var linku in LinqetPerAPI) {
+                if(linku.Titulli == null) {
+                    linku.Titulli = String.Empty;
+                }
+            }
+            foreach(var linku in LinqetPerFiskalizim) {
+                if(linku.Titulli == null) {
+                    linku.Titulli = String.Empty;
+                }
+            }
             await App.Instance.PushAsyncNewPage(new ConfigurimiPage() { BindingContext = this});
         }
         public List<string> DitetEJaves = new List<string> { "E Hënë", "E Martë", "E Mërkurë", "E Enjte", "E Premte", "E Shtunë", "E Diel" };
@@ -3331,7 +3346,7 @@ namespace EHWM.ViewModel {
                 if (klientet.Count > 0) {
                     Clients = new ObservableCollection<Klientet>(klientet.OrderBy(x=> x.Emri));
                     await App.Instance.PushAsyncNewPage(new RegjistrimiIVizitesPage() { BindingContext = this });
-                    RegjistroVizitenDate = DateTime.Now;
+                    RegjistroVizitenDate = DateTime.UtcNow;
                     await App.Instance.MainPage.Navigation.PopPopupAsync();
                 }
                 else {
@@ -3345,6 +3360,8 @@ namespace EHWM.ViewModel {
         public async Task LoginAsync() {
             try {
                 Configurimi = await App.Database.GetConfigurimiAsync();
+
+                //TODO: REMOVE THIS NEXT VERSION
                 var liferimetArt = await App.Database.GetLiferimetArtAsync();
                 if(liferimetArt != null) {
                     if(liferimetArt.Count > 0) {
@@ -4176,6 +4193,8 @@ namespace EHWM.ViewModel {
         }
         public ObservableCollection<Vizita> Vizitat { get; set; }
         public ObservableCollection<Linqet> LinqetPerAPI { get; set; }
+        public Linqet LinkuPerApiPerEdit { get; set; }
+        public Linqet LinkuPerFiskPerEdit { get; set; }
         public ObservableCollection<Linqet> LinqetPerFiskalizim { get; set; }
 
         private ObservableCollection<Vizita> vizitatFilteredByDate;
