@@ -1915,6 +1915,7 @@ namespace EHWM.ViewModel {
                 string sKthyer;
                 string slevizje;
                 string smbetur;
+                LiferimetEKryera = new ObservableCollection<VizualizimiFatures>(LiferimetEKryera.OrderByDescending(x => x.NrFisk));
                 foreach (var vizLif in LiferimetEKryera) {
                     indexi++;
                     var lif = liferimet.FirstOrDefault(x => x.IDLiferimi == vizLif.IDLiferimi);
