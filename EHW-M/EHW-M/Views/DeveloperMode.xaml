@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.DeveloperMode" Title="Developer Mode">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Ketu gjindet databaza dhe mund te ndryshohen vlerat nese ka nevoje."/>
+            <Picker x:Name="pickerinjo"/>
+
+            <ListView ItemsSource="{Binding NumratFiskalDevMode}" ItemTapped="ListView_ItemTapped">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal">
+                                <Label Text="Numri fisk per TCRCode : "/>
+                                <Label Text="{Binding TCRCode}"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

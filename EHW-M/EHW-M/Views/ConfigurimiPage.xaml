@@ -8,6 +8,6 @@
     </TabbedPage.ToolbarItems>
     <local:DeviceConfigurationPage Title="Device"/>
     <local:ServeriConfigurationPage Title="Serveri"/>
-    <local:DeviceConfigurationPage Title="Testimi"/>
+    <local:TestimiConfigurationPage Title="Testimi"/>
 
 </TabbedPage>

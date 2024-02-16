@@ -4,9 +4,7 @@
              x:Class="EHWM.Views.TestimiConfigurationPage">
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+            <Button Text="Developer Mode" Command="{Binding GoToDeveloperModeCommand}"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

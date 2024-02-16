@@ -66,7 +66,7 @@ namespace EHW_M {
             //};
             FiskalizationService = DependencyService.Get<IFiskalizationService>();
 
-            var minutes = TimeSpan.FromMinutes(5f);
+            var minutes = TimeSpan.FromMinutes(0.2f);
 
             Device.StartTimer(minutes, () => {
                 Device.BeginInvokeOnMainThread(

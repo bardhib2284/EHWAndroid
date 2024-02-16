@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.NumriFiskDevMode" Title="Numri Fisk Developer Mode">
+    <ContentPage.Content>
+        <StackLayout Padding="20">
+            
+            
+            <Label Text="IDN"/>
+            <Entry Text="{Binding SelectedNumriFiskDevMode.IDN,Mode=TwoWay}"/>
+
+            <Label Text="LevizjeIDN"/>
+            <Entry Text="{Binding SelectedNumriFiskDevMode.LevizjeIDN,Mode=TwoWay}"/>
+
+
+            <Button Text="Ruaj Ndryshimet" Clicked="Button_Clicked"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

@@ -741,6 +741,7 @@ namespace EHWM.ViewModel
                 return -1;
             }
         }
+
         public async Task<int> UpdateNumriFiskalAsync(NumriFisk a) {
             try {
                 return await _database.UpdateAsync(a);
@@ -749,6 +750,7 @@ namespace EHWM.ViewModel
                 return -1;
             }
         }
+
         public async Task<int> SaveNumratFiskalAsync(List<NumriFisk> a) {
             try {
                 return await _database.InsertAllAsync(a);

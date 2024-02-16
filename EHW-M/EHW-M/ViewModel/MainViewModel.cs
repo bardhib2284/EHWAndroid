@@ -37,6 +37,7 @@ namespace EHWM.ViewModel {
     public class MainViewModel : BaseViewModel {
 
         public ICommand OpenKlientet { get; set; }
+        public ICommand GoToDeveloperModeCommand { get; set; }
         public ICommand OpenPorositeCommand { get; set; }
         public ICommand CreateNewKlientPageCommand { get; set; }
         public ICommand SaveNewClientCommand { get; set; }
@@ -141,6 +142,17 @@ namespace EHWM.ViewModel {
                 SetProperty(ref _selectedClient, value);
             }
         }
+
+        private NumriFisk _SelectedNumriFiskDevMode;
+        public NumriFisk SelectedNumriFiskDevMode {
+            get {
+                return _SelectedNumriFiskDevMode;
+            }
+            set {
+                SetProperty(ref _SelectedNumriFiskDevMode, value);
+            }
+        }
+
         private AuthenticatedUser _SelectedAuthenticatedUser;
         public AuthenticatedUser SelectedAuthenticatedUser {
             get {
@@ -229,6 +241,7 @@ namespace EHWM.ViewModel {
             HapInkasimetCommand = new Command(async () => await HapInkasimetAsync());
             PrintTestCommand = new Command(async () => await PrintoFaturenAsync());
             GoToAddLinksCommand = new Command(async () => await GoToAddLinksAsync());
+            GoToDeveloperModeCommand = new Command(async () => await GoToDeveloperModeAsync());
             CreateLinkunPerFiskalizimCommand = new Command(async () => { EditLinks = false; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerFiskalizimiPopup() { BindingContext = this }); });
 
             CreateLinkunPerAPICommand = new Command(async () => { EditLinks = false; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerAPIPopup() { BindingContext = this }); });
@@ -250,6 +263,10 @@ namespace EHWM.ViewModel {
             LinqetPerFiskalizim = new ObservableCollection<Linqet>();
         }
 
+        private async Task GoToDeveloperModeAsync() {
+            await App.Instance.PushAsyncNewPage(new DeveloperMode() { BindingContext = this }); ;
+        }
+        
         private async Task GoToAddLinksAsync() {
             await App.Instance.PushAsyncNewPage(new AddLinksPage() { BindingContext = this }); ;
         }
@@ -1920,7 +1937,7 @@ namespace EHWM.ViewModel {
                 string sKthyer;
                 string slevizje;
                 string smbetur;
-                LiferimetEKryera = new ObservableCollection<VizualizimiFatures>(LiferimetEKryera.OrderByDescending(x => x.NrFisk));
+                LiferimetEKryera = new ObservableCollection<VizualizimiFatures>(LiferimetEKryera.OrderBy(x => x.NrFisk));
                 foreach (var vizLif in LiferimetEKryera) {
                     indexi++;
                     var lif = liferimet.FirstOrDefault(x => x.IDLiferimi == vizLif.IDLiferimi);
@@ -3697,6 +3714,12 @@ namespace EHWM.ViewModel {
         public List<Depot> Depot { get; set; }
         public List<Agjendet> Agjendet { get; set; }
         public List<NumriFisk> NumratFiskal { get; set; }
+
+
+        private ObservableCollection<NumriFisk> _numratFiskalDevMode;
+
+        public ObservableCollection<NumriFisk> NumratFiskalDevMode { get { return _numratFiskalDevMode; } set { SetProperty(ref _numratFiskalDevMode, value); } }
+
         public List<FiskalizimiKonfigurimet> FiskalizimiKonfigurimet { get; set; }
         public async Task<string[]> GetConfigurationByIDAgjentiAsync() {
             string[] result = new string[7];
