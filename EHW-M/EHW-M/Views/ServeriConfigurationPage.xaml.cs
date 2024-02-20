@@ -36,6 +36,7 @@ namespace EHWM.Views {
                     if(activeLink != null)
                         serveri.Text = activeLink.Linku;
                 }
+                //serveri.text = "http://84.22.42.59:8188/ehwapi/"
                 //serveri.Text = "http://95.107.161.233:4448/ehwapi/";
                 //fiskalizimi.Text = "http://84.22.42.59:5010/FiscalisationService.asmx";
                 //fiskalizimi.Text = "http://95.107.161.233:4446/FiscalisationService.asmx";

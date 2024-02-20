@@ -143,6 +143,34 @@ namespace EHWM.ViewModel {
             }
         }
 
+        private LiferimiArt _SelectedLiferimiArtDevMode;
+        public LiferimiArt SelectedLiferimiArtDevMode {
+            get {
+                return _SelectedLiferimiArtDevMode;
+            }
+            set {
+                SetProperty(ref _SelectedLiferimiArtDevMode, value);
+            }
+        }
+
+        private Liferimi _SelectedLiferimiDevMode;
+        public Liferimi SelectedLiferimiDevMode {
+            get {
+                return _SelectedLiferimiDevMode;
+            }
+            set {
+                SetProperty(ref _SelectedLiferimiDevMode, value);
+            }
+        }
+        private NumriFaturave _SelectedNumriFatDevMode;
+        public NumriFaturave SelectedNumriFatDevMode {
+            get {
+                return _SelectedNumriFatDevMode;
+            }
+            set {
+                SetProperty(ref _SelectedNumriFatDevMode, value);
+            }
+        }
         private NumriFisk _SelectedNumriFiskDevMode;
         public NumriFisk SelectedNumriFiskDevMode {
             get {
@@ -3716,9 +3744,20 @@ namespace EHWM.ViewModel {
         public List<NumriFisk> NumratFiskal { get; set; }
 
 
+        private ObservableCollection<NumriFaturave> _NumratFaturaveDevMode;
+
+        public ObservableCollection<NumriFaturave> NumratFaturaveDevMode { get { return _NumratFaturaveDevMode; } set { SetProperty(ref _NumratFaturaveDevMode, value); } }
+
         private ObservableCollection<NumriFisk> _numratFiskalDevMode;
 
         public ObservableCollection<NumriFisk> NumratFiskalDevMode { get { return _numratFiskalDevMode; } set { SetProperty(ref _numratFiskalDevMode, value); } }
+
+        private ObservableCollection<Liferimi> _LiferimetDevMode;
+
+        public ObservableCollection<Liferimi> LiferimetDevMode { get { return _LiferimetDevMode; } set { SetProperty(ref _LiferimetDevMode, value); } }
+         private ObservableCollection<LiferimiArt> _LiferimetArtDevMode;
+
+        public ObservableCollection<LiferimiArt> LiferimetArtDevMode { get { return _LiferimetArtDevMode; } set { SetProperty(ref _LiferimetArtDevMode, value); } }
 
         public List<FiskalizimiKonfigurimet> FiskalizimiKonfigurimet { get; set; }
         public async Task<string[]> GetConfigurationByIDAgjentiAsync() {

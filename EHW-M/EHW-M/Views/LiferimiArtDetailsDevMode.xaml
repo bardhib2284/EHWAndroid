@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.LiferimiArtDetailsDevMode" Title="Liferimet Art Details Dev Mode">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="20">
+
+
+                <Label Text="IDArtikulli"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.IDArtikulli,Mode=TwoWay}"/>
+
+                <Label Text="Cmimi"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.Cmimi,Mode=TwoWay}"/>
+
+                <Label Text="SasiaLiferuar"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.SasiaLiferuar,Mode=TwoWay}"/>
+
+                <Label Text="SasiaPorositur"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.SasiaPorositur,Mode=TwoWay}"/>
+
+                <Label Text="ArtEmri"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.ArtEmri,Mode=TwoWay}"/>
+
+                <Label Text="Totali"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.Totali,Mode=TwoWay}"/>
+
+                <Label Text="DeviceID"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.DeviceID,Mode=TwoWay}"/>
+
+                <Label Text="Gratis"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.Gratis,Mode=TwoWay}"/>
+
+                <Label Text="SyncStatus"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.SyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="IDArsyeja"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.IDArsyeja,Mode=TwoWay}"/>
+
+                <Label Text="IDKthimi"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.IDKthimi,Mode=TwoWay}"/>
+
+                <Label Text="CmimiPaTVSH"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.CmimiPaTVSH,Mode=TwoWay}"/>
+
+                <Label Text="TotaliPaTVSH"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.TotaliPaTVSH,Mode=TwoWay}"/>
+
+                <Label Text="Seri"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.Seri,Mode=TwoWay}"/>
+
+                <Label Text="TCRSyncStatus"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.TCRSyncStatus,Mode=TwoWay}"/>
+
+
+                <Button Text="Ruaj Ndryshimet" Clicked="Button_Clicked"/>
+            </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

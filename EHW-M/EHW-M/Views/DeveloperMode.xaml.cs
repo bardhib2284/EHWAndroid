@@ -17,7 +17,6 @@ namespace EHWM.Views
 		public DeveloperMode ()
 		{
 			InitializeComponent ();
-			pickerinjo.ItemsSource = new List<string> { "Zgjedh njeren nga modelet", "Numri Fiskal", "Vizitat" };
 		}
 
         protected override async void OnAppearing() {
@@ -25,12 +24,27 @@ namespace EHWM.Views
 			var bc = (MainViewModel)BindingContext;
 			bc.NumratFiskalDevMode = new System.Collections.ObjectModel.ObservableCollection<Models.NumriFisk>( await App.Database.GetNumratFiskalAsync());
 			bc.NumratFiskalDevMode = new System.Collections.ObjectModel.ObservableCollection<Models.NumriFisk>( bc.NumratFiskalDevMode.Where(x => x.TCRCode == bc.Configurimi.KodiTCR));
+			bc.LiferimetDevMode = new System.Collections.ObjectModel.ObservableCollection<Models.Liferimi>(await App.Database.GetLiferimetAsync());
+            bc.NumratFaturaveDevMode = new System.Collections.ObjectModel.ObservableCollection<Models.NumriFaturave>(await App.Database.GetNumriFaturaveAsync());
+            bc.NumratFaturaveDevMode = new System.Collections.ObjectModel.ObservableCollection<Models.NumriFaturave>(bc.NumratFaturaveDevMode.Where(x=> x.KOD == bc.Configurimi.Shfrytezuesi));
         }
 
         private async void ListView_ItemTapped(object sender, ItemTappedEventArgs e) {
             var bc = (MainViewModel)BindingContext;
-			bc.SelectedNumriFiskDevMode = bc.NumratFiskalDevMode.FirstOrDefault(x => x.TCRCode == (e.Item as Models.NumriFisk).TCRCode);
-            await App.Instance.PushAsyncNewPage(new NumriFiskDevMode() { BindingContext = bc });
+			if(e.Item is Models.NumriFisk) {
+                bc.SelectedNumriFiskDevMode = bc.NumratFiskalDevMode.FirstOrDefault(x => x.TCRCode == (e.Item as Models.NumriFisk).TCRCode);
+                await App.Instance.PushAsyncNewPage(new NumriFiskDevMode("fisk") { BindingContext = bc });
+            }
+			else if (e.Item is Models.Liferimi) {
+                bc.SelectedLiferimiDevMode = bc.LiferimetDevMode.FirstOrDefault(x => x.IDLiferimi == (e.Item as Models.Liferimi).IDLiferimi);
+                var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                bc.LiferimetArtDevMode = new System.Collections.ObjectModel.ObservableCollection<Models.LiferimiArt>(liferimetArt.Where(x => x.IDLiferimi == bc.SelectedLiferimiDevMode.IDLiferimi));
+                await App.Instance.PushAsyncNewPage(new LiferimiDevMode() { BindingContext = bc });
+            }
+			else if (e.Item is Models.NumriFaturave) {
+                bc.SelectedNumriFatDevMode = bc.NumratFaturaveDevMode.FirstOrDefault(x => x.KOD == (e.Item as Models.NumriFaturave).KOD);
+                await App.Instance.PushAsyncNewPage(new NumriFiskDevMode("fat") { BindingContext = bc });
+            }
         }
     }
 }

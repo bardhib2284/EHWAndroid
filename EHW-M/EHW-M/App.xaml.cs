@@ -66,7 +66,7 @@ namespace EHW_M {
             //};
             FiskalizationService = DependencyService.Get<IFiskalizationService>();
 
-            var minutes = TimeSpan.FromMinutes(0.2f);
+            var minutes = TimeSpan.FromMinutes(5f);
 
             Device.StartTimer(minutes, () => {
                 Device.BeginInvokeOnMainThread(
@@ -143,7 +143,6 @@ namespace EHW_M {
                     return false;
                 }
                 else {
-                    UserDialogs.Instance.Alert("Gabim i panjohur, ju lutem raportojeni tek ASEE : " + e.Message);
                     return false;
                 }
             }

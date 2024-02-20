@@ -3,22 +3,90 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="EHWM.Views.DeveloperMode" Title="Developer Mode">
     <ContentPage.Content>
-        <StackLayout>
+        <ScrollView>
+            
+        <StackLayout Padding="5" VerticalOptions="Fill">
             <Label Text="Ketu gjindet databaza dhe mund te ndryshohen vlerat nese ka nevoje."/>
-            <Picker x:Name="pickerinjo"/>
 
-            <ListView ItemsSource="{Binding NumratFiskalDevMode}" ItemTapped="ListView_ItemTapped">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <StackLayout Orientation="Horizontal">
-                                <Label Text="Numri fisk per TCRCode : "/>
-                                <Label Text="{Binding TCRCode}"/>
-                            </StackLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+            <Frame Padding="5">
+                <StackLayout VerticalOptions="Fill">
+                    <Label Text="Numri Fiskal" FontAttributes="Bold"/>
+                    <ListView ItemsSource="{Binding NumratFiskalDevMode}" HeightRequest="40" ItemTapped="ListView_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Padding="5">
+                                        <Label Text="Numri fisk per TCRCode : "/>
+                                        <Label Text="{Binding TCRCode}"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackLayout>
+            </Frame>
+                <BoxView BackgroundColor="red" HeightRequest="1"/>
+                <Frame Padding="5">
+                    <StackLayout VerticalOptions="Fill">
+                        <Label Text="Liferimi" FontAttributes="Bold"/>
+                        <ListView ItemsSource="{Binding LiferimetDevMode}" RowHeight="100" SeparatorVisibility="Default" SeparatorColor="Blue" HeightRequest="200" VerticalOptions="Fill" ItemTapped="ListView_ItemTapped">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand">
+                                            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                                <StackLayout Orientation="Horizontal" Padding="5">
+                                                    <Label Text="Klienti : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding IDKlienti}" FontSize="13" />
+                                                </StackLayout>
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="Cmimi : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding TotaliPaTVSH}" FontSize="13"/>
+                                                </StackLayout>
+                                            </StackLayout>
+
+                                            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="NrFisk  : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding NumriFisk}" FontSize="13"/>
+                                                </StackLayout>
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="Data e liferimit : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding KohaLiferimit}" FontSize="13"/>
+                                                </StackLayout>
+                                            </StackLayout>
+                                        </StackLayout>
+
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+
+                </Frame>
+                <BoxView BackgroundColor="red" HeightRequest="1"/>
+
+                <Frame Padding="5">
+                <StackLayout VerticalOptions="Fill">
+                    <Label Text="Numri Faturave" FontAttributes="Bold"/>
+                        <ListView ItemsSource="{Binding NumratFaturaveDevMode}" HeightRequest="200" VerticalOptions="Fill" ItemTapped="ListView_ItemTapped">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Orientation="Horizontal" Padding="5">
+                                        <Label Text="Numri fatures per KOD : "/>
+                                            <Label Text="{Binding KOD}"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackLayout>
+
+            </Frame>
+            
         </StackLayout>
+        </ScrollView>
+
     </ContentPage.Content>
 </ContentPage>

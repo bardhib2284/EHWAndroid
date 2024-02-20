@@ -41,7 +41,6 @@ namespace EHWM.Views {
                         if (string.IsNullOrEmpty(viewModel.CurrentlySelectedArtikulli.Seri)) {
                             viewModel.EnableSeri = true;
                         }
-                        (e.Item as Artikulli).Sasia -= viewModel.Sasia;
                         App.Instance.PopAsyncModal();
                         viewModel.Sasia = 0;
                     }

@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.LiferimiDevMode" Title="Liferimi Dev Mode">
+
+    <ContentPage.Content>
+        
+        <ScrollView>
+            <StackLayout Padding="20">
+
+
+                <Label Text="IDLiferimi"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.IDLiferimi,Mode=TwoWay}"/>
+
+                <Label Text="IDPorosia"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.IDPorosia,Mode=TwoWay}"/>
+
+                <Label Text="KohaLiferimit"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.KohaLiferimit,Mode=TwoWay}"/>
+
+                <Label Text="NrLiferimit"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.NrLiferimit,Mode=TwoWay}"/>
+
+                <Label Text="CmimiTotal"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.CmimiTotal,Mode=TwoWay}"/>
+
+                <Label Text="DeviceID"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.DeviceID,Mode=TwoWay}"/>
+
+                <Label Text="SyncStatus"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.SyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="NrFatures"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.NrFatures,Mode=TwoWay}"/>
+
+                <Label Text="ShumaPaguar"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.ShumaPaguar,Mode=TwoWay}"/>
+
+                <Label Text="Aprovuar"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.Aprovuar,Mode=TwoWay}"/>
+
+                <Label Text="Export_Status"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.Export_Status,Mode=TwoWay}"/>
+
+                <Label Text="IDN"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.LLOJDOK,Mode=TwoWay}"/>
+
+                <Label Text="PayType"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.PayType,Mode=TwoWay}"/>
+
+                <Label Text="TotaliPaTVSH"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TotaliPaTVSH,Mode=TwoWay}"/>
+
+                <Label Text="NrDetalet"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.NrDetalet,Mode=TwoWay}"/>
+
+                <Label Text="IDKlienti"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.IDKlienti,Mode=TwoWay}"/>
+
+                <Label Text="Depo"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.Depo,Mode=TwoWay}"/>
+
+                <Label Text="TCRSyncStatus"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TCRSyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="NumriFisk"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.NumriFisk,Mode=TwoWay}"/>
+
+                <Label Text="IDKthimi"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.IDKthimi,Mode=TwoWay}"/>
+
+                <Label Text="TCRNSLF"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TCRNSLF,Mode=TwoWay}"/>
+                <Label Text="TCRNIVF"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TCRNIVF,Mode=TwoWay}"/>
+
+                <Label Text="TCRQRCodeLink"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TCRQRCodeLink,Mode=TwoWay}"/>
+                <Label Text="TCR"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TCR,Mode=TwoWay}"/>
+
+                <Label Text="TCROperatorCode"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TCROperatorCode,Mode=TwoWay}"/>
+
+
+                <Button Text="Ruaj Ndryshimet" Clicked="Button_Clicked"/>
+                <Button Text="Liferimet Art" Clicked="Button_Clicked_1"/>
+            </StackLayout>
+        </ScrollView>
+        
+    </ContentPage.Content>
+</ContentPage>

@@ -1,17 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="EHWM.Views.NumriFiskDevMode" Title="Numri Fisk Developer Mode">
+             x:Class="EHWM.Views.NumriFiskDevMode" Title="Numri Fisk/Faturave Developer Mode">
     <ContentPage.Content>
         <StackLayout Padding="20">
-            
-            
-            <Label Text="IDN"/>
-            <Entry Text="{Binding SelectedNumriFiskDevMode.IDN,Mode=TwoWay}"/>
 
-            <Label Text="LevizjeIDN"/>
-            <Entry Text="{Binding SelectedNumriFiskDevMode.LevizjeIDN,Mode=TwoWay}"/>
+            <StackLayout x:Name="fisk" IsVisible="false">
+                <Label Text="IDN"/>
+                <Entry Text="{Binding SelectedNumriFiskDevMode.IDN,Mode=TwoWay}"/>
 
+                <Label Text="LevizjeIDN"/>
+                <Entry Text="{Binding SelectedNumriFiskDevMode.LevizjeIDN,Mode=TwoWay}"/>
+            </StackLayout>
+
+
+            <StackLayout x:Name="fat" IsVisible="false">
+                <ScrollView>
+                    <StackLayout>
+                        <Label Text="KOD"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.KOD,Mode=TwoWay}"/>
+                        <Label Text="NRKUFIP"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.NRKUFIP,Mode=TwoWay}"/>
+
+
+
+                        <Label Text="NRKUFIS"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.NRKUFIS,Mode=TwoWay}"/>
+
+
+                        <Label Text="NRKUFIPJT"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.NRKUFIPJT,Mode=TwoWay}"/>
+                        <Label Text="NRKUFISJT"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.NRKUFISJT,Mode=TwoWay}"/>
+
+
+                        <Label Text="DataBrezit"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.DataBrezit,Mode=TwoWay}"/>
+                        <Label Text="CurrNrFat"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.CurrNrFat,Mode=TwoWay}"/>
+
+
+                        <Label Text="CurrNrFatJT"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.CurrNrFatJT,Mode=TwoWay}"/>
+                        <Label Text="SyncStatus"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.SyncStatus,Mode=TwoWay}"/>
+                        <Label Text="NRKUFIP_D"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.NRKUFIP_D,Mode=TwoWay}"/>
+
+
+                        <Label Text="NRKUFIS_D"/>
+                        <Entry Text="{Binding SelectedNumriFiskDevMode.NRKUFIS_D,Mode=TwoWay}"/>
+
+                        <Label Text="CurrNrFat_D"/>
+                        <Entry Text="{Binding SelectedNumriFiskDevMode.CurrNrFat_D,Mode=TwoWay}"/>
+                    </StackLayout>
+                    
+                </ScrollView>
+                
+
+            </StackLayout>
 
             <Button Text="Ruaj Ndryshimet" Clicked="Button_Clicked"/>
         </StackLayout>
