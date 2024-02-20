@@ -330,7 +330,7 @@ namespace EHWM.ViewModel {
                         }
 
                         var NumratFisk = await App.Database.GetNumratFiskalAsync();
-                        NumriFisk NumriFisk = NumratFisk.FirstOrDefault(x=> x.Depo == App.Instance.MainViewModel.LoginData.Depo);
+                        NumriFisk NumriFisk = NumratFisk.FirstOrDefault(x=> x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
                         if (NumriFisk == null) {
                             var numriFiskalAPIResult = await App.ApiClient.GetAsync("numri-fisk/" + VizitaESelektuar.IDAgjenti);
                             if (numriFiskalAPIResult.IsSuccessStatusCode) {

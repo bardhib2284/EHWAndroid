@@ -1,4 +1,5 @@
-﻿using EHWM.Models;
+﻿using EHW_M;
+using EHWM.Models;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -278,7 +279,7 @@ namespace EHWM.ViewModel
 
         public async Task<NumriFisk> GetNumratFiskalIDAsync(string depo) {
             var list =  await _database.Table<NumriFisk>().ToListAsync();
-            return list.FirstOrDefault(x => x.Depo == depo);
+            return list.FirstOrDefault(x => x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
         }
         public async Task<int> GetPorositeArtCountAsync(Guid porosiaId) {
             var list = await _database.Table<PorosiaArt>().ToListAsync();
