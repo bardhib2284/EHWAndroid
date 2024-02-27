@@ -1444,9 +1444,12 @@ namespace EHWM.ViewModel {
                 string slevizje;
                 string smbetur;
                 string scmimi;
-                SelectedLiferimetEKryera.ListaEArtikujve = (from s in SelectedLiferimetEKryera.ListaEArtikujve
-                                                            orderby s.IDArtikulli
-                                                            select s).ToList();
+                if (lif.CmimiTotal < 0) {
+                    SelectedLiferimetEKryera.ListaEArtikujve = (from s in SelectedLiferimetEKryera.ListaEArtikujve
+                                                                orderby s.IDArtikulli
+                                                                select s).ToList();
+                }
+                
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri);
                     reservedSpaceForEachElement = 10;
