@@ -49,10 +49,11 @@
 
 
                         <Label Text="NRKUFIS_D"/>
-                        <Entry Text="{Binding SelectedNumriFiskDevMode.NRKUFIS_D,Mode=TwoWay}"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.NRKUFIS_D,Mode=TwoWay}"/>
 
                         <Label Text="CurrNrFat_D"/>
-                        <Entry Text="{Binding SelectedNumriFiskDevMode.CurrNrFat_D,Mode=TwoWay}"/>
+                        <Label Text="KUJDES !! Ky numer duhet te jete 0 qe te behet update nga serveri, nese nuk eshte 0 nuk do te behet update" TextColor="Gray" FontSize="12"/>
+                        <Entry Text="{Binding SelectedNumriFatDevMode.CurrNrFat_D,Mode=TwoWay}"/>
                     </StackLayout>
                     
                 </ScrollView>

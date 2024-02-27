@@ -3006,7 +3006,7 @@ namespace EHWM.ViewModel {
                             if (tableName == "NumriFaturave") {
                                 var numratEFaturave = await App.Database.GetNumriFaturaveAsync();
                                 var numri = numratEFaturave.FirstOrDefault(x => x.KOD == Depo);
-                                if(numri != null && numri.CurrNrFat_D != 0 && numri.CurrNrFat != 0) {
+                                if(numri != null && numri.CurrNrFat_D != 0) {
                                     return true;
                                 }
                                 if(numri != null) {
