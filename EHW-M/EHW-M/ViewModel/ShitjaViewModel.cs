@@ -1292,9 +1292,12 @@ namespace EHWM.ViewModel {
                 string slevizje;
                 string smbetur;
                 string scmimi;
-                SelectedArikujt = new ObservableCollection<Artikulli>((from s in SelectedArikujt
-                                                                             orderby s.IDArtikulli
-                                                                                              select s).ToList());
+                if (lif.CmimiTotal < 0) {
+                    SelectedArikujt = new ObservableCollection<Artikulli>((from s in SelectedArikujt
+                                                                           orderby s.IDArtikulli
+                                                                           select s).ToList());
+                }
+
                 foreach (var art in SelectedArikujt) {
                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri);
                     reservedSpaceForEachElement = 10;
