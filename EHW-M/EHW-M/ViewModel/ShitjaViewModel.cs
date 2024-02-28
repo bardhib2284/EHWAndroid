@@ -1814,7 +1814,10 @@ namespace EHWM.ViewModel {
             }
             CurrentlySelectedArtikulli.Sasia = Sasia;
             SelectedArikujt.Add(CurrentlySelectedArtikulli);
-            TotalPrice = Math.Round((double)(TotalPrice + CurrentlySelectedArtikulli.CmimiTotal),2);
+            if(!KthimMalli)
+                TotalPrice = Math.Abs(Math.Round((double)(TotalPrice + CurrentlySelectedArtikulli.CmimiTotal),2));
+            else
+                TotalPrice = Math.Round((double)(TotalPrice + CurrentlySelectedArtikulli.CmimiTotal), 2);
             TotalBillPrice = TotalPrice;
             CurrentlySelectedArtikulli = null;
             Sasia = 0;
