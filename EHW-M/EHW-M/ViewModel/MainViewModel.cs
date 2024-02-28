@@ -1969,6 +1969,9 @@ namespace EHWM.ViewModel {
                 string slevizje;
                 string smbetur;
                 LiferimetEKryera = new ObservableCollection<VizualizimiFatures>(LiferimetEKryera.OrderBy(x => x.NrFisk));
+                LiferimetEKryera = new ObservableCollection<VizualizimiFatures>(LiferimetEKryera.GroupBy(p => p.IDLiferimi)
+  .Select(g => g.First())
+  .ToList());
                 foreach (var vizLif in LiferimetEKryera) {
                     indexi++;
                     var lif = liferimet.FirstOrDefault(x => x.IDLiferimi == vizLif.IDLiferimi);
