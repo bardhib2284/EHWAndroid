@@ -22,7 +22,7 @@
                 <Entry Text="{Binding SelectedLiferimiDevMode.NrLiferimit,Mode=TwoWay}"/>
 
                 <Label Text="CmimiTotal"/>
-                <Entry Text="{Binding SelectedLiferimiDevMode.CmimiTotal,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.CmimiTotal,Mode=TwoWay}" IsEnabled="False"/>
 
                 <Label Text="DeviceID"/>
                 <Entry Text="{Binding SelectedLiferimiDevMode.DeviceID,Mode=TwoWay}"/>
@@ -34,7 +34,7 @@
                 <Entry Text="{Binding SelectedLiferimiDevMode.NrFatures,Mode=TwoWay}"/>
 
                 <Label Text="ShumaPaguar"/>
-                <Entry Text="{Binding SelectedLiferimiDevMode.ShumaPaguar,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.ShumaPaguar,Mode=TwoWay}" IsEnabled="False"/>
 
                 <Label Text="Aprovuar"/>
                 <Entry Text="{Binding SelectedLiferimiDevMode.Aprovuar,Mode=TwoWay}"/>
@@ -49,7 +49,7 @@
                 <Entry Text="{Binding SelectedLiferimiDevMode.PayType,Mode=TwoWay}"/>
 
                 <Label Text="TotaliPaTVSH"/>
-                <Entry Text="{Binding SelectedLiferimiDevMode.TotaliPaTVSH,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiDevMode.TotaliPaTVSH,Mode=TwoWay}" IsEnabled="False"/>
 
                 <Label Text="NrDetalet"/>
                 <Entry Text="{Binding SelectedLiferimiDevMode.NrDetalet,Mode=TwoWay}"/>

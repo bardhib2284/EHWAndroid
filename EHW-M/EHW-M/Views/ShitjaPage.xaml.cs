@@ -1,6 +1,9 @@
-﻿using EHW_M;
+﻿using Acr.UserDialogs;
+using EHW_M;
 using EHWM.Models;
 using EHWM.ViewModel;
+using EHWM.Views.Popups;
+using Rg.Plugins.Popup.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +24,17 @@ namespace EHWM.Views {
             App.Instance.MainViewModel.DissapearingFromShitjaPage = true;
             base.OnDisappearing();
         }
-
+        bool hasBackButtonRequested = false;
+        public bool Accepted = false;
+        public bool Refused = false;
         protected override bool OnBackButtonPressed() {
-            App.Instance.MainViewModel.SelectedVizita = null;
-            return false;
+            Device.InvokeOnMainThreadAsync(async () => 
+            {
+                var conf = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurt per kthim mbrapa?", "Kthehu", "Po","Jo");
+                if (conf)
+                    await App.Instance.PopPageAsync();
+            });
+            return true;
         }
 
         private async void Button_Clicked(object sender, EventArgs e) {

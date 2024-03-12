@@ -32,12 +32,23 @@ namespace EHWM.Views {
                     });
                 };
             }
+            if(bc is ShitjaViewModel shvm) {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    if (shvm.LastKnownArtikulliForScroll != null) {
+                        testList.ScrollTo(shvm.Artikujt.FirstOrDefault(x => x.IDArtikulli == shvm.LastKnownArtikulliForScroll.IDArtikulli), ScrollToPosition.Center, false);
+                        testList.SelectedItem = shvm.Artikujt.FirstOrDefault(x => x.IDArtikulli == shvm.LastKnownArtikulliForScroll.IDArtikulli);
+                    }
+
+                });
+            }
         }
         private async void testList_ItemTapped(object sender, ItemTappedEventArgs e) {
             if (e.Item != null) {
                 if(BindingContext is ShitjaViewModel viewModel) {
                     if (viewModel != null) {
                         viewModel.CurrentlySelectedArtikulli = e.Item as Artikulli;
+                        viewModel.LastKnownArtikulliForScroll = e.Item as Artikulli;
                         if (string.IsNullOrEmpty(viewModel.CurrentlySelectedArtikulli.Seri)) {
                             viewModel.EnableSeri = true;
                         }
