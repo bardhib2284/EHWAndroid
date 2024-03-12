@@ -1295,7 +1295,7 @@ namespace EHWM.ViewModel {
                     }
                 }
                 if(Nga) {
-                    Artikujt = new ObservableCollection<Artikulli>(Artikujt.Where(x => x.Sasia >= 1).OrderBy(x => x.Emri));
+                    Artikujt = new ObservableCollection<Artikulli>(Artikujt.Where(x => x.Sasia >= 0.01f).OrderBy(x => x.Emri));
                 }
 
                 await App.Instance.PushAsyncNewModal(zgjidhArtikullinModalPage);
