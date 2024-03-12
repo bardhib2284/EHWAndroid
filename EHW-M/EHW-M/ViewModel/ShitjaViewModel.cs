@@ -1785,6 +1785,7 @@ namespace EHWM.ViewModel {
             }
             if(Sasia > CurrentlySelectedArtikulli.Sasia) {
                 UserDialogs.Instance.Alert("Ju lutemi permiresoni sasin, nuk duhet te jete me shume se sasia aktualle e mallit " + CurrentlySelectedArtikulli.Sasia, "Verejtje", "Ok");
+                Sasia = (float)CurrentlySelectedArtikulli.Sasia;
                 return;
             }
             if(KthimMalli) {

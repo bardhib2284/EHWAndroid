@@ -1063,7 +1063,7 @@ namespace EHWM.ViewModel {
                         where (h.TCRSyncStatus == null || h.TCRSyncStatus == 0)
                               && h.NumriLevizjes == nrLevizjes
                               && h.LevizjeNga.Trim() == Agjendi.IDAgjenti
-                              && Math.Round((decimal)l.Sasia, 2) >= 0.1m
+                              && Math.Round((decimal)l.Sasia, 2) >= 0.01m
                         select new EHWM.Models.WTNModels.MapperLines
                         {
                             Numri_Levizjes = h.NumriLevizjes,
