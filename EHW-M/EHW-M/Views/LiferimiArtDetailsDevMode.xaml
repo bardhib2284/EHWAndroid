@@ -11,7 +11,7 @@
                 <Entry Text="{Binding SelectedLiferimiArtDevMode.IDArtikulli,Mode=TwoWay}"/>
 
                 <Label Text="Cmimi"/>
-                <Entry Text="{Binding SelectedLiferimiArtDevMode.Cmimi,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.Cmimi,Mode=TwoWay}" IsEnabled="False"/>
 
                 <Label Text="SasiaLiferuar"/>
                 <Entry Text="{Binding SelectedLiferimiArtDevMode.SasiaLiferuar,Mode=TwoWay}"/>
@@ -23,7 +23,7 @@
                 <Entry Text="{Binding SelectedLiferimiArtDevMode.ArtEmri,Mode=TwoWay}"/>
 
                 <Label Text="Totali"/>
-                <Entry Text="{Binding SelectedLiferimiArtDevMode.Totali,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.Totali,Mode=TwoWay}"  IsEnabled="False"/>
 
                 <Label Text="DeviceID"/>
                 <Entry Text="{Binding SelectedLiferimiArtDevMode.DeviceID,Mode=TwoWay}"/>
@@ -41,10 +41,10 @@
                 <Entry Text="{Binding SelectedLiferimiArtDevMode.IDKthimi,Mode=TwoWay}"/>
 
                 <Label Text="CmimiPaTVSH"/>
-                <Entry Text="{Binding SelectedLiferimiArtDevMode.CmimiPaTVSH,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.CmimiPaTVSH,Mode=TwoWay}"  IsEnabled="False"/>
 
                 <Label Text="TotaliPaTVSH"/>
-                <Entry Text="{Binding SelectedLiferimiArtDevMode.TotaliPaTVSH,Mode=TwoWay}"/>
+                <Entry Text="{Binding SelectedLiferimiArtDevMode.TotaliPaTVSH,Mode=TwoWay}"  IsEnabled="False"/>
 
                 <Label Text="Seri"/>
                 <Entry Text="{Binding SelectedLiferimiArtDevMode.Seri,Mode=TwoWay}"/>

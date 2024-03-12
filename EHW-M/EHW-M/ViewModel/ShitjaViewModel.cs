@@ -209,6 +209,7 @@ namespace EHWM.ViewModel {
             await App.Instance.PushAsyncNewPage(new KonfirmoPagesenPage { BindingContext = this });
             UserDialogs.Instance.HideLoading();
         }
+        public Artikulli LastKnownArtikulliForScroll { get; set; }
 
         private async Task PerfundoLiferimin() {
             var porosite = await App.Database.GetPorositeAsync();
@@ -940,7 +941,7 @@ namespace EHWM.ViewModel {
             //await App.Instance.MainPage.Navigation.PushAsync(new PrinterSelectionPage() { BindingContext = this });
 
 
-            if (SelectedArikujt == null) {
+            if (SelectedArikujt == null || SelectedArikujt.Count <= 0) {
                 UserDialogs.Instance.Alert("Nuk mund te vazhdohet me faturim pa artikuj te zgjedhur");
                 return;
             }

@@ -74,7 +74,7 @@ namespace EHW_M.Droid.Services {
 
                 for (int i = 0; i < req.InvoiceItems.Count; i++) {
                     InvoiceItemType invoiceItemType = new InvoiceItemType();
-                    
+
                     if (req.InvoiceItems[i].VS != null) {
                         if (req.InvoiceItems[i].VS.VD != null) {
                             invoiceItemType.VS = new VouchersSoldType
@@ -86,7 +86,7 @@ namespace EHW_M.Droid.Services {
                                 },
                             };
                         }
-                        
+
                     }
                     invoiceItemType.N = req.InvoiceItems[i].N;
                     invoiceItemType.C = req.InvoiceItems[i].C;
@@ -110,6 +110,7 @@ namespace EHW_M.Droid.Services {
                     invoiceItemType.EXSpecified = req.InvoiceItems[i].EXSpecified;
                     invoiceItemTypes[i] = invoiceItemType;
                 }
+
                 RegisterInvoiceInputRequest request = new RegisterInvoiceInputRequest
                 {
                     TCRCode = req.TCRCode,
@@ -145,6 +146,7 @@ namespace EHW_M.Droid.Services {
                     MobileRefId = req.MobileRefId,
                     SubseqDelivTypeSType = req.SubseqDelivTypeSType
                 };
+                request.PriceWithVAT = req.PriceWithoutVAT + req.VATAmount;
                 using (FiscalisationService fs = new FiscalisationService()) {
                     fs.Url = App.Instance.WebServerFiskalizimiUrl;
 
