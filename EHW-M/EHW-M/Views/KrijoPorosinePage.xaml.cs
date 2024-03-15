@@ -1,4 +1,5 @@
-﻿using EHW_M;
+﻿using Acr.UserDialogs;
+using EHW_M;
 using EHWM.Models;
 using EHWM.ViewModel;
 using System;
@@ -27,7 +28,15 @@ namespace EHWM.Views {
             bc.CurrentlySelectedArtikulli = (sender as ListView).SelectedItem as Artikulli;
 
         }
-
+        protected override bool OnBackButtonPressed() {
+            Device.InvokeOnMainThreadAsync(async () =>
+            {
+                var conf = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurt per kthim mbrapa?", "Kthehu", "Po", "Jo");
+                if (conf)
+                    await App.Instance.PopPageAsync();
+            });
+            return true;
+        }
         protected override void OnAppearing() {
             base.OnAppearing();
             var bc = (PorositeViewModel)BindingContext;
