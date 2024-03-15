@@ -433,7 +433,9 @@ namespace EHWM.ViewModel {
         }
             
         public async Task KthePorosineAutomatikishtAsync() {
+            UserDialogs.Instance.ShowLoading("Duke kthyer porosine automatikisht...");
             if (SelectedLiferimetEKryera == null) {
+                UserDialogs.Instance.HideLoading();
                 UserDialogs.Instance.Alert("Fatura eshte e that, ju lutem rishikoni selektimin perseri");
                 return;
             }
@@ -443,6 +445,7 @@ namespace EHWM.ViewModel {
                 foreach(var lif in checkForAlreadyKthimList) {
                     var lifi = liferimi.FirstOrDefault(x => x.IDLiferimi == lif.IDLiferimi);
                     if (!string.IsNullOrEmpty(lifi.IDKthimi)) {
+                        UserDialogs.Instance.HideLoading();
                         UserDialogs.Instance.Alert("Fatura vecse eshte kthyer njehere, ju lutem rishikoni selektimin perseri");
                         return;
                     }
@@ -487,6 +490,7 @@ namespace EHWM.ViewModel {
                 }
                 else {
                     UserDialogs.Instance.Alert("Problem ne numrin fiskal, ju lutem provoni perseri.");
+                    UserDialogs.Instance.HideLoading();
                     return;
                 }
             }
@@ -508,11 +512,11 @@ namespace EHWM.ViewModel {
                             nf.Viti
                         };
             if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+                UserDialogs.Instance.HideLoading();
                 UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                 return;
             }
             else {
-                SelectedLiferimetEKryera.Totali = SelectedLiferimetEKryera.Totali * -1;
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     art.Sasia = art.Sasia * -1;
                 }
@@ -564,15 +568,17 @@ namespace EHWM.ViewModel {
                             await App.Database.SavePorositeAsync(porosite1);
                             var userResult = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurte per kthimin e fatures?", "Verejtje", "Po", "Jo");
                             if(userResult) {
+
                                 await PerfundoLiferimin(SelectedLiferimetEKryera, IDPorosi);
                                 FixDataVizualizimit();
+                                UserDialogs.Instance.HideLoading();
                             }
                         }
                     }
                 }
 
             }
-
+            UserDialogs.Instance.HideLoading();
         }
 
         async Task<MPosControllerDevices> OpenPrinterService(MposConnectionInformation connectionInfo) {
@@ -2804,7 +2810,7 @@ namespace EHWM.ViewModel {
                         //UPDATE EVERYTHING LOCALLY IN ORDER TO SYNC LATER
                         UserDialogs.Instance.Alert("Kthimi automatik perfundoi me sukses");
                         //SYNC MALLI MBETUR DIRECTLY SINCE IT DOESN'T EXIST IN SYNC ALL 
-
+                        UserDialogs.Instance.HideLoading();
                     }
                 }
             }
