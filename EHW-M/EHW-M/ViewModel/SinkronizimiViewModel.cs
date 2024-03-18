@@ -1776,6 +1776,7 @@ namespace EHWM.ViewModel {
                     App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit = quer.BusinessUnitCode;
                     App.Instance.MainViewModel.Configurimi.KodiTCR = quer.TCRCode;
                     App.Instance.MainViewModel.Configurimi.KodiIOperatorit = quer.OperatorCode;
+                    App.Instance.MainViewModel.Configurimi.TAGNR = quer.TAGNR;
                     await App.Database.SaveConfigurimiAsync(App.Instance.MainViewModel.Configurimi);
                 }
                 return result;

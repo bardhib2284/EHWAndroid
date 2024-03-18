@@ -9,6 +9,7 @@ namespace EHWM.Models {
         public int ID { get; set; }
         public string Paisja { get; set; }
         public string KodiTCR { get; set; }
+        public string TAGNR { get; set; }
         public string KodiIOperatorit { get; set; }
         public string KodiINjesiseSeBiznesit { get; set; }
         public string PortiPerPrintim { get; set; }

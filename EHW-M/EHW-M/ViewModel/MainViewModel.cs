@@ -517,6 +517,8 @@ namespace EHWM.ViewModel {
                 return;
             }
             else {
+                SelectedLiferimetEKryera.Totali = SelectedLiferimetEKryera.Totali * -1;
+
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     art.Sasia = art.Sasia * -1;
                 }
@@ -1391,6 +1393,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 var liferimi = await App.Database.GetLiferimetAsync();
+                
                 var lif = liferimi.FirstOrDefault(x => x.IDLiferimi == SelectedLiferimetEKryera.IDLiferimi);
                 if (lif.CmimiTotal < 0) {
                     await _printer.printText("\nKodi / Emri i llojit te fatures : " + 380 + " / Fature korigjuese");
@@ -1590,6 +1593,14 @@ namespace EHWM.ViewModel {
                 string totalBuilder = string.Empty;
                 reservedSpaceForEachElement = 15;
                 emptySpace = "\n Mbyllet me total  ";
+                if (teGjithaSasit < 0) {
+                    if (lif.TotaliPaTVSH > 0) {
+                        lif.TotaliPaTVSH = lif.TotaliPaTVSH * -1;
+                    }
+                    if (lif.CmimiTotal > 0) {
+                        lif.CmimiTotal = lif.CmimiTotal * -1;
+                    }
+                }
                 var tvshAll = String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
                 var cmimTotal = String.Format("{0:0.00}", lif.CmimiTotal);
                 //v.patvsh
@@ -1598,6 +1609,7 @@ namespace EHWM.ViewModel {
                 sShitur = String.Format("{0:0.00}", lif.TotaliPaTVSH);
                 slevizje = String.Format("{0:0.00}", Math.Round((lif.CmimiTotal - lif.TotaliPaTVSH), 2));
                 smbetur = cmimTotal;
+                
                 if (sPranuar.Length < (reservedSpaceForEachElement + 3)) {
                     var index = 1;
                     while (sPranuar.Length <= (reservedSpaceForEachElement + 3)) {
@@ -3599,6 +3611,7 @@ namespace EHWM.ViewModel {
                         App.Instance.MainPage = navigationPage;
                     }
                 }
+
                 if (!string.IsNullOrEmpty(al.perdoruesi) && !string.IsNullOrEmpty(al.idagjenti)) {
                     al.idagjenti = string.Empty;
                     var jsonRequest = JsonConvert.SerializeObject(al);
@@ -3625,7 +3638,7 @@ namespace EHWM.ViewModel {
                         if(string.IsNullOrEmpty(Configurimi.KodiTCR)) {
                             var sync = await SinkronizoFiskalizimin();
                             if (!sync) {
-                                UserDialogs.Instance.Alert("Problem me sikronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
                                 UserDialogs.Instance.HideLoading();
                                 return;
                             }
@@ -3634,11 +3647,32 @@ namespace EHWM.ViewModel {
                         Configurimi.Token = LoginData.token;
                         Configurimi.Shfrytezuesi = LoginData.IDAgjenti;
                         Configurimi.Paisja = LoginData.DeviceID;
-                        await App.Database.SaveConfigurimiAsync(Configurimi);
                         //REGISTER ARKEN
                         var depot = await App.Database.GetDepotAsync();
                         if (depot.Count > 0) {
+                            App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                            var depotResult = await App.ApiClient.GetAsync("depot");
+                            if (depotResult.IsSuccessStatusCode) {
+                                var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                                depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                                if (depot.Count > 0) {
+                                    Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                    await App.Database.SaveDepotAsync(depot);
+                                }
+                            }
                             Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                            if (string.IsNullOrEmpty(Configurimi.TAGNR))
+                                Configurimi.TAGNR = Depoja.TAGNR;
+                            if (Configurimi.TAGNR != Depoja.TAGNR) {
+                                var sync = await SinkronizoFiskalizimin();
+                                if (!sync) {
+                                    UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                    UserDialogs.Instance.HideLoading();
+                                    return;
+                                }
+                            }
+                            else
+                                Configurimi.TAGNR = Depoja.TAGNR;
                         }
                         else {
                             if (Configurimi.Token != null) {
@@ -3658,6 +3692,7 @@ namespace EHWM.ViewModel {
                             }
 
                         }
+                        await App.Database.SaveConfigurimiAsync(Configurimi);
                         UserDialogs.Instance.HideLoading();
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
@@ -3812,38 +3847,23 @@ namespace EHWM.ViewModel {
             if (Agjendet == null) {
                 Agjendet = new List<Agjendet> { LoginData };
             }
-            NumratFiskal = await App.Database.GetNumratFiskalAsync();
-            if (NumratFiskal.Count < 1) {
-                var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
-                var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
-                if (numratFiskalResult.IsSuccessStatusCode) {
-                    var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
-                    NumratFiskal = numratFiskal;
-                    await App.Database.SaveNumratFiskalAsync(NumratFiskal);
-                }
+            
+            var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
+            var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+            if (numratFiskalResult.IsSuccessStatusCode) {
+                var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
+                NumratFiskal = numratFiskal;
+                await App.Database.SaveNumratFiskalAsync(NumratFiskal);
             }
-            FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
-            if (FiskalizimiKonfigurimet.Count < 1) {
-                var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
-                if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
-                    var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
-                    FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
-                    await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
-                }
-                else {
-                    FiskalizimiKonfigurimet = new List<FiskalizimiKonfigurimet>
-                    {
-                        new FiskalizimiKonfigurimet
-                        {
-                        ID = 6,
-                        TAGNR = "AA795IN",
-                        TCRCode = "fa248ng165",
-                        BusinessUnitCode = "oq060zj804"
-                        }
-                    };
-                }
 
+            var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
+            if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
+                var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
+                FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
+                await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
             }
+
+            
             try {
 
 
@@ -3853,7 +3873,7 @@ namespace EHWM.ViewModel {
                             join fk in FiskalizimiKonfigurimet on d.TAGNR equals fk.TAGNR
                             join nf in NumratFiskal on fk.TCRCode equals nf.TCRCode into nfGroup
                             from nf in nfGroup.DefaultIfEmpty()
-                            where a.IDAgjenti.ToLower() == LoginData.IDAgjenti.ToLower()
+                            where a.IDAgjenti.ToLower() == LoginData.IDAgjenti.ToLower() && nf.Depo == d.Depo
                             select new
                             {
                                 a.IDAgjenti,
@@ -3876,6 +3896,7 @@ namespace EHWM.ViewModel {
                     Configurimi.KodiINjesiseSeBiznesit = quer.BusinessUnitCode;
                     Configurimi.KodiTCR = quer.TCRCode;
                     Configurimi.KodiIOperatorit = quer.OperatorCode;
+                    Configurimi.TAGNR = quer.TAGNR;
                     await App.Database.SaveConfigurimiAsync(App.Instance.MainViewModel.Configurimi);
                 }
                 return result;
