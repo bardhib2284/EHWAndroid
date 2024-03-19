@@ -18,10 +18,17 @@ namespace EHWM.Views.Popups {
             InitializeComponent();
         }
 
-        private async void Button_Clicked(object sender, EventArgs e) {
-            var bc = (MainViewModel)BindingContext;
-            bc.EshteRuajtuarArka = true;
-            await App.Instance.MainPage.Navigation.PopPopupAsync(true);
+        private async void Button_Clicked(object sender, EventArgs e) {            
+
+            if(BindingContext is MainViewModel mvm) {
+                mvm.EshteRuajtuarArka = true;
+                await App.Instance.MainPage.Navigation.PopPopupAsync(true);
+            }
+
+            if(BindingContext is SinkronizimiViewModel svm) {
+                svm.EshteRuajtuarArka = true;
+                await App.Instance.MainPage.Navigation.PopPopupAsync(true);
+            }
         }
     }
 }

@@ -3525,8 +3525,31 @@ namespace EHWM.ViewModel {
                         if (CashRegisters.Count > 0) {
                             var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == LoginData.DeviceID);
                             if (cReg != null) {
-                                EshteRuajtuarArka = true;
-                                CashRegister = cReg;
+                                if(cReg.TCRCode == Configurimi.KodiTCR) {
+                                    EshteRuajtuarArka = true;
+                                    CashRegister = cReg;
+                                }
+                                else {
+                                    UserDialogs.Instance.HideLoading();
+                                    CashRegister = new CashRegister
+                                    {
+                                        ID = Guid.NewGuid(),
+                                        Cashamount = 0,
+                                        DepositType = 0,
+                                        DeviceID = LoginData.DeviceID,
+                                        Message = "Modifikuar manualisht, pa fiskalizuar",
+                                        RegisterDate = MyTimeInWesternEurope,
+                                        SyncStatus = 0,
+                                        TCRCode = Configurimi.KodiTCR,
+                                        TCRSyncStatus = 0,
+                                    };
+                                    var liferimet = await App.Database.GetLiferimetAsync();
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                                    .Where(l => l.PayType == "KESH")
+                                                    .Sum(l => l.ShumaPaguar);
+                                    CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                }
                             }
                             else {
                                 UserDialogs.Instance.HideLoading();
@@ -3708,9 +3731,32 @@ namespace EHWM.ViewModel {
                         if (CashRegisters.Count > 0) {
                             var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == LoginData.DeviceID);
                             if (cReg != null) {
-                                EshteRuajtuarArka = true;
-                                CashRegister = cReg;
-                                CashRegister.TCRCode = Configurimi.KodiTCR;
+                                if (cReg.TCRCode == Configurimi.KodiTCR) {
+                                    EshteRuajtuarArka = true;
+                                    CashRegister = cReg;
+                                    CashRegister.TCRCode = Configurimi.KodiTCR;
+                                }
+                                else {
+                                    UserDialogs.Instance.HideLoading();
+                                    CashRegister = new CashRegister
+                                    {
+                                        ID = Guid.NewGuid(),
+                                        Cashamount = 0,
+                                        DepositType = 0,
+                                        DeviceID = LoginData.DeviceID,
+                                        Message = "Modifikuar manualisht, pa fiskalizuar",
+                                        RegisterDate = MyTimeInWesternEurope,
+                                        SyncStatus = 0,
+                                        TCRCode = Configurimi.KodiTCR,
+                                        TCRSyncStatus = 0,
+                                    };
+                                    var liferimet = await App.Database.GetLiferimetAsync();
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                                    .Where(l => l.PayType == "KESH")
+                                                    .Sum(l => l.ShumaPaguar);
+                                    CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                }
                             }
                             else {
                                 UserDialogs.Instance.HideLoading();

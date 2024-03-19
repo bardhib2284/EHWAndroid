@@ -2,7 +2,9 @@
 using EHW_M;
 using EHWM.DependencyInjections.FiskalizationExtraModels;
 using EHWM.Models;
+using EHWM.Views.Popups;
 using Newtonsoft.Json;
+using Rg.Plugins.Popup.Extensions;
 using SQLite;
 using Syncfusion.Compression;
 using System;
@@ -67,7 +69,19 @@ namespace EHWM.ViewModel {
         public ICommand ShkarkoCommand { get; set; }
         public ICommand SinkronizoCommand { get; set; }
         public ICommand AzhurnoCommand { get; set; }
+        private CashRegister _cashRegister;
+        public CashRegister CashRegister {
+            get { return _cashRegister; }
+            set { SetProperty(ref _cashRegister, value); }
+        }
+        public bool EshteRuajtuarArka { get; set; }
 
+        private float _CashAmountForFirstTimeOfDayRegister;
+
+        public float CashAmountForFirstTimeOfDayRegister {
+            get { return _CashAmountForFirstTimeOfDayRegister; }
+            set { SetProperty(ref _CashAmountForFirstTimeOfDayRegister, value); }
+        }
         public SinkronizimiViewModel(SinkronizimiNavigationParameters np) {
             SinkronizoCmimet = new Command(async () => await SinkronizoCmimetAsync());
             SinkronizoKlientet = new Command(async () => await SinkronizoKlientetAsync());
@@ -100,6 +114,122 @@ namespace EHWM.ViewModel {
                     try {
                         // Perform synchronization
                         await SyncAll();
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
+                        UserDialogs.Instance.HideLoading();
+                        var CashRegisters = await App.Database.GetCashRegisterAsync();
+                        EshteRuajtuarArka = false;
+                        if (CashRegisters.Count > 0) {
+                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID);
+                            if (cReg != null) {
+                                if (cReg.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR) {
+                                    EshteRuajtuarArka = true;
+                                    CashRegister = cReg;
+                                    CashRegister.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                }
+                                else {
+                                    UserDialogs.Instance.HideLoading();
+                                    CashRegister = new CashRegister
+                                    {
+                                        ID = Guid.NewGuid(),
+                                        Cashamount = 0,
+                                        DepositType = 0,
+                                        DeviceID = Agjendi.DeviceID,
+                                        Message = "Modifikuar manualisht, pa fiskalizuar",
+                                        RegisterDate = MyTimeInWesternEurope,
+                                        SyncStatus = 0,
+                                        TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
+                                        TCRSyncStatus = 0,
+                                    };
+                                    var liferimet = await App.Database.GetLiferimetAsync();
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                                    .Where(l => l.PayType == "KESH")
+                                                    .Sum(l => l.ShumaPaguar);
+                                    CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                }
+                            }
+                            else {
+                                UserDialogs.Instance.HideLoading();
+                                CashRegister = new CashRegister
+                                {
+                                    ID = Guid.NewGuid(),
+                                    Cashamount = 0,
+                                    DepositType = 0,
+                                    DeviceID = Agjendi.DeviceID,
+                                    Message = "Modifikuar manualisht, pa fiskalizuar",
+                                    RegisterDate = MyTimeInWesternEurope,
+                                    SyncStatus = 0,
+                                    TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
+                                    TCRSyncStatus = 0,
+                                };
+                                var liferimet = await App.Database.GetLiferimetAsync();
+                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                                .Where(l => l.PayType == "KESH")
+                                                .Sum(l => l.ShumaPaguar);
+                                CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+
+                                await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                            }
+                        }
+                        else {
+                            UserDialogs.Instance.HideLoading();
+                            CashRegister = new CashRegister
+                            {
+                                ID = Guid.NewGuid(),
+                                Cashamount = 0,
+                                DepositType = 0,
+                                DeviceID = Agjendi.DeviceID,
+                                Message = "Modifikuar manualisht, pa fiskalizuar",
+                                RegisterDate = MyTimeInWesternEurope,
+                                SyncStatus = 0,
+                                TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
+                                TCRSyncStatus = 0,
+                            };
+                            var liferimet = await App.Database.GetLiferimetAsync();
+                            CashAmountForFirstTimeOfDayRegister = liferimet
+                                            .Where(l => l.PayType == "KESH")
+                                            .Sum(l => l.ShumaPaguar);
+                            CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+                            await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                        }
+                        while (!EshteRuajtuarArka) {
+                            await Task.Delay(2000);
+                        }
+                        if (EshteRuajtuarArka) {
+
+                        }
+
+                        await App.Database.SaveCashRegisterAsync(CashRegister);
+
+
+                        if (CashRegister.TCRSyncStatus <= 0) {
+                            var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                            {
+                                CashAmount = CashRegister.Cashamount,
+                                TCRCode = CashRegister.TCRCode,
+                                DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
+                                OperatorCode = Agjendi.OperatorCode,
+                                SendDateTime = CashRegister.RegisterDate,
+                                SubseqDelivTypeSType = -1
+                            });
+
+                            if (result.Status == StatusPCL.Ok) {
+                                CashRegister.TCRSyncStatus = 1;
+                                if (result.Message != null)
+                                    CashRegister.Message = result.Message.Replace("'", "");
+                            }
+                            else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
+                                CashRegister.TCRSyncStatus = 4;
+                                CashRegister.Message = result.Message.Replace("'", "");
+                            }
+                            else {
+                                CashRegister.TCRSyncStatus = -1;
+                                CashRegister.Message = result.Message.Replace("'", "");
+                            }
+
+                            await App.Database.SaveCashRegisterAsync(CashRegister);
+                        }
                     }
                     finally {
 
