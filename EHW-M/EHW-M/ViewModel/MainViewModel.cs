@@ -3459,8 +3459,10 @@ namespace EHWM.ViewModel {
                                 return;
                             }
                         }
-                        App.ApiClient.BaseAddress = new Uri(Configurimi.Serveri);
-                        App.Instance.WebServerFiskalizimiUrl = Configurimi.URLFiskalizim;
+                        if(App.ApiClient.BaseAddress == null)
+                            App.ApiClient.BaseAddress = new Uri(Configurimi.Serveri);
+                       
+                            App.Instance.WebServerFiskalizimiUrl = Configurimi.URLFiskalizim;
                         var depot = await App.Database.GetDepotAsync();
                         
                         if (depot.Count > 0) {
@@ -3468,13 +3470,15 @@ namespace EHWM.ViewModel {
                         }
                         else {
                             if (Configurimi.Token != null) {
-                                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                                if(App.ApiClient.DefaultRequestHeaders != null && App.ApiClient.DefaultRequestHeaders.Authorization != null)
+                                    App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
                                 var depotResult = await App.ApiClient.GetAsync("depot");
                                 if (depotResult.IsSuccessStatusCode) {
                                     var depotResponse = await depotResult.Content.ReadAsStringAsync();
                                     depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
                                     if (depot.Count > 0) {
                                         Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                        await App.Database.ClearAllDepotAsync();
                                         await App.Database.SaveDepotAsync(depot);
                                     }
                                 }
@@ -3612,6 +3616,9 @@ namespace EHWM.ViewModel {
                     }
                 }
 
+                if(al.idagjenti == string.Empty) {
+                    al.idagjenti = " ";
+                }
                 if (!string.IsNullOrEmpty(al.perdoruesi) && !string.IsNullOrEmpty(al.idagjenti)) {
                     al.idagjenti = string.Empty;
                     var jsonRequest = JsonConvert.SerializeObject(al);
@@ -3650,13 +3657,13 @@ namespace EHWM.ViewModel {
                         //REGISTER ARKEN
                         var depot = await App.Database.GetDepotAsync();
                         if (depot.Count > 0) {
-                            App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
                             var depotResult = await App.ApiClient.GetAsync("depot");
                             if (depotResult.IsSuccessStatusCode) {
                                 var depotResponse = await depotResult.Content.ReadAsStringAsync();
                                 depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
                                 if (depot.Count > 0) {
                                     Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                    await App.Database.ClearAllDepotAsync();
                                     await App.Database.SaveDepotAsync(depot);
                                 }
                             }
@@ -3683,6 +3690,7 @@ namespace EHWM.ViewModel {
                                     depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
                                     if (depot.Count > 0) {
                                         Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                        await App.Database.ClearAllDepotAsync();
                                         await App.Database.SaveDepotAsync(depot);
                                     }
                                 }
@@ -3837,12 +3845,10 @@ namespace EHWM.ViewModel {
         public List<FiskalizimiKonfigurimet> FiskalizimiKonfigurimet { get; set; }
         public async Task<string[]> GetConfigurationByIDAgjentiAsync() {
             string[] result = new string[7];
-            if (Depot == null) {
-                var depotResult = await App.ApiClient.GetAsync("depot");
-                if (depotResult.IsSuccessStatusCode) {
-                    var depotResponse = await depotResult.Content.ReadAsStringAsync();
-                    Depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
-                }
+            var depotResult = await App.ApiClient.GetAsync("depot");
+            if (depotResult.IsSuccessStatusCode) {
+                var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                Depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
             }
             if (Agjendet == null) {
                 Agjendet = new List<Agjendet> { LoginData };
@@ -3928,7 +3934,7 @@ namespace EHWM.ViewModel {
                 DataSet dsConfig = null;
                 try {
                     var numriFiskal = await App.Database.GetNumratFiskalAsync();
-                    var numriFisk = numriFiskal.FirstOrDefault(x => x.Depo == LoginData.Depo);
+                    var numriFisk = numriFiskal.FirstOrDefault(x => x.TCRCode == Configurimi.KodiTCR);
                     if (numriFisk == null) {
                         var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk/" + LoginData.Depo);
                         var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();

@@ -1702,47 +1702,26 @@ namespace EHWM.ViewModel {
 
         public async Task<string[]> GetConfigurationByIDAgjentiAsync() {
             string[] result = new string[7];
-            if(Depot == null) {
-                var depotResult = await App.ApiClient.GetAsync("depot");
-                if(depotResult.IsSuccessStatusCode) {
-                    var depotResponse = await depotResult.Content.ReadAsStringAsync();
-                    Depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
-                }
+            var depotResult = await App.ApiClient.GetAsync("depot");
+            if(depotResult.IsSuccessStatusCode) {
+                var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                Depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
             }
             if(Agjendet == null) {
                 Agjendet = new List<Agjendet> { Agjendi };
             }
-            NumratFiskal = await App.Database.GetNumratFiskalAsync();
-            if(NumratFiskal.Count < 1) {
-                var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
-                var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
-                if (numratFiskalResult.IsSuccessStatusCode) {
-                    var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
-                    NumratFiskal = numratFiskal;
-                    await App.Database.SaveNumratFiskalAsync(NumratFiskal);
-                }
+            var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
+            var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+            if (numratFiskalResult.IsSuccessStatusCode) {
+                var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
+                NumratFiskal = numratFiskal;
+                await App.Database.SaveNumratFiskalAsync(NumratFiskal);
             }
-            FiskalizimiKonfigurimet = await App.Database.GetFiskalizimiKonfigurimetAsync();
-            if (FiskalizimiKonfigurimet.Count < 1) {
-                var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
-                if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
-                    var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
-                    FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
-                    await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
-                }
-                else {
-                    FiskalizimiKonfigurimet = new List<FiskalizimiKonfigurimet>
-                    {
-                        new FiskalizimiKonfigurimet
-                        {
-                        ID = 6,
-                        TAGNR = "AA795IN",
-                        TCRCode = "fa248ng165",
-                        BusinessUnitCode = "oq060zj804"
-                        }
-                    };
-                }
-                
+            var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
+            if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
+                var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
+                FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
+                await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
             }
             try {
                 
