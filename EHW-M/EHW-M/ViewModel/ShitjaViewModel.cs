@@ -1226,10 +1226,11 @@ namespace EHWM.ViewModel {
                 await _printer.printText(
 "---------------------------------------------------------------------\n");
 
-
+                var depot = await App.Database.GetDepotAsync();
+                var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                await _printer.printText("Adresa: AA951IN             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("Adresa: " + currDepo.TAGNR + "             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 var liferimi = await App.Database.GetLiferimetAsync();
@@ -1269,8 +1270,6 @@ namespace EHWM.ViewModel {
 "---------------------------------------------------------------------");
                 var agjendet = await App.Database.GetAgjendetAsync();
                 var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == LoginData.Depo);
-                var depot = await App.Database.GetDepotAsync();
-                var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("\nTransportues: E. H. W. J61804031V");
                 await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + ")");
                 await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");

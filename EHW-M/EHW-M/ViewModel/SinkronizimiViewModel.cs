@@ -1715,12 +1715,14 @@ namespace EHWM.ViewModel {
             if (numratFiskalResult.IsSuccessStatusCode) {
                 var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
                 NumratFiskal = numratFiskal;
+                await App.Database.ClearAllNumratFiskalAsync();
                 await App.Database.SaveNumratFiskalAsync(NumratFiskal);
             }
             var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
             if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
                 var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
                 FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
+                await App.Database.ClearAllFiskalizimiKonfigurimi();
                 await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
             }
             try {
@@ -1732,7 +1734,7 @@ namespace EHWM.ViewModel {
                             join fk in FiskalizimiKonfigurimet on d.TAGNR equals fk.TAGNR
                             join nf in NumratFiskal on fk.TCRCode equals nf.TCRCode into nfGroup
                             from nf in nfGroup.DefaultIfEmpty()
-                            where a.IDAgjenti.ToLower() == Agjendi.IDAgjenti.ToLower()
+                            where a.IDAgjenti.ToLower() == Agjendi.IDAgjenti.ToLower() && nf.Depo == d.Depo
                             select new
                             {
                                 a.IDAgjenti,

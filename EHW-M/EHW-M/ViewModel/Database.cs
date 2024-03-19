@@ -65,6 +65,12 @@ namespace EHWM.ViewModel
             return result.Count > 0;
         }
 
+        public async Task<int> ClearAllFiskalizimiKonfigurimi() {
+            return await _database.DeleteAllAsync<FiskalizimiKonfigurimet>();
+        }
+        public async Task<int> ClearAllNumratFiskalAsync() {
+            return await _database.DeleteAllAsync<NumriFisk>();
+        }
         public async Task<int> ClearAllCashRegistersAsync() {
             return await _database.DeleteAllAsync<CashRegister>();
         }

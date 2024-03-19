@@ -2823,6 +2823,7 @@ namespace EHWM.ViewModel {
                         UserDialogs.Instance.Alert("Kthimi automatik perfundoi me sukses");
                         //SYNC MALLI MBETUR DIRECTLY SINCE IT DOESN'T EXIST IN SYNC ALL 
                         UserDialogs.Instance.HideLoading();
+                        await App.Instance.PopPageAsync();
                     }
                 }
             }
@@ -3859,6 +3860,7 @@ namespace EHWM.ViewModel {
             if (numratFiskalResult.IsSuccessStatusCode) {
                 var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
                 NumratFiskal = numratFiskal;
+                await App.Database.ClearAllNumratFiskalAsync();
                 await App.Database.SaveNumratFiskalAsync(NumratFiskal);
             }
 
@@ -3866,6 +3868,7 @@ namespace EHWM.ViewModel {
             if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
                 var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
                 FiskalizimiKonfigurimet = JsonConvert.DeserializeObject<List<FiskalizimiKonfigurimet>>(FiskalizimiKonfigurimetResponse);
+                await App.Database.ClearAllFiskalizimiKonfigurimi();
                 await App.Database.SaveFiskalizimiKonfigurimetAsync(FiskalizimiKonfigurimet);
             }
 
