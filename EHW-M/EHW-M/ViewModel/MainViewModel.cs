@@ -3729,7 +3729,7 @@ namespace EHWM.ViewModel {
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
                         if (CashRegisters.Count > 0) {
-                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == LoginData.DeviceID);
+                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == LoginData.DeviceID && x.TCRCode == Configurimi.KodiTCR);
                             if (cReg != null) {
                                 if (cReg.TCRCode == Configurimi.KodiTCR) {
                                     EshteRuajtuarArka = true;

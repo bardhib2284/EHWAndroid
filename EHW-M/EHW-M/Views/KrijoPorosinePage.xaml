@@ -79,7 +79,6 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackLayout Orientation="Horizontal">
-                        <Button Text="Printo" Command="{Binding PrintoFaturenCommand}" x:Name="Vizitat" WidthRequest="60" FontSize="13"/>
                         <Button x:Name="fshijButton" Command="{Binding FshijArtikullinCommand}" Clicked="fshijButton_Clicked" IsVisible="False" Text="Fshije" BackgroundColor="Red" Background="red" HorizontalOptions="End"/>
                         <Button Text="Regjistro" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
                     </StackLayout>

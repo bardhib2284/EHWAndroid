@@ -120,7 +120,7 @@ namespace EHWM.ViewModel {
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
                         if (CashRegisters.Count > 0) {
-                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID);
+                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == Configurimi.KodiTCR);
                             if (cReg != null) {
                                 if (cReg.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR) {
                                     EshteRuajtuarArka = true;
@@ -1840,14 +1840,21 @@ namespace EHWM.ViewModel {
             if(Agjendet == null) {
                 Agjendet = new List<Agjendet> { Agjendi };
             }
-            var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
-            var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
-            if (numratFiskalResult.IsSuccessStatusCode) {
-                var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
-                NumratFiskal = numratFiskal;
-                await App.Database.ClearAllNumratFiskalAsync();
-                await App.Database.SaveNumratFiskalAsync(NumratFiskal);
+            var numratFiskLokal = await App.Database.GetNumratFiskalAsync();
+            if(numratFiskLokal.Count > 0) {
+                NumratFiskal = numratFiskLokal;
             }
+            else {
+                var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk");
+                if (numratFiskalResult.IsSuccessStatusCode) {
+                    var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+                    var numratFiskal = JsonConvert.DeserializeObject<List<NumriFisk>>(numratFiskalResponse);
+                    NumratFiskal = numratFiskal;
+                    await App.Database.ClearAllNumratFiskalAsync();
+                    await App.Database.SaveNumratFiskalAsync(NumratFiskal);
+                }
+            }
+            
             var FiskalizimiKonfigurimetresult = await App.ApiClient.GetAsync("fiskalizimi-konfigurimet");
             if (FiskalizimiKonfigurimetresult.IsSuccessStatusCode) {
                 var FiskalizimiKonfigurimetResponse = await FiskalizimiKonfigurimetresult.Content.ReadAsStringAsync();
@@ -1919,7 +1926,7 @@ namespace EHWM.ViewModel {
                 DataSet dsConfig = null;
                 try {
                     var numriFiskal = await App.Database.GetNumratFiskalAsync();
-                    var numriFisk = numriFiskal.FirstOrDefault(x=>x.Depo == Agjendi.Depo);
+                    var numriFisk = numriFiskal.FirstOrDefault(x=>x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
                     if(numriFisk == null) {
                         var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk/" + Agjendi.Depo);
                         var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
