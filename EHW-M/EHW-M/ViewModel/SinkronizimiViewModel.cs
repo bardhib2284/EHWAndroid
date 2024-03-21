@@ -120,7 +120,7 @@ namespace EHWM.ViewModel {
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
                         if (CashRegisters.Count > 0) {
-                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == Configurimi.KodiTCR);
+                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
                             if (cReg != null) {
                                 if (cReg.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR) {
                                     EshteRuajtuarArka = true;
@@ -422,7 +422,7 @@ namespace EHWM.ViewModel {
                                 m => m.IDArtikulli,
                                 (a, m) => new { a, m });
 
-                var smaw = sma.Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.1m && joinedTables.a.m.Depo == Agjendi.Depo);
+                var smaw = sma.Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.001m && joinedTables.a.m.Depo == Agjendi.Depo);
                 var total = malliMbetur
                             .Join(salesPrice,
                                 m => m.IDArtikulli,
@@ -432,7 +432,7 @@ namespace EHWM.ViewModel {
                                 a => a.m.IDArtikulli,
                                 m => m.IDArtikulli,
                                 (a, m) => new { a, m })
-                            .Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.1m && joinedTables.a.m.Depo == Agjendi.Depo)
+                            .Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.001m && joinedTables.a.m.Depo == Agjendi.Depo)
                             .Sum(joinedTables => joinedTables.a.ss.UnitPrice * joinedTables.a.m.SasiaMbetur);
 
                 var _LevizjeIDN = numriFisk
