@@ -4496,17 +4496,53 @@ namespace EHWM.ViewModel {
             var SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
             //SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
             //MalliMbetur = new ObservableCollection<Malli_Mbetur>(await App.Database.GetMalliMbeturAsync());
+            var artikujtPerShfaqje = new List<Artikulli>();
             foreach (var artikulli in artikujt) {
-
                 artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli)?.UnitPrice;
-                var MalliiMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == artikulli.IDArtikulli && x.Depo == LoginData.IDAgjenti);
-                if (MalliiMbetur != null) {
-                    artikulli.Sasia = MalliiMbetur.SasiaMbetur;
-                    artikulli.Seri = MalliiMbetur.Seri;
+                var hasTwoMalliMbeturs = malliMbetur.Where(x => x.IDArtikulli == artikulli.IDArtikulli);
+                if(hasTwoMalliMbeturs.Count() > 1) {
+                    foreach(var mm in hasTwoMalliMbeturs) {
+                        if (mm != null) {
+                            if (mm.SasiaMbetur > 0 || mm.SasiaMbetur < 0) {
+                                var cloneArtiull = new Artikulli
+                                {
+                                    Sasia = mm.SasiaMbetur,
+                                    CmimiNjesi = artikulli.CmimiNjesi,
+                                    ArsyejaEKthimit = artikulli.ArsyejaEKthimit,
+                                    Barkod = artikulli.Barkod,
+                                    BUM = artikulli.BUM,
+                                    CmimiPako = artikulli.CmimiPako,
+                                    Seri = mm.Seri,
+                                    Emri = artikulli.Emri,
+                                    IDArtikulli = artikulli.IDArtikulli,
+                                    SasiaPako = artikulli.SasiaPako,
+                                    Shifra = artikulli.Shifra,
+                                    Standard = artikulli.Standard,
+                                    StokuAktual = artikulli.StokuAktual,
+                                    SyncStatus = artikulli.SyncStatus,
+                                    TePorositur = artikulli.TePorositur,
+                                    UnitPrice = artikulli.UnitPrice,
+                                    UPP = artikulli.UPP
+                                };
+                                artikujtPerShfaqje.Add(cloneArtiull);
+                            }
+                        }
+                    }
                 }
+                else {
+                    var MalliiMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == artikulli.IDArtikulli && x.Depo == LoginData.IDAgjenti);
+                    if (MalliiMbetur != null) {
+                        if(MalliiMbetur.SasiaMbetur > 0 || MalliiMbetur.SasiaMbetur < 0) {
+                            artikulli.Sasia = MalliiMbetur.SasiaMbetur;
+                            artikulli.Seri = MalliiMbetur.Seri;
+                            artikujtPerShfaqje.Add(artikulli);
+                        }
+                    }
+                }
+
             }
-            var artikujtPerShfaqje = artikujt.Where(x => x.Sasia > 0 || x.Sasia < 0).ToList();
-            ArtikujtPage.BindingContext = new ArtikujtViewModel(new ArikujtNavigationParameters { Artikujt = artikujtPerShfaqje });
+            var artikujtPerShfaqjeFinal = new ObservableCollection<Artikulli>(artikujtPerShfaqje.Where(x=> x.Sasia < 0 || x.Sasia > 0));
+            ArtikujtPage.BindingContext = new ArtikujtViewModel(new ArikujtNavigationParameters { Artikujt = artikujtPerShfaqjeFinal.ToList() }) ;
             await App.Instance.PushAsyncNewPage(ArtikujtPage);
             UserDialogs.Instance.HideLoading();
         }
