@@ -2559,7 +2559,7 @@ namespace EHWM.ViewModel {
                         {
                             foreach (var artikull in vizualizimiFatures.ListaEArtikujve) {
                                 decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                                var stoku = await App.Database.GetStokuAsync(artikull.Shifra, LoginData.IDAgjenti, artikull.IDArtikulli);
+                                var stoku = await App.Database.GetStokuAsync(artikull.Shifra, LoginData.IDAgjenti, artikull.Seri);
                                 if(stoku == null) {
                                     UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
                                     return;
@@ -2569,7 +2569,7 @@ namespace EHWM.ViewModel {
                                 await App.Database.UpdateStoqetAsync(stoku);
 
                                 //TODO update malli i mbetur SASIA E KTHYER
-                                var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, LoginData.IDAgjenti);
+                                var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, LoginData.IDAgjenti);
 
                                 decimal SasiaShiturUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                 decimal SasiaKthyerAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaKthyer.ToString()), 3);

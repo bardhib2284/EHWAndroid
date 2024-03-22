@@ -237,14 +237,14 @@ namespace EHWM.ViewModel {
                                     //Update sasia
                                     decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                     var stoqet = await App.Database.GetAllStoqetAsync();
-                                    var stoku = stoqet.FirstOrDefault(x => x.Depo == VizitaESelektuar.IDAgjenti && x.Shifra == artikull.IDArtikulli);
+                                    var stoku = stoqet.FirstOrDefault(x => x.Depo == VizitaESelektuar.IDAgjenti && x.Seri == artikull.Seri);
                                     decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
                                     stoku.Sasia = double.Parse(Math.Round(sasiaAktuale - SasiaUpdate, 3).ToString());
                                     await Task.Delay(20);
                                     await App.Database.UpdateStoqetAsync(stoku);
                                     StoqetPerUpdate.Add(stoku);
                                     //update malli i mbetur
-                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, VizitaESelektuar.IDAgjenti);
+                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, VizitaESelektuar.IDAgjenti);
                                     decimal SasiaShiturUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                     decimal SasiaShiturAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaShitur.ToString()), 3);
 
@@ -287,13 +287,13 @@ namespace EHWM.ViewModel {
 
                                 foreach (var artikull in SelectedArikujt) {
                                     decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                                    var stoku = await App.Database.GetStokuAsync(artikull.Shifra, VizitaESelektuar.IDAgjenti, artikull.IDArtikulli);
+                                    var stoku = await App.Database.GetStokuAsync(artikull.Shifra, VizitaESelektuar.IDAgjenti, artikull.Seri);
                                     decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
                                     stoku.Sasia = double.Parse(Math.Round((decimal)(sasiaAktuale - SasiaUpdate), 3).ToString());
                                     await App.Database.UpdateStoqetAsync(stoku);
 
                                     //TODO update malli i mbetur SASIA E KTHYER
-                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, LoginData.IDAgjenti);
+                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, LoginData.IDAgjenti);
 
                                     decimal SasiaShiturUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                     decimal SasiaKthyerAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaKthyer.ToString()), 3);
@@ -1798,7 +1798,8 @@ namespace EHWM.ViewModel {
                 }
             }
             var artikulli = Artikujt.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
-            var malliMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
+            var malliMbetur = MalliMbetur.FirstOrDefault(x => x.Seri == CurrentlySelectedArtikulli.Seri);
+
             if (artikulli != null) {
                 artikulli.Seri = CurrentlySelectedArtikulli.Seri;
                 malliMbetur.Seri = CurrentlySelectedArtikulli.Seri;

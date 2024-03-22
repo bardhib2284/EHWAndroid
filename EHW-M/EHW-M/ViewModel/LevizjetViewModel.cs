@@ -799,7 +799,7 @@ namespace EHWM.ViewModel {
             //Update sasia
             decimal SasiaUpdate = Math.Round(decimal.Parse(CurrentlySelectedArtikulli.Sasia.ToString()), 3);
             
-            var stoku = stoqet.FirstOrDefault(x => x.Depo == Agjendi.IDAgjenti && x.Shifra == CurrentlySelectedArtikulli.IDArtikulli);
+            var stoku = stoqet.FirstOrDefault(x => x.Depo == Agjendi.IDAgjenti && x.Seri == CurrentlySelectedArtikulli.Seri);
             decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
             stoku.Sasia = double.Parse(Math.Round(sasiaAktuale - SasiaUpdate, 3).ToString());
             await Task.Delay(20);
@@ -899,7 +899,7 @@ namespace EHWM.ViewModel {
 
                     if(Ne) {
                         //update malli i mbetur
-                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
+                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti);
 
                         malliIMbetur.LevizjeStoku += (float)artikull.Sasia;
 
@@ -911,7 +911,7 @@ namespace EHWM.ViewModel {
                     }
                         
                     if(Nga) {
-                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.IDArtikulli, Agjendi.IDAgjenti);
+                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti);
                         malliIMbetur.LevizjeStoku -= (float)artikull.Sasia;
 
                         //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))

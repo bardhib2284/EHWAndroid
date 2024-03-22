@@ -303,7 +303,7 @@ namespace EHWM.ViewModel
         
         public async Task<Stoqet> GetStokuAsync(string shifra,string depo, string seri) {
             var list = await _database.Table<Stoqet>().ToListAsync();
-            return list.FirstOrDefault(x => x.Depo == depo && x.Shifra == seri);
+            return list.FirstOrDefault(x => x.Depo == depo && x.Seri == seri);
         }
 
         
@@ -340,10 +340,10 @@ namespace EHWM.ViewModel
             return await _database.Table<Malli_Mbetur>().Where(x=> x.Depo == depo).ToListAsync();
         }
         
-        public async Task<Malli_Mbetur> GetMalliMbeturIDAsync(string idArtikulli,string depo)
+        public async Task<Malli_Mbetur> GetMalliMbeturIDAsync(string seri,string depo)
         {
             var list = await _database.Table<Malli_Mbetur>().ToListAsync();
-            return list.FirstOrDefault(x => x.IDArtikulli == idArtikulli && x.Depo == depo);
+            return list.FirstOrDefault(x => x.Seri == seri && x.Depo == depo);
         }
        
         public async Task<List<Vendet>> GetVendetAsync() {
