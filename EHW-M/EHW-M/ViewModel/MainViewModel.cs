@@ -2597,7 +2597,7 @@ namespace EHWM.ViewModel {
                                     DeviceID = LoginData.DeviceID,
                                     SyncStatus = 0,
                                     BUM = "KG",
-                                    Seri = artikull.Shifra ?? artikull.IDArtikulli,
+                                    Seri = artikull.Seri,
 
                                 };
                                 pArt.CmimiPaTVSH = (float)(pArt.CmimiAktual / 1.2f);
