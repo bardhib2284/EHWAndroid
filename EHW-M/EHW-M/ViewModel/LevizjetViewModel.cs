@@ -1289,7 +1289,7 @@ namespace EHWM.ViewModel {
 
                 foreach (var artikulli in Artikujt) {
 
-                    artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli)?.UnitPrice;
+                    artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == "STANDARD")?.UnitPrice;
                     var hasTwoMalliMbeturs = malliMbetur.Where(x => x.IDArtikulli == artikulli.IDArtikulli);
                     if (hasTwoMalliMbeturs.Count() > 1) {
                         foreach (var mm in hasTwoMalliMbeturs) {

@@ -1869,20 +1869,22 @@ namespace EHWM.ViewModel {
                 //MalliMbetur = new ObservableCollection<Malli_Mbetur>(await App.Database.GetMalliMbeturAsync());
                 var salePrice = SalesPrices?.FirstOrDefault(x => x.SalesCode == VizitaESelektuar.IDKlientDheLokacion)?.UnitPrice;
                 if(App.Instance.DoIHaveInternetNoAlert()) {
-                    if (salePrice == null) {
-                        var salesPricesResult = await App.ApiClient.GetAsync("prices/" + VizitaESelektuar.IDKlientDheLokacion);
-                        //var salesPricesResult = await App.ApiClient.GetAsync("prices");
-                        if (salesPricesResult.IsSuccessStatusCode) {
-                            var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
-                            var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
-                            await App.Database.SaveSalesPricesAsync(SalePrice);
-                        }
+                    var salesPricesResult = await App.ApiClient.GetAsync("prices/" + VizitaESelektuar.IDKlientDheLokacion);
+                    //var salesPricesResult = await App.ApiClient.GetAsync("prices");
+                    if (salesPricesResult.IsSuccessStatusCode) {
+                        var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
+                        var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
+                        SalesPrices = new ObservableCollection<SalesPrice>(SalePrice);
+                        await App.Database.SaveSalesPricesAsync(SalePrice);
                     }
                 }
-                SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
                 var artikujtPerShfaqje = new ObservableCollection<Artikulli>();
                 foreach (var artikulli in Artikujt) {
-                    artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli)?.UnitPrice;
+                    if(artikulli.IDArtikulli == "P101") 
+                    {
+
+                    }
+                    artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion)?.UnitPrice;
                     var hasTwoMalliMbeturs = malliMbetur.Where(x => x.IDArtikulli == artikulli.IDArtikulli);
                     if (hasTwoMalliMbeturs.Count() > 1) {
                         foreach (var mm in hasTwoMalliMbeturs) {
