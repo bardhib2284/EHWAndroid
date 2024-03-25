@@ -74,6 +74,8 @@ namespace EHW_M {
                     {
                         var liferimet = await Database.GetLiferimetAsync();
                         await CreateUpdateScriptLiferimi(liferimet);
+                        //var liferimetArt = await Database.GetLiferimetArtAsync();
+                        //await CreateUpdateScriptLiferimiArt(liferimetArt);
                         //var malliMbetur = await Database.GetMalliMbeturAsync();
                         //await CreateUpdateScriptMalli_Mbetur(malliMbetur);
                     });
@@ -148,6 +150,49 @@ namespace EHW_M {
             }
             
         }
+
+        //private async Task<bool> CreateUpdateScriptLiferimiArt(List<LiferimiArt> Liferimi) {
+        //    try {
+        //        foreach (var lif in Liferimi) {
+        //            lif.Export_Status = 2;
+        //            DateTime MyTime = DateTime.UtcNow;
+
+        //            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
+        //            lif.KohaLiferimit = MyTimeInWesternEurope;
+        //        }
+        //        var vizitatJson = JsonConvert.SerializeObject(Liferimi);
+        //        var conf = await Database.GetConfigurimiAsync();
+        //        if (string.IsNullOrEmpty(API_URL_BASE)) {
+        //            API_URL_BASE = conf.Serveri;
+        //        }
+        //        HttpClient httpClient = new HttpClient();
+        //        httpClient.BaseAddress = new Uri(API_URL_BASE);
+        //        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+        //        var stringContent = new StringContent(vizitatJson, Encoding.UTF8, "application/json");
+        //        var result = await httpClient.PostAsync("liferimi", stringContent);
+        //        if (result.IsSuccessStatusCode) {
+        //            return true;
+        //        }
+        //        else {
+        //            foreach (var viz in Liferimi) {
+        //                viz.SyncStatus = 0;
+        //                viz.Export_Status = 0;
+        //                await App.Database.SaveLiferimiAsync(viz);
+        //            }
+        //        }
+        //        return false;
+        //    }
+        //    catch (Exception e) {
+        //        if (e is UriFormatException ufe) {
+        //            UserDialogs.Instance.Alert("Linku I API't eshte gabim, ju lutemi rregullojeni linkun tek konfigurimi");
+        //            return false;
+        //        }
+        //        else {
+        //            return false;
+        //        }
+        //    }
+
+        //}
         protected override void OnStart() {
         }
 

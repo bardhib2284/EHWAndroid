@@ -340,10 +340,10 @@ namespace EHWM.ViewModel
             return await _database.Table<Malli_Mbetur>().Where(x=> x.Depo == depo).ToListAsync();
         }
         
-        public async Task<Malli_Mbetur> GetMalliMbeturIDAsync(string seri,string depo)
+        public async Task<Malli_Mbetur> GetMalliMbeturIDAsync(string seri,string depo,string idArtikulli)
         {
             var list = await _database.Table<Malli_Mbetur>().ToListAsync();
-            return list.FirstOrDefault(x => x.Seri == seri && x.Depo == depo);
+            return list.FirstOrDefault(x => x.Seri == seri && x.Depo == depo && x.IDArtikulli == idArtikulli);
         }
        
         public async Task<List<Vendet>> GetVendetAsync() {

@@ -899,7 +899,7 @@ namespace EHWM.ViewModel {
 
                     if(Ne) {
                         //update malli i mbetur
-                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti);
+                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti,artikull.IDArtikulli);
 
                         malliIMbetur.LevizjeStoku += (float)artikull.Sasia;
 
@@ -911,7 +911,7 @@ namespace EHWM.ViewModel {
                     }
                         
                     if(Nga) {
-                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti);
+                        var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti,artikull.IDArtikulli);
                         malliIMbetur.LevizjeStoku -= (float)artikull.Sasia;
 
                         //(sasiaPranuar - (SasiaShitur+SasiaKthyer-LevizjeStoku))

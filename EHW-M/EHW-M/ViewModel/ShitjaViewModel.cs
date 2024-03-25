@@ -244,7 +244,7 @@ namespace EHWM.ViewModel {
                                     await App.Database.UpdateStoqetAsync(stoku);
                                     StoqetPerUpdate.Add(stoku);
                                     //update malli i mbetur
-                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, VizitaESelektuar.IDAgjenti);
+                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, VizitaESelektuar.IDAgjenti,artikull.IDArtikulli);
                                     decimal SasiaShiturUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                     decimal SasiaShiturAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaShitur.ToString()), 3);
 
@@ -293,7 +293,7 @@ namespace EHWM.ViewModel {
                                     await App.Database.UpdateStoqetAsync(stoku);
 
                                     //TODO update malli i mbetur SASIA E KTHYER
-                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, LoginData.IDAgjenti);
+                                    var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, LoginData.IDAgjenti,artikull.IDArtikulli);
 
                                     decimal SasiaShiturUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                     decimal SasiaKthyerAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaKthyer.ToString()), 3);
@@ -1773,6 +1773,12 @@ namespace EHWM.ViewModel {
             if (!KthimMalli) {
                 if (Sasia <= 0) {
                     UserDialogs.Instance.Alert("Ju lutemi permiresoni sasin, duhet te jete me shume se 0.00", "Verejtje", "Ok");
+                    return;
+                }
+            }
+            else {
+                if(Sasia >= 0) {
+                    UserDialogs.Instance.Alert("Ju lutemi permiresoni sasin, duhet te jete me e vogel se 0.00", "Verejtje", "Ok");
                     return;
                 }
             }

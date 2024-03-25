@@ -2569,7 +2569,7 @@ namespace EHWM.ViewModel {
                                 await App.Database.UpdateStoqetAsync(stoku);
 
                                 //TODO update malli i mbetur SASIA E KTHYER
-                                var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, LoginData.IDAgjenti);
+                                var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, LoginData.IDAgjenti,artikull.IDArtikulli);
 
                                 decimal SasiaShiturUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                 decimal SasiaKthyerAktuale = Math.Round(decimal.Parse(malliIMbetur.SasiaKthyer.ToString()), 3);
