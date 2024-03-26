@@ -776,7 +776,26 @@ namespace EHWM.ViewModel {
                 }
             }
             var artikulli = Artikujt.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
-            var malliMbetur = MalliMbetur.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
+            var malliMbeturi = MalliMbetur.Where(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli).ToList();
+            Malli_Mbetur malliMbetur = null;
+            if (malliMbeturi.Count > 1) {
+                foreach (var mall in malliMbeturi) {
+                    if (!string.IsNullOrEmpty(mall.Seri)) {
+                        if (mall.Seri == CurrentlySelectedArtikulli.Seri)
+                            malliMbetur = mall;
+                    }
+                }
+                if (malliMbetur == null && malliMbeturi.Count > 0) {
+                    malliMbetur = malliMbeturi.FirstOrDefault();
+                }
+            }
+            if (malliMbetur == null && malliMbeturi.Count > 0) {
+                malliMbetur = malliMbeturi.FirstOrDefault();
+            }
+            if (malliMbetur == null) {
+                UserDialogs.Instance.Alert("Nuk gjindet mall i mbetur per kete artikull, ju lutemi beni sinkronizimin perseri");
+                return;
+            }
             var stoqet = await App.Database.GetAllStoqetAsync();
 
             if(malliMbetur == null) {
@@ -799,9 +818,6 @@ namespace EHWM.ViewModel {
             //Update sasia
             decimal SasiaUpdate = Math.Round(decimal.Parse(CurrentlySelectedArtikulli.Sasia.ToString()), 3);
             
-            var stoku = stoqet.FirstOrDefault(x => x.Depo == Agjendi.IDAgjenti && x.Seri == CurrentlySelectedArtikulli.Seri);
-            decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
-            stoku.Sasia = double.Parse(Math.Round(sasiaAktuale - SasiaUpdate, 3).ToString());
             await Task.Delay(20);
             //await App.Database.UpdateStoqetAsync(stoku);
             //update malli i mbetur

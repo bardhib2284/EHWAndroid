@@ -1804,8 +1804,26 @@ namespace EHWM.ViewModel {
                 }
             }
             var artikulli = Artikujt.FirstOrDefault(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli);
-            var malliMbetur = MalliMbetur.FirstOrDefault(x => x.Seri == CurrentlySelectedArtikulli.Seri);
-
+            var malliMbeturi = MalliMbetur.Where(x => x.IDArtikulli == CurrentlySelectedArtikulli.IDArtikulli).ToList();
+            Malli_Mbetur malliMbetur = null;
+            if(malliMbeturi.Count > 1) {
+                foreach(var mall in malliMbeturi) {
+                    if(!string.IsNullOrEmpty(mall.Seri)) {
+                        if (mall.Seri == CurrentlySelectedArtikulli.Seri)
+                            malliMbetur = mall;
+                    }
+                }
+                if(malliMbetur == null && malliMbeturi.Count > 0) {
+                    malliMbetur = malliMbeturi.FirstOrDefault();
+                }
+            }
+            if (malliMbetur == null && malliMbeturi.Count > 0) {
+                malliMbetur = malliMbeturi.FirstOrDefault();
+            }
+            if (malliMbetur == null) {
+                UserDialogs.Instance.Alert("Nuk gjindet mall i mbetur per kete artikull, ju lutemi beni sinkronizimin perseri");
+                return;
+            }
             if (artikulli != null) {
                 artikulli.Seri = CurrentlySelectedArtikulli.Seri;
                 malliMbetur.Seri = CurrentlySelectedArtikulli.Seri;

@@ -1,4 +1,5 @@
-﻿using EHW_M;
+﻿using Acr.UserDialogs;
+using EHW_M;
 using EHWM.ViewModel;
 using Plugin.BxlMpXamarinSDK;
 using Plugin.BxlMpXamarinSDK.Abstractions;
@@ -53,36 +54,47 @@ namespace EHWM.Views {
             if (e.SelectedItem == null)
                 return;
             var bc = BindingContext;
+            UserDialogs.Instance.ShowLoading("Duke printuar...");
+            await Task.Delay(500);
             if(bc is MainViewModel mv) {
                 var info = e.SelectedItem as MposConnectionInformation;
                 if(info != null) {
                     mv._connectionInfo = info;
                     await mv.OnDeviceOpenClicked();
+                    
                     await Navigation.PopAsync();
+                    await Task.Delay(200);
+                    UserDialogs.Instance.HideLoading();
                 }
             }            
             else if(bc is LevizjetViewModel lmv) {
                 var info = e.SelectedItem as MposConnectionInformation;
                 if(info != null) {
                     lmv._connectionInfo = info;
-                    await lmv.OnDeviceOpenClicked();
-                    await Navigation.PopAsync();
+                    await lmv.OnDeviceOpenClicked(); await Navigation.PopAsync();
+
+                    await Task.Delay(200);
+                    UserDialogs.Instance.HideLoading();
                 }
             }            
             else if(bc is InkasimiViewModel imv) {
                 var info = e.SelectedItem as MposConnectionInformation;
                 if(info != null) {
                     imv._connectionInfo = info;
-                    await imv.OnDeviceOpenClicked();
-                    await Navigation.PopAsync();
+                    await imv.OnDeviceOpenClicked(); await Navigation.PopAsync();
+
+                    await Task.Delay(200);
+                    UserDialogs.Instance.HideLoading();
                 }
             }            
             else if(bc is PorositeViewModel pmv) {
                 var info = e.SelectedItem as MposConnectionInformation;
                 if(info != null) {
                     pmv._connectionInfo = info;
-                    await pmv.OnDeviceOpenClicked();
-                    await Navigation.PopAsync();
+                    await pmv.OnDeviceOpenClicked(); await Navigation.PopAsync();
+
+                    await Task.Delay(200);
+                    UserDialogs.Instance.HideLoading();
                 }
             }
             else {
@@ -91,10 +103,11 @@ namespace EHWM.Views {
                 if (info != null) {
                     App.Instance.ShitjaViewModel._connectionInfo = info;
                 }
-                await App.Instance.ShitjaViewModel.OnDeviceOpenClicked();
-                await Navigation.PopAsync();
+                await App.Instance.ShitjaViewModel.OnDeviceOpenClicked(); await Navigation.PopAsync();
+
+                await Task.Delay(200);
+                UserDialogs.Instance.HideLoading();
             }
-            
         }
     }
 }
