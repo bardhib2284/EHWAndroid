@@ -118,7 +118,7 @@ namespace EHWM.ViewModel {
         }
 
         public string Title { get; set; }
-        public DateTime TodayDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+        public DateTime TodayDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
         public ShitjaViewModel(ShitjaNavigationParameters navigationParameters) {
             Sasia = 0;
             if(navigationParameters.VizitaEHapur != null) {
@@ -146,7 +146,7 @@ namespace EHWM.ViewModel {
             IncreaseSasiaCommand = new Command(IncreaseSasia);
             DecreaseSasiaCommand = new Command(DecreaseSasia);
             FshijArtikullinCommand = new Command(FshijArtikullinAsync);
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
             DataEPageses = MyTimeInWesternEurope;
             SearchedArtikujt = new ObservableCollection<Artikulli>();
             KrijoPorosine = false;
@@ -238,6 +238,14 @@ namespace EHWM.ViewModel {
                                     decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
                                     var stoqet = await App.Database.GetAllStoqetAsync();
                                     var stoku = stoqet.FirstOrDefault(x => x.Depo == VizitaESelektuar.IDAgjenti && x.Seri == artikull.Seri);
+                                    if (stoku == null) {
+                                        stoku = stoqet.FirstOrDefault(x => x.Shifra == artikull.IDArtikulli && x.Depo == VizitaESelektuar.IDAgjenti);
+                                        if (stoku == null) {
+                                            UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
+                                            return;
+                                        }
+                                        stoku.Seri = artikull.Seri;
+                                    }
                                     decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
                                     stoku.Sasia = double.Parse(Math.Round(sasiaAktuale - SasiaUpdate, 3).ToString());
                                     await Task.Delay(20);
@@ -287,7 +295,16 @@ namespace EHWM.ViewModel {
 
                                 foreach (var artikull in SelectedArikujt) {
                                     decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                                    var stoku = await App.Database.GetStokuAsync(artikull.Shifra, VizitaESelektuar.IDAgjenti, artikull.Seri);
+                                    var stoqet = await App.Database.GetAllStoqetAsync();
+                                    var stoku = stoqet.FirstOrDefault(x => x.Depo == VizitaESelektuar.IDAgjenti && x.Seri == artikull.Seri);
+                                    if (stoku == null) {
+                                        stoku = stoqet.FirstOrDefault(x => x.Shifra == artikull.IDArtikulli && x.Depo == VizitaESelektuar.IDAgjenti);
+                                        if (stoku == null) {
+                                            UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
+                                            return;
+                                        }
+                                        stoku.Seri = artikull.Seri;
+                                    }
                                     decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
                                     stoku.Sasia = double.Parse(Math.Round((decimal)(sasiaAktuale - SasiaUpdate), 3).ToString());
                                     await App.Database.UpdateStoqetAsync(stoku);
@@ -421,7 +438,7 @@ namespace EHWM.ViewModel {
                                     };
                         var nrPorosise = await App.Database.GetNumriPorosiveAsync();
                         var nrPor = nrPorosise.FirstOrDefault(x => x.TIPI == "SHITJE");
-                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                         if (nrPor == null) {
                             nrPor = new NumriPorosive
@@ -934,7 +951,7 @@ namespace EHWM.ViewModel {
 
 
         public async Task RegjistroAsync() {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
             App.Instance.MainViewModel.TodaysDate = MyTimeInWesternEurope;
             await App.Instance.MainViewModel.FixDataVizualizimit();
@@ -1247,7 +1264,7 @@ namespace EHWM.ViewModel {
                 }
                 await _printer.printText(
 "---------------------------------------------------------------------");
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
                 await _printer.printText("\nData dhe ora e leshimit te fatures: " + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:mm:ss"));
@@ -1886,23 +1903,33 @@ namespace EHWM.ViewModel {
                 //SalesPrices = new ObservableCollection<SalesPrice>(await App.Database.GetSalesPriceAsync());
                 //MalliMbetur = new ObservableCollection<Malli_Mbetur>(await App.Database.GetMalliMbeturAsync());
                 var salePrice = SalesPrices?.FirstOrDefault(x => x.SalesCode == VizitaESelektuar.IDKlientDheLokacion)?.UnitPrice;
-                if(App.Instance.DoIHaveInternetNoAlert()) {
-                    var salesPricesResult = await App.ApiClient.GetAsync("prices/" + VizitaESelektuar.IDKlientDheLokacion);
-                    //var salesPricesResult = await App.ApiClient.GetAsync("prices");
-                    if (salesPricesResult.IsSuccessStatusCode) {
-                        var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
-                        var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
-                        SalesPrices = new ObservableCollection<SalesPrice>(SalePrice);
-                        await App.Database.SaveSalesPricesAsync(SalePrice);
-                    }
-                }
+                //if(App.Instance.DoIHaveInternetNoAlert()) {
+                //    var salesPricesResult = await App.ApiClient.GetAsync("prices/" + VizitaESelektuar.IDKlientDheLokacion);
+                //    //var salesPricesResult = await App.ApiClient.GetAsync("prices");
+                //    if (salesPricesResult.IsSuccessStatusCode) {
+                //        var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
+                //        var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
+                //        SalesPrices = new ObservableCollection<SalesPrice>(SalePrice);
+                //        await App.Database.SaveSalesPricesAsync(SalePrice);
+                //    }
+                //}
                 var artikujtPerShfaqje = new ObservableCollection<Artikulli>();
                 foreach (var artikulli in Artikujt) {
-                    if(artikulli.IDArtikulli == "P101") 
-                    {
-
+                    var salesPrice = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion);
+                    if(salesPrice == null) {
+                        if (App.Instance.DoIHaveInternetNoAlert()) {
+                            var salesPricesResult = await App.ApiClient.GetAsync("prices/" + VizitaESelektuar.IDKlientDheLokacion);
+                            //var salesPricesResult = await App.ApiClient.GetAsync("prices"); 
+                            if (salesPricesResult.IsSuccessStatusCode) {
+                                var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
+                                var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
+                                SalesPrices = new ObservableCollection<SalesPrice>(SalePrice);
+                                salesPrice = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion);
+                                await App.Database.SaveSalesPricesAsync(SalePrice);
+                            }
+                        }
                     }
-                    artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion)?.UnitPrice;
+                    artikulli.CmimiNjesi = salesPrice?.UnitPrice;
                     var hasTwoMalliMbeturs = malliMbetur.Where(x => x.IDArtikulli == artikulli.IDArtikulli);
                     if (hasTwoMalliMbeturs.Count() > 1) {
                         foreach (var mm in hasTwoMalliMbeturs) {

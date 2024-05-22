@@ -18,6 +18,11 @@
             
             <Label Text="TAGNR"/>
             <Entry Text="{Binding Configurimi.TAGNR}"/>
+
+
+            <Label FontSize="10" Text="Ju lutem mos ndryshoni asgje tek Tokeni"/>
+            <Label Text="Token"/>
+            <Entry Text="{Binding Configurimi.Token}"/>
             <StackLayout VerticalOptions="EndAndExpand">
                 <Label VerticalOptions="EndAndExpand" Text="Ruajtja e te dhenva funksionon per te gjitha faqet, nuk ka nevoj me prek ruaj per te dy faqet"/>
                 <Button VerticalOptions="EndAndExpand" Text="Ruaj" Command="{Binding SaveConfigurimiCommand}"/>

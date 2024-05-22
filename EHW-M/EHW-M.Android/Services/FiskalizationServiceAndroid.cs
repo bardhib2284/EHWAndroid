@@ -145,6 +145,7 @@ namespace EHW_M.Droid.Services {
                     IsCorrectiveInv = req.IsCorrectiveInv,
                     MobileRefId = req.MobileRefId,
                     SubseqDelivTypeSType = req.SubseqDelivTypeSType
+                    
                 };
                 request.PriceWithVAT = req.PriceWithoutVAT + req.VATAmount;
                 using (FiscalisationService fs = new FiscalisationService()) {

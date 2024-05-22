@@ -106,15 +106,17 @@ namespace EHWM.ViewModel {
                         return;
                     }
                 }
+                var Liferimet = await App.Database.GetLiferimetAsync();
+                if(Liferimet.Count > 0) {
+                    var sync = await SinkronizoFiskalizimin();
+                    if (!sync) return;
+                }
 
-                var sync = await SinkronizoFiskalizimin();
-
-                if (!sync) return;
                 if (await UserDialogs.Instance.ConfirmAsync("Ky proçes shkarkon sasitë e mbetura të artikujve nga Palmi \n dhe bën zerimin e sasive në Palm. \n  A dëshironi të vazhdoni?", "Konfirmo", "Po", "Jo")) {
                     try {
                         // Perform synchronization
                         await SyncAll();
-                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                         UserDialogs.Instance.HideLoading();
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
@@ -142,9 +144,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
-                                                    .Where(l => l.PayType == "KESH")
-                                                    .Sum(l => l.ShumaPaguar);
+                                    var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                    if (malliMbetur.Count > 0) {
+                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                            .Where(l => l.PayType == "KESH")
+                                            .Sum(l => l.ShumaPaguar);
+                                    }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                                 }
@@ -164,9 +169,12 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
-                                CashAmountForFirstTimeOfDayRegister = liferimet
-                                                .Where(l => l.PayType == "KESH")
-                                                .Sum(l => l.ShumaPaguar);
+                                var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                if (malliMbetur.Count > 0) {
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                        .Where(l => l.PayType == "KESH")
+                                        .Sum(l => l.ShumaPaguar);
+                                }
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
 
                                 await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -187,9 +195,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
-                            CashAmountForFirstTimeOfDayRegister = liferimet
-                                            .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                            var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                            if (malliMbetur.Count > 0) {
+                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                    .Where(l => l.PayType == "KESH")
+                                    .Sum(l => l.ShumaPaguar);
+                            }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                         }
@@ -300,7 +311,7 @@ namespace EHWM.ViewModel {
                                 var cashRegister = await App.Database.GetCashRegisterAsync();
                                 var levizjetHeaderList = await App.Database.GetLevizjetHeaderAsync();
                                 var checkMalliMbetur = levizjetHeaderList.OrderByDescending(x => x.Data).FirstOrDefault();
-                                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                                 DateTime DataCashRegister = MyTimeInWesternEurope.Date.AddDays(-5);
                                 if (cashRegister.Count > 0) {
@@ -436,7 +447,7 @@ namespace EHWM.ViewModel {
                             .Sum(joinedTables => joinedTables.a.ss.UnitPrice * joinedTables.a.m.SasiaMbetur);
 
                 var _LevizjeIDN = numriFisk
-                        .Where(v => v.Depo == Agjendi.IDAgjenti)
+                        .Where(v => v.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
                         .OrderBy(v => v.LevizjeIDN)
                         .Select(v => v.LevizjeIDN)
                         .FirstOrDefault();
@@ -449,7 +460,7 @@ namespace EHWM.ViewModel {
                     .FirstOrDefault();
                 var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
                 var NumriPorosive = gNumriPorosive.FirstOrDefault(x => x.TIPI == "LEVIZJE");
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 if (NumriPorosive == null) {
                     NumriPorosive = new NumriPorosive
@@ -492,7 +503,7 @@ namespace EHWM.ViewModel {
                     from m in malliMbetur
                     join ss in salesPrice on m.IDArtikulli equals ss.ItemNo
                     join a in artikujt on m.IDArtikulli equals a.IDArtikulli
-                    where ss.SalesCode == "STANDARD" && m.SasiaMbetur > 0.09 && m.Depo == Agjendi.Depo
+                    where ss.SalesCode == "STANDARD" && m.SasiaMbetur > 0.001 && m.Depo == Agjendi.Depo
                     select new LevizjetDetails
                     {
                         NumriLevizjes = _NrFatures.ToString(),
@@ -511,7 +522,7 @@ namespace EHWM.ViewModel {
                 var resld = await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetailsList);
 
                 var _UpdatedLevizjeIDN = numriFisk
-                            .Where(v => v.Depo == Agjendi.IDAgjenti)
+                            .Where(v => v.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
                             .OrderBy(v => v.LevizjeIDN)
                             .FirstOrDefault();
                 _UpdatedLevizjeIDN.LevizjeIDN = _LevizjeIDN;
@@ -530,7 +541,7 @@ namespace EHWM.ViewModel {
         }
 
         public async Task RegisterTCRWTN(string nrLevizjes) {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
             var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
             var depot = await App.Database.GetDepotAsync();
@@ -560,7 +571,7 @@ namespace EHWM.ViewModel {
                         where (h.TCRSyncStatus == null || h.TCRSyncStatus == 0)
                               && h.NumriLevizjes == nrLevizjes
                               && h.LevizjeNga.Trim() == Agjendi.IDAgjenti
-                              && Math.Round((decimal)l.Sasia, 2) >= 0.01m
+                              && Math.Round((decimal)l.Sasia, 2) >= 0.001m
                         select new EHWM.Models.WTNModels.MapperLines
                         {
                             Numri_Levizjes = h.NumriLevizjes,
@@ -792,7 +803,7 @@ namespace EHWM.ViewModel {
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
                 var artikujt = await App.Database.GetArtikujtAsync();
                 var companyInfo = await App.Database.GetCompanyInfoAsync();
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 var query2 = from l in liferimi
                              join la in liferimiArt on l.IDLiferimi equals la.IDLiferimi
@@ -1773,7 +1784,7 @@ namespace EHWM.ViewModel {
 
         private async Task<bool> UpdateMalli_Mbetur() {
             bool a = false;
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
             var malliMbetur = await App.Database.GetMalliMbeturAsyncWithDepo(Agjendi.Depo);
             foreach(var malli in malliMbetur) {
@@ -1901,6 +1912,7 @@ namespace EHWM.ViewModel {
             }
             catch (Exception ex) {
                 //PnUtils.DbUtils.WriteExeptionErrorLog(ex);
+                UserDialogs.Instance.Alert("Problem me GetConfigurationByIDAgjentiAsync : " + ex.Message);
             }
             return null;
         }
@@ -1958,7 +1970,9 @@ namespace EHWM.ViewModel {
                     }
                     else {
                         // Update existing record
-
+                        if (string.IsNullOrEmpty(numriFisk.Depo)) {
+                            numriFisk.Depo = App.Instance.MainViewModel.LoginData.Depo;
+                        }
                         var jsonRequest = JsonConvert.SerializeObject(numriFisk);
                         var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
                         var putResult = await App.ApiClient.PutAsync("numri-fisk", stringContent);
@@ -1966,12 +1980,11 @@ namespace EHWM.ViewModel {
                             return true;
 
                         }
-                        //else {
-                        //    UserDialogs.Instance.Alert("Shenimet nuk u shtuan me sukses");
-                        //    return false;
+                        else {
+                            UserDialogs.Instance.Alert("Error ne perditesim te numrit fiskal ne server");
+                            return false;
 
-                        //}
-                        return false;
+                        }
                     }
                 }
                 catch (Exception ex) {
@@ -2017,7 +2030,7 @@ namespace EHWM.ViewModel {
 
             }
             catch (Exception e) {
-
+                UserDialogs.Instance.Alert("Problem me kalkulim te mallit te mbetur : " + e.Message);
             }
             return result;
         }
@@ -3739,7 +3752,7 @@ namespace EHWM.ViewModel {
             return false;
         }
         private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
             foreach (var mall in OrderDetasails) {
                 mall.Data = MyTimeInWesternEurope;
                 mall.Export_Status = 0;

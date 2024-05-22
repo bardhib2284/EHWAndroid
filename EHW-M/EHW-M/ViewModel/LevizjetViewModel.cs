@@ -101,7 +101,7 @@ namespace EHWM.ViewModel {
                 {
                 if(value) {
                     if (NumriPorosive != null)
-                        NrLevizjes = "M03-" + NumriPorosive.NrPorosise;
+                        NrLevizjes = Agjendi.Depo + "-" + NumriPorosive.NrPorosise;
                 }
 
                 LevizjeText = "Transfer ne";
@@ -733,7 +733,7 @@ namespace EHWM.ViewModel {
             NumriFraturave = await App.Database.GetNumriFaturaveIDAsync(Agjendi.IDAgjenti);
             var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
             NumriPorosive = gNumriPorosive.FirstOrDefault(x=> x.TIPI == "LEVIZJE");
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
             if (NumriPorosive == null) {
                 NumriPorosive = new NumriPorosive
                 {
@@ -914,6 +914,22 @@ namespace EHWM.ViewModel {
                 foreach (var artikull in SelectedArikujt) {
 
                     if(Ne) {
+                        decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
+
+                        var stoqet = await App.Database.GetAllStoqetAsync();
+                        var stoku = stoqet.FirstOrDefault(x => x.Depo == Agjendi.IDAgjenti && x.Seri == artikull.Seri);
+                        if (stoku == null) {
+                            stoku = stoqet.FirstOrDefault(x => x.Shifra == artikull.IDArtikulli && x.Depo == Agjendi.IDAgjenti);
+                            if (stoku == null) {
+                                UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
+                                return;
+                            }
+                            stoku.Seri = artikull.Seri;
+                        }
+                        decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
+                        stoku.Sasia = double.Parse(Math.Round(sasiaAktuale + SasiaUpdate, 3).ToString());
+                        await Task.Delay(20);
+                        await App.Database.UpdateStoqetAsync(stoku);
                         //update malli i mbetur
                         var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti,artikull.IDArtikulli);
 
@@ -927,6 +943,21 @@ namespace EHWM.ViewModel {
                     }
                         
                     if(Nga) {
+                        decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
+                        var stoqet = await App.Database.GetAllStoqetAsync();
+                        var stoku = stoqet.FirstOrDefault(x => x.Depo == Agjendi.IDAgjenti && x.Seri == artikull.Seri);
+                        if (stoku == null) {
+                            stoku = stoqet.FirstOrDefault(x => x.Shifra == artikull.IDArtikulli && x.Depo == Agjendi.IDAgjenti);
+                            if (stoku == null) {
+                                UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
+                                return;
+                            }
+                            stoku.Seri = artikull.Seri;
+                        }
+                        decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
+                        stoku.Sasia = double.Parse(Math.Round(sasiaAktuale - SasiaUpdate, 3).ToString());
+                        await Task.Delay(20);
+                        await App.Database.UpdateStoqetAsync(stoku);
                         var malliIMbetur = await App.Database.GetMalliMbeturIDAsync(artikull.Seri, Agjendi.IDAgjenti,artikull.IDArtikulli);
                         malliIMbetur.LevizjeStoku -= (float)artikull.Sasia;
 
@@ -954,7 +985,7 @@ namespace EHWM.ViewModel {
                     }
                 }
                 var topLevizjeIDN = numriFiskal
-                                    .Where(v => v.Depo == App.Instance.MainViewModel.LoginData.Depo)
+                                    .Where(v => v.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
                                     .OrderBy(v => v.LevizjeIDN)
                                     .FirstOrDefault();
                 topLevizjeIDN.LevizjeIDN = topLevizjeIDN.LevizjeIDN + 1;
@@ -977,7 +1008,7 @@ namespace EHWM.ViewModel {
                                 nf.Viti
                             };
                 var transferId = Guid.NewGuid();
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
                 var levizjaHeader = new LevizjetHeader
                 {
                     Data = MyTimeInWesternEurope,
@@ -1125,7 +1156,7 @@ namespace EHWM.ViewModel {
                     req.StartPointSTypeSpecified = true;
                     req.FromDeviceId = inv.FromDevice;
                     req.ToDeviceId = inv.ToDevice;
-                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                     ResultLogPCL log = App.Instance.FiskalizationService.RegisterWTN(req);
                     if (log == null) {

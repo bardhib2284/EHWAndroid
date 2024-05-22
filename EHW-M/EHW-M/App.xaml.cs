@@ -74,6 +74,10 @@ namespace EHW_M {
                     {
                         var liferimet = await Database.GetLiferimetAsync();
                         await CreateUpdateScriptLiferimi(liferimet);
+                        var levizjet = await Database.GetLevizjetHeaderAsync();
+                        await CreateUpdateScriptLevizjetHeader(levizjet);
+                        var levizjetDetails = await Database.GetLevizjeDetailsAsync();
+                        await CreateUpdateScriptLevizjetHeaderDetails(levizjetDetails);
                         var liferimetArt = await Database.GetLiferimetArtAsync();
                         await CreateUpdateScriptLiferimiArt(liferimetArt);
                         //var malliMbetur = await Database.GetMalliMbeturAsync();
@@ -83,6 +87,56 @@ namespace EHW_M {
                 return true;
             });
         }
+
+        private async Task<bool> CreateUpdateScriptLevizjetHeaderDetails(List<LevizjetDetails> OrderDetails) {
+            foreach (var mall in OrderDetails) {
+                mall.SyncStatus = 2;
+            }
+            var conf = await Database.GetConfigurimiAsync();
+            if (string.IsNullOrEmpty(API_URL_BASE)) {
+                API_URL_BASE = conf.Serveri;
+            }
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(API_URL_BASE);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+            var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
+            var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
+            var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
+
+            if (result.IsSuccessStatusCode) {
+                return true;
+            }
+            foreach (var porosia in OrderDetails) {
+                porosia.SyncStatus = 0;
+                await App.Database.UpdateLevizjeDetailsAsync(porosia);
+            }
+            return false;
+        }
+        private async Task<bool> CreateUpdateScriptLevizjetHeader(List<LevizjetHeader> OrderDetails) {
+            foreach (var mall in OrderDetails) {
+                mall.Data = DateTime.Now;
+                mall.ImpStatus = 2;
+            }
+            var conf = await Database.GetConfigurimiAsync();
+            if (string.IsNullOrEmpty(API_URL_BASE)) {
+                API_URL_BASE = conf.Serveri;
+            }
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(API_URL_BASE);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+            var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
+            var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
+            var result = await App.ApiClient.PostAsync("levizje-header", stringContent);
+            if (result.IsSuccessStatusCode) {
+                return true;
+            }
+            foreach (var porosia in OrderDetails) {
+                porosia.SyncStatus = 0;
+                await App.Database.SaveLevizjeHeaderAsync(porosia);
+            }
+            return false;
+        }
+
         private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
             foreach (var mall in OrderDetasails) {
                 mall.Data = DateTime.Now;
@@ -115,7 +169,7 @@ namespace EHW_M {
                     lif.Export_Status = 2;
                     DateTime MyTime = DateTime.UtcNow;
 
-                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
                     lif.KohaLiferimit = MyTimeInWesternEurope;
                 }
                 var vizitatJson = JsonConvert.SerializeObject(Liferimi);

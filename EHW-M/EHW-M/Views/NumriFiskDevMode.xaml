@@ -11,6 +11,15 @@
 
                 <Label Text="LevizjeIDN"/>
                 <Entry Text="{Binding SelectedNumriFiskDevMode.LevizjeIDN,Mode=TwoWay}"/>
+
+                <Label Text="Depo"/>
+                <Entry Text="{Binding SelectedNumriFiskDevMode.Depo,Mode=TwoWay}"/>
+
+                <Label Text="TCRCode"/>
+                <Entry Text="{Binding SelectedNumriFiskDevMode.TCRCode,Mode=TwoWay}"/>
+                
+                <Label Text="Viti"/>
+                <Entry Text="{Binding SelectedNumriFiskDevMode.Viti,Mode=TwoWay}"/>
             </StackLayout>
 
 

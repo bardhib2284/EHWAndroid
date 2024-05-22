@@ -522,7 +522,7 @@ namespace EHWM.ViewModel {
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     art.Sasia = art.Sasia * -1;
                 }
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
                 var FaturaArritjes = MyTimeInWesternEurope;
 
                 var NumriFaturaveList = await App.Database.GetNumriFaturaveAsync();
@@ -680,7 +680,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 var agjender = await App.Database.GetAgjendetAsync();
                 var agjendi = agjender.FirstOrDefault(x => x.Depo == LoginData.Depo);
@@ -1407,10 +1407,10 @@ namespace EHWM.ViewModel {
                 }
                 await _printer.printText(
 "---------------------------------------------------------------------");
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:mm:ss"));
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -1949,7 +1949,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GetImgResource(),
                             100/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
@@ -2305,7 +2305,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText(
 "---------------------------------------------------------------------\n");
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
@@ -2559,10 +2559,15 @@ namespace EHWM.ViewModel {
                         {
                             foreach (var artikull in vizualizimiFatures.ListaEArtikujve) {
                                 decimal SasiaUpdate = Math.Round(decimal.Parse(artikull.Sasia.ToString()), 3);
-                                var stoku = await App.Database.GetStokuAsync(artikull.Shifra, LoginData.IDAgjenti, artikull.Seri);
-                                if(stoku == null) {
-                                    UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
-                                    return;
+                                var stoqet = await App.Database.GetAllStoqetAsync();
+                                var stoku = stoqet.FirstOrDefault(x => x.Depo == LoginData.IDAgjenti && x.Seri == artikull.Seri);
+                                if (stoku == null) {
+                                    stoku = stoqet.FirstOrDefault(x => x.Shifra == artikull.IDArtikulli && x.Depo == LoginData.IDAgjenti);
+                                    if (stoku == null) {
+                                        UserDialogs.Instance.Alert("Mungon stoku, ju lutem sinkronizoni");
+                                        return;
+                                    }
+                                    stoku.Seri = artikull.Seri;
                                 }
                                 decimal sasiaAktuale = Math.Round(decimal.Parse(stoku.Sasia.ToString()), 3);
                                 stoku.Sasia = double.Parse(Math.Round((decimal)(sasiaAktuale - SasiaUpdate), 3).ToString());
@@ -2695,7 +2700,7 @@ namespace EHWM.ViewModel {
 
                         var nrPorosise = await App.Database.GetNumriPorosiveAsync();
                         var nrPor = nrPorosise.FirstOrDefault(x => x.TIPI == "SHITJE");
-                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                         if (nrPor == null) {
                             nrPor = new NumriPorosive
@@ -2845,7 +2850,7 @@ namespace EHWM.ViewModel {
                             TotaliMeTVSH = g.Sum(x => Math.Round(x.Totali, 2)),
                             TVSH = g.Sum(x => Math.Round(x.Totali - x.TotaliPaTVSH, 2))
                         };
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
             List<MapperHeader> mapperHeaderList = query.ToList();
             if (mapperHeaderList.Count > 0) {
@@ -3427,7 +3432,7 @@ namespace EHWM.ViewModel {
                     await App.Instance.PushAsyncNewPage(new RegjistrimiIVizitesPage() { BindingContext = this });
                     DateTime MyTime = DateTime.UtcNow;
 
-                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
                     RegjistroVizitenDate = MyTimeInWesternEurope;
                     await App.Instance.MainPage.Navigation.PopPopupAsync();
                 }
@@ -3449,7 +3454,7 @@ namespace EHWM.ViewModel {
         public async Task LoginAsync() {
             try {
                 Configurimi = await App.Database.GetConfigurimiAsync();
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
                 if (Configurimi != null) {
                     if (Configurimi.Serveri != null) {
@@ -3544,9 +3549,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
-                                                    .Where(l => l.PayType == "KESH")
-                                                    .Sum(l => l.ShumaPaguar);
+                                    var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                    if (malliMbetur.Count > 0) {
+                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                            .Where(l => l.PayType == "KESH")
+                                            .Sum(l => l.ShumaPaguar);
+                                    }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                                 }
@@ -3566,9 +3574,13 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
-                                CashAmountForFirstTimeOfDayRegister = liferimet
-                                                .Where(l => l.PayType == "KESH")
-                                                .Sum(l => l.ShumaPaguar);
+                                var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                if(malliMbetur.Count > 0) {
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                        .Where(l => l.PayType == "KESH")
+                                        .Sum(l => l.ShumaPaguar);
+                                }
+
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                 await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                             }
@@ -3588,9 +3600,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
-                            CashAmountForFirstTimeOfDayRegister = liferimet
-                                            .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                            var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                            if (malliMbetur.Count > 0) {
+                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                    .Where(l => l.PayType == "KESH")
+                                    .Sum(l => l.ShumaPaguar);
+                            }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                         }
@@ -3751,9 +3766,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
-                                                    .Where(l => l.PayType == "KESH")
-                                                    .Sum(l => l.ShumaPaguar);
+                                    var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                    if (malliMbetur.Count > 0) {
+                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                            .Where(l => l.PayType == "KESH")
+                                            .Sum(l => l.ShumaPaguar);
+                                    }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                                 }
@@ -3773,9 +3791,12 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
-                                CashAmountForFirstTimeOfDayRegister = liferimet
-                                                .Where(l => l.PayType == "KESH")
-                                                .Sum(l => l.ShumaPaguar);
+                                var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                if (malliMbetur.Count > 0) {
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                        .Where(l => l.PayType == "KESH")
+                                        .Sum(l => l.ShumaPaguar);
+                                }
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
 
                                 await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -3796,9 +3817,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
-                            CashAmountForFirstTimeOfDayRegister = liferimet
-                                            .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                            var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                            if (malliMbetur.Count > 0) {
+                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                    .Where(l => l.PayType == "KESH")
+                                    .Sum(l => l.ShumaPaguar);
+                            }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
                         }
@@ -4315,7 +4339,7 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Ju lutem selektoni viziten", "ERROR", "Ok");
                 return false;
             }
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
             DateTime FromDate = MyTimeInWesternEurope.AddDays(-(int)MyTimeInWesternEurope.DayOfWeek);
             FromDate = new DateTime(FromDate.Year, FromDate.Month, FromDate.Day);
@@ -4364,7 +4388,7 @@ namespace EHWM.ViewModel {
             return _result;
         }
         public bool DatesAreInTheSameWeek(DateTime date1, DateTime date2) {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
 
             if (date1.Date == DateTime.MinValue) {
                 date1 = MyTimeInWesternEurope;
@@ -4498,7 +4522,7 @@ namespace EHWM.ViewModel {
             //MalliMbetur = new ObservableCollection<Malli_Mbetur>(await App.Database.GetMalliMbeturAsync());
             var artikujtPerShfaqje = new List<Artikulli>();
             foreach (var artikulli in artikujt) {
-                artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli)?.UnitPrice;
+                artikulli.CmimiNjesi = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == "STANDARD")?.UnitPrice;
                 var hasTwoMalliMbeturs = malliMbetur.Where(x => x.IDArtikulli == artikulli.IDArtikulli);
                 if(hasTwoMalliMbeturs.Count() > 1) {
                     foreach(var mm in hasTwoMalliMbeturs) {

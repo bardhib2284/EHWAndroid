@@ -161,11 +161,14 @@ namespace EHWM.ViewModel {
                             TotaliMeTVSH = g.Sum(x => Math.Round(x.Totali, 2)),
                             TVSH = g.Sum(x => Math.Round(x.Totali - x.TotaliPaTVSH, 2))
                         };
-            DateTime MyTime = DateTime.UtcNow;
 
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
             List<MapperHeader> mapperHeaderList = query.ToList();
             if (mapperHeaderList.Count > 0) {
+                DateTime MyTime = DateTime.UtcNow;
+
+                var currLif = liferimet.FirstOrDefault(x => x.IDLiferimi.ToString() == query.ToList().FirstOrDefault().IDLiferimi);
+
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
                 var klientet = await App.Database.GetKlientetAsync();
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
                 var artikujt = await App.Database.GetArtikujtAsync();
@@ -190,7 +193,7 @@ namespace EHWM.ViewModel {
                                  InvoiceSType = "Cash GJITHMON",
                                  InvNum = l.NumriFisk + "/" + DateTime.Now.Year,
                                  InvOrdNum = Convert.ToInt32(l.NumriFisk),
-                                 SendDatetime = MyTimeInWesternEurope,
+                                 SendDatetime = l.KohaLiferuar,
                                  IsIssuerInVAT = true,
                                  TaxFreeAmt = Math.Round(0d, 2),
                                  PaymentMethodTypesType = l.PayType,
@@ -229,7 +232,6 @@ namespace EHWM.ViewModel {
                         RegisterInvoiceInputRequestPCL req = new RegisterInvoiceInputRequestPCL();
                         req.Buyer = inv.Buyer;
                         req.InvoiceItems = inv.Items.ToList();
-
                         req.DeviceID = inv.DeviceID;
                         req.NrLiferimit = inv.NrLiferimit;
                         req.SubseqDelivTypeSType = -1;//NOINTERNET
@@ -564,7 +566,7 @@ namespace EHWM.ViewModel {
                         };
             DateTime MyTime = DateTime.UtcNow;
 
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
             List<Models.WTNModels.MapperLines> mapperLinesList = query.ToList();
 
             if (mapperHeaderList.Count > 0) {
