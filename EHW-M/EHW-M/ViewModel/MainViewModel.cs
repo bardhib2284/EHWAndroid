@@ -3893,6 +3893,256 @@ namespace EHWM.ViewModel {
             
         }
 
+        public async Task<bool> LoginAsyncWithoutPageChange(string username) {
+            try {
+                Configurimi = await App.Database.GetConfigurimiAsync();
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+
+                var vizitat = await App.Database.GetVizitatAsync();
+                if (vizitat != null) {
+                    if (vizitat.Count > 0) {
+                        foreach (var viz in vizitat) {
+                            if (viz.DataPlanifikimit.Value.AddDays(8) <= DateTime.Now) {
+                                await App.Database.DeleteVizita(viz);
+                            }
+                        }
+                    }
+                }
+                if (al.idagjenti == string.Empty) {
+                    al.idagjenti = " ";
+                }
+                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(al.idagjenti)) {
+                    al.idagjenti = string.Empty;
+                    var jsonRequest = JsonConvert.SerializeObject(al);
+
+                    var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                    var response = await App.ApiClient.PostAsync(App.ApiClient.BaseAddress + "agjendi/login", stringContent);
+                    if (response.IsSuccessStatusCode) {
+
+                    }
+                    else {
+                        UserDialogs.Instance.Alert("Probleme me server, ju lutem provoni me vone !", "Error", "Ok");
+                        UserDialogs.Instance.HideLoading();
+                        return false;
+
+                    }
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    LoginData = JsonConvert.DeserializeObject<Agjendet>(responseString);
+                    Debug.WriteLine("Username " + LoginData.Emri);
+                    Debug.WriteLine("Token  " + LoginData.token);
+
+                    if (LoginData.IDAgjenti != null && LoginData.token != null) {
+                        App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", LoginData.token);
+                        App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        if (string.IsNullOrEmpty(Configurimi.KodiTCR)) {
+                            var sync = await SinkronizoFiskalizimin();
+                            if (!sync) {
+                                UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                UserDialogs.Instance.HideLoading();
+                                return false;
+                            }
+                        }
+
+                        Configurimi.Token = LoginData.token;
+                        Configurimi.Shfrytezuesi = LoginData.IDAgjenti;
+                        Configurimi.Paisja = LoginData.DeviceID;
+                        //REGISTER ARKEN
+                        var depot = await App.Database.GetDepotAsync();
+                        if (depot.Count > 0) {
+                            var depotResult = await App.ApiClient.GetAsync("depot");
+                            if (depotResult.IsSuccessStatusCode) {
+                                var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                                depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                                if (depot.Count > 0) {
+                                    Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                    await App.Database.ClearAllDepotAsync();
+                                    await App.Database.SaveDepotAsync(depot);
+                                }
+                            }
+                            Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                            if (string.IsNullOrEmpty(Configurimi.TAGNR))
+                                Configurimi.TAGNR = Depoja.TAGNR;
+                            if (Configurimi.TAGNR != Depoja.TAGNR) {
+                                var sync = await SinkronizoFiskalizimin();
+                                if (!sync) {
+                                    UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                    UserDialogs.Instance.HideLoading();
+                                    return false;
+                                }
+                            }
+                            else
+                                Configurimi.TAGNR = Depoja.TAGNR;
+                        }
+                        else {
+                            if (Configurimi.Token != null) {
+                                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                                var depotResult = await App.ApiClient.GetAsync("depot");
+                                if (depotResult.IsSuccessStatusCode) {
+                                    var depotResponse = await depotResult.Content.ReadAsStringAsync();
+                                    depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
+                                    if (depot.Count > 0) {
+                                        Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
+                                        await App.Database.ClearAllDepotAsync();
+                                        await App.Database.SaveDepotAsync(depot);
+                                    }
+                                }
+                            }
+                            else {
+
+                            }
+
+                        }
+                        await App.Database.SaveConfigurimiAsync(Configurimi);
+                        UserDialogs.Instance.HideLoading();
+                        var CashRegisters = await App.Database.GetCashRegisterAsync();
+                        EshteRuajtuarArka = false;
+                        if (CashRegisters.Count > 0) {
+                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == LoginData.DeviceID && x.TCRCode == Configurimi.KodiTCR);
+                            if (cReg != null) {
+                                if (cReg.TCRCode == Configurimi.KodiTCR) {
+                                    EshteRuajtuarArka = true;
+                                    CashRegister = cReg;
+                                    CashRegister.TCRCode = Configurimi.KodiTCR;
+                                }
+                                else {
+                                    UserDialogs.Instance.HideLoading();
+                                    CashRegister = new CashRegister
+                                    {
+                                        ID = Guid.NewGuid(),
+                                        Cashamount = 0,
+                                        DepositType = 0,
+                                        DeviceID = LoginData.DeviceID,
+                                        Message = "Modifikuar manualisht, pa fiskalizuar",
+                                        RegisterDate = MyTimeInWesternEurope,
+                                        SyncStatus = 0,
+                                        TCRCode = Configurimi.KodiTCR,
+                                        TCRSyncStatus = 0,
+                                    };
+                                    var liferimet = await App.Database.GetLiferimetAsync();
+                                    var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                    if (malliMbetur.Count > 0) {
+                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                            .Where(l => l.PayType == "KESH")
+                                            .Sum(l => l.ShumaPaguar);
+                                    }
+                                    CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                }
+                            }
+                            else {
+                                UserDialogs.Instance.HideLoading();
+                                CashRegister = new CashRegister
+                                {
+                                    ID = Guid.NewGuid(),
+                                    Cashamount = 0,
+                                    DepositType = 0,
+                                    DeviceID = LoginData.DeviceID,
+                                    Message = "Modifikuar manualisht, pa fiskalizuar",
+                                    RegisterDate = MyTimeInWesternEurope,
+                                    SyncStatus = 0,
+                                    TCRCode = Configurimi.KodiTCR,
+                                    TCRSyncStatus = 0,
+                                };
+                                var liferimet = await App.Database.GetLiferimetAsync();
+                                var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                                if (malliMbetur.Count > 0) {
+                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                        .Where(l => l.PayType == "KESH")
+                                        .Sum(l => l.ShumaPaguar);
+                                }
+                                CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+
+                                await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                            }
+                        }
+                        else {
+                            UserDialogs.Instance.HideLoading();
+                            CashRegister = new CashRegister
+                            {
+                                ID = Guid.NewGuid(),
+                                Cashamount = 0,
+                                DepositType = 0,
+                                DeviceID = LoginData.DeviceID,
+                                Message = "Modifikuar manualisht, pa fiskalizuar",
+                                RegisterDate = MyTimeInWesternEurope,
+                                SyncStatus = 0,
+                                TCRCode = Configurimi.KodiTCR,
+                                TCRSyncStatus = 0,
+                            };
+                            var liferimet = await App.Database.GetLiferimetAsync();
+                            var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                            if (malliMbetur.Count > 0) {
+                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                    .Where(l => l.PayType == "KESH")
+                                    .Sum(l => l.ShumaPaguar);
+                            }
+                            CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
+                            await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                        }
+                        while (!EshteRuajtuarArka) {
+                            await Task.Delay(2000);
+                        }
+                        if (EshteRuajtuarArka) {
+
+                        }
+
+                        await App.Database.SaveCashRegisterAsync(CashRegister);
+
+                        UserDialogs.Instance.ShowLoading("Duke u kycur...");
+
+
+                        if (CashRegister.TCRSyncStatus <= 0) {
+                            var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                            {
+                                CashAmount = CashRegister.Cashamount,
+                                TCRCode = CashRegister.TCRCode,
+                                DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
+                                OperatorCode = LoginData.OperatorCode,
+                                SendDateTime = CashRegister.RegisterDate,
+                                SubseqDelivTypeSType = -1
+                            });
+
+                            if (result.Status == StatusPCL.Ok) {
+                                CashRegister.TCRSyncStatus = 1;
+                                if (result.Message != null)
+                                    CashRegister.Message = result.Message.Replace("'", "");
+                            }
+                            else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
+                                CashRegister.TCRSyncStatus = 4;
+                                CashRegister.Message = result.Message.Replace("'", "");
+                            }
+                            else {
+                                CashRegister.TCRSyncStatus = -1;
+                                CashRegister.Message = result.Message.Replace("'", "");
+                            }
+
+                            await App.Database.SaveCashRegisterAsync(CashRegister);
+                            return true;
+                        }
+                    }
+                    else {
+                        UserDialogs.Instance.HideLoading();
+                        await Task.Delay(200);
+                        UserDialogs.Instance.Alert("Username ose password gabim", "Error", "Provo Perseri");
+                        return false;
+
+                    }
+                }
+                else {
+                    UserDialogs.Instance.Alert("Ju lutemi mbushni fushat para se te kyceni");
+                    UserDialogs.Instance.HideLoading();
+                    return false;
+                }
+            }
+            catch (Exception e) {
+                if (e is UriFormatException ufe) {
+                    UserDialogs.Instance.Alert("Linku I API't eshte gabim, ju lutemi rregullojeni linkun tek konfigurimi");
+                    UserDialogs.Instance.HideLoading();
+                    return false;
+                }
+            }
+            return true;
+        }
         public List<Depot> Depot { get; set; }
         public List<Agjendet> Agjendet { get; set; }
         public List<NumriFisk> NumratFiskal { get; set; }
@@ -4069,7 +4319,7 @@ namespace EHWM.ViewModel {
             }
         }
 
-
+         
         public async Task GeneratePDFAsync() {
             // Create a new PDF document
             PdfDocument document = new PdfDocument();

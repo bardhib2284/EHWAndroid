@@ -108,7 +108,7 @@ namespace EHWM.ViewModel {
                 }
                 var Liferimet = await App.Database.GetLiferimetAsync();
                 if(Liferimet.Count > 0) {
-                    var sync = await SinkronizoFiskalizimin();
+                    var sync = await App.Instance.MainViewModel.LoginAsyncWithoutPageChange(App.Instance.MainViewModel.LoginData.IDAgjenti);
                     if (!sync) return;
                 }
 
@@ -241,6 +241,7 @@ namespace EHWM.ViewModel {
 
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
+
                     }
                     finally {
 
@@ -1906,6 +1907,7 @@ namespace EHWM.ViewModel {
                     App.Instance.MainViewModel.Configurimi.KodiTCR = quer.TCRCode;
                     App.Instance.MainViewModel.Configurimi.KodiIOperatorit = quer.OperatorCode;
                     App.Instance.MainViewModel.Configurimi.TAGNR = quer.TAGNR;
+
                     await App.Database.SaveConfigurimiAsync(App.Instance.MainViewModel.Configurimi);
                 }
                 return result;

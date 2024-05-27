@@ -198,6 +198,24 @@ namespace EHWM.ViewModel {
                 return;
             }
             else {
+                var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara");
+                if (response.IsSuccessStatusCode) {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
+                    var FaturatEShituraPerNIPT = new List<FaturatEFiskalizuara>();
+                    foreach(var fature in FaturatEFiskalizuara) {
+                        if(fature.DateCreated == DateTime.Today && fature.NIPT == currClient.NIPT) {
+                            FaturatEShituraPerNIPT.Add(fature);
+                        }
+                    }
+                    var niptTotalFF = FaturatEShituraPerNIPT.Sum(x => x.TotalAmount);
+                    if (niptTotalFF >= 150000) {
+                        UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
+                        UserDialogs.Instance.HideLoading();
+                        return;
+                    }
+                }
+                    
                 niptTotal += (float)TotalPrice;
                 if (niptTotal >= 150000) {
                     UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotal);
@@ -513,7 +531,29 @@ namespace EHWM.ViewModel {
 
                         ////FISKALIZIMIF
                         //FiskalizimiService bc = new FiskalizimiService();
-                        await FiskalizoTCRInvoice(IDLiferimi.ToString());
+                        try {
+                            await FiskalizoTCRInvoice(IDLiferimi.ToString());
+                        }catch(Exception ex) {
+                            await Task.Delay(500);
+                            try {
+                                await FiskalizoTCRInvoice(IDLiferimi.ToString());
+
+                            }catch(Exception exc) {
+                                var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/" + NrFatures.ToString());
+                                if(response.IsSuccessStatusCode) {
+                                    var responseString = await response.Content.ReadAsStringAsync();
+                                    var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
+                                    foreach (var fature in FaturatEFiskalizuara) {
+                                        if (fature.NrLiferimit == NrFatures.ToString() && fature.DeviceID == App.Instance.MainViewModel.LoginData.DeviceID) {
+                                            liferimi.TCRNSLF = fature.TCRNSLF;
+                                            liferimi.TCRNIVF = fature.TCRNIVF;
+                                            break;
+                                        }
+                                    }
+                                }
+                                liferimi.TCRSyncStatus = -1;
+                            }
+                        }
 
                         VizitaESelektuar.IDStatusiVizites = "6";
                         VizitaESelektuar.DataRealizimit = MyTimeInWesternEurope;
@@ -1914,6 +1954,7 @@ namespace EHWM.ViewModel {
                 //    }
                 //}
                 var artikujtPerShfaqje = new ObservableCollection<Artikulli>();
+                var SalePrice = new List<SalesPrice>();
                 foreach (var artikulli in Artikujt) {
                     var salesPrice = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion);
                     if(salesPrice == null) {
@@ -1922,10 +1963,9 @@ namespace EHWM.ViewModel {
                             //var salesPricesResult = await App.ApiClient.GetAsync("prices"); 
                             if (salesPricesResult.IsSuccessStatusCode) {
                                 var salesPricesResponse = await salesPricesResult.Content.ReadAsStringAsync();
-                                var SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
+                                SalePrice = JsonConvert.DeserializeObject<List<SalesPrice>>(salesPricesResponse);
                                 SalesPrices = new ObservableCollection<SalesPrice>(SalePrice);
                                 salesPrice = SalesPrices.FirstOrDefault(x => x.ItemNo == artikulli.IDArtikulli && x.SalesCode == VizitaESelektuar.IDKlientDheLokacion);
-                                await App.Database.SaveSalesPricesAsync(SalePrice);
                             }
                         }
                     }
@@ -1973,8 +2013,10 @@ namespace EHWM.ViewModel {
                 else {
                     Artikujt = new ObservableCollection<Artikulli>(artikujtPerShfaqje);
                 }
-
                 await App.Instance.PushAsyncNewModal(zgjidhArtikullinModalPage);
+                if(SalePrice.Count > 0) {
+                    App.Database.SaveSalesPricesAsync(SalePrice);
+                }
                 UserDialogs.Instance.HideLoading();
 
             }
