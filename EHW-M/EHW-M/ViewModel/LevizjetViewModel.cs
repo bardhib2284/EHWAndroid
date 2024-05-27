@@ -769,7 +769,14 @@ namespace EHWM.ViewModel {
             }
             if (Sasia == 0)
                 return;
-            if(Nga) {
+            if (CurrentlySelectedArtikulli.BUM != "KG") {
+                if (Sasia % 1 != 0) {
+                    UserDialogs.Instance.Alert("Ju lutemi permiresoni sasin, arikulli lejon vetem numra te plote pasi qe eshte " + CurrentlySelectedArtikulli.BUM);
+                    Sasia = (float)(int)(Sasia);
+                    return;
+                }
+            }
+            if (Nga) {
                 if (CurrentlySelectedArtikulli.Sasia < Sasia) {
                     UserDialogs.Instance.Alert("Sasia e shenuar eshte me e madhe se sasia aktuale, ju lutemi ta permiresoni", "Verejtje", "Ok");
                     return;

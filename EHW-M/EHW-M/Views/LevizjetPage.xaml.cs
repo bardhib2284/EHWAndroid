@@ -31,12 +31,7 @@ namespace EHWM.Views {
             var bc = (LevizjetViewModel)BindingContext;
             if(bc != null) {
                 if(bc.CurrentlySelectedArtikulli != null) {
-                    if (bc.CurrentlySelectedArtikulli.BUM == "COP") {
-                        if (e.NewTextValue.Contains(".") || e.NewTextValue.Contains(",")) {
-                            sasiaEntry.Text = e.OldTextValue;
-                            return;
-                        }
-                    }
+
                 }
             }
         }
