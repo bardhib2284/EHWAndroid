@@ -120,7 +120,7 @@ namespace EHWM.ViewModel {
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
                         if (CashRegisters.Count > 0) {
-                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
+                            var cReg = CashRegisters.FirstOrDefault(x => veq x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
                             if (cReg != null) {
                                 if (cReg.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR) {
                                     EshteRuajtuarArka = true;

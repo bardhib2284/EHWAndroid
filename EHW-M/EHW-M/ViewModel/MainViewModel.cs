@@ -3428,13 +3428,13 @@ namespace EHWM.ViewModel {
             var klientet = await App.Database.GetKlientetAsync();
             if (klientet != null) {
                 if (klientet.Count > 0) {
+                    await App.Instance.MainPage.Navigation.PopPopupAsync();
                     Clients = new ObservableCollection<Klientet>(klientet.OrderBy(x=> x.Emri));
                     await App.Instance.PushAsyncNewPage(new RegjistrimiIVizitesPage() { BindingContext = this });
                     DateTime MyTime = DateTime.UtcNow;
 
                     DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
                     RegjistroVizitenDate = MyTimeInWesternEurope;
-                    await App.Instance.MainPage.Navigation.PopPopupAsync();
                 }
                 else {
                     UserDialogs.Instance.HideLoading();
@@ -3964,14 +3964,25 @@ namespace EHWM.ViewModel {
                                 }
                             }
                             Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
-                            
-                            Configurimi.TAGNR = Depoja.TAGNR;
-                            var sync = await SinkronizoFiskaliziminWithoutLogin();
-                            if (!sync) {
-                                UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
-                                UserDialogs.Instance.HideLoading();
-                                return false;
+                            if (string.IsNullOrEmpty(Configurimi.TAGNR))
+                                Configurimi.TAGNR = Depoja.TAGNR;
+                            if (Configurimi.TAGNR != Depoja.TAGNR) {
+                                var sync = await SinkronizoFiskalizimin();
+                                if (!sync) {
+                                    UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                    UserDialogs.Instance.HideLoading();
+                                    return false;
+                                }
                             }
+                            else {
+                                var sync = await SinkronizoFiskaliziminWithoutLogin();
+                                if (!sync) {
+                                    UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
+                                    UserDialogs.Instance.HideLoading();
+                                    return false;
+                                }
+                            }
+
                         }
                         else {
                             if (Configurimi.Token != null) {

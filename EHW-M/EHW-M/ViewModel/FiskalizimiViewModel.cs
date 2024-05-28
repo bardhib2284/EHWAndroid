@@ -168,7 +168,7 @@ namespace EHWM.ViewModel {
 
                 var currLif = liferimet.FirstOrDefault(x => x.IDLiferimi.ToString() == query.ToList().FirstOrDefault().IDLiferimi);
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
                 var klientet = await App.Database.GetKlientetAsync();
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
                 var artikujt = await App.Database.GetArtikujtAsync();
