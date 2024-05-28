@@ -89,52 +89,62 @@ namespace EHW_M {
         }
 
         private async Task<bool> CreateUpdateScriptLevizjetHeaderDetails(List<LevizjetDetails> OrderDetails) {
-            foreach (var mall in OrderDetails) {
-                mall.SyncStatus = 2;
-            }
-            var conf = await Database.GetConfigurimiAsync();
-            if (string.IsNullOrEmpty(API_URL_BASE)) {
-                API_URL_BASE = conf.Serveri;
-            }
-            HttpClient httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(API_URL_BASE);
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
-            var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
-            var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
-            var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
+            try {
+                foreach (var mall in OrderDetails) {
+                    mall.SyncStatus = 2;
+                }
+                var conf = await Database.GetConfigurimiAsync();
+                if (string.IsNullOrEmpty(API_URL_BASE)) {
+                    API_URL_BASE = conf.Serveri;
+                }
+                HttpClient httpClient = new HttpClient();
+                httpClient.BaseAddress = new Uri(API_URL_BASE);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+                var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
+                var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
+                var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
 
-            if (result.IsSuccessStatusCode) {
-                return true;
+                if (result.IsSuccessStatusCode) {
+                    return true;
+                }
+                foreach (var porosia in OrderDetails) {
+                    porosia.SyncStatus = 0;
+                    await App.Database.UpdateLevizjeDetailsAsync(porosia);
+                }
+                return false;
+            }catch(Exception ex) {
+                return false;
             }
-            foreach (var porosia in OrderDetails) {
-                porosia.SyncStatus = 0;
-                await App.Database.UpdateLevizjeDetailsAsync(porosia);
-            }
-            return false;
+            
         }
         private async Task<bool> CreateUpdateScriptLevizjetHeader(List<LevizjetHeader> OrderDetails) {
-            foreach (var mall in OrderDetails) {
-                mall.Data = DateTime.Now;
-                mall.ImpStatus = 2;
+            try {
+
+                foreach (var mall in OrderDetails) {
+                    mall.Data = DateTime.Now;
+                    mall.ImpStatus = 2;
+                }
+                var conf = await Database.GetConfigurimiAsync();
+                if (string.IsNullOrEmpty(API_URL_BASE)) {
+                    API_URL_BASE = conf.Serveri;
+                }
+                HttpClient httpClient = new HttpClient();
+                httpClient.BaseAddress = new Uri(API_URL_BASE);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
+                var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
+                var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
+                var result = await App.ApiClient.PostAsync("levizje-header", stringContent);
+                if (result.IsSuccessStatusCode) {
+                    return true;
+                }
+                foreach (var porosia in OrderDetails) {
+                    porosia.SyncStatus = 0;
+                    await App.Database.SaveLevizjeHeaderAsync(porosia);
+                }
+                return false;
+            }catch(Exception ex) {
+                return false;
             }
-            var conf = await Database.GetConfigurimiAsync();
-            if (string.IsNullOrEmpty(API_URL_BASE)) {
-                API_URL_BASE = conf.Serveri;
-            }
-            HttpClient httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(API_URL_BASE);
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
-            var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
-            var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
-            var result = await App.ApiClient.PostAsync("levizje-header", stringContent);
-            if (result.IsSuccessStatusCode) {
-                return true;
-            }
-            foreach (var porosia in OrderDetails) {
-                porosia.SyncStatus = 0;
-                await App.Database.SaveLevizjeHeaderAsync(porosia);
-            }
-            return false;
         }
 
         private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
@@ -194,13 +204,7 @@ namespace EHW_M {
                 }
                 return false;
             }catch(Exception e) {
-                if(e is UriFormatException ufe) {
-                    UserDialogs.Instance.Alert("Linku I API't eshte gabim, ju lutemi rregullojeni linkun tek konfigurimi");
-                    return false;
-                }
-                else {
-                    return false;
-                }
+                return false;
             }
             
         }

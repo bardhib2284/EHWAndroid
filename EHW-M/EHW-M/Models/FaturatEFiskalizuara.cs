@@ -17,7 +17,7 @@ namespace EHWM.Models {
         public DateTime DateCreated { get; set; }
         public string DateCreatedString { get; set; }
         public bool IsCorrected { get; set; }
-        public DateTime DateCorrected { get; set; }
+        public DateTime? DateCorrected { get; set; }
         public string IDFatureCorrected { get; set; }
         public string QRCodeLink { get; set; }
         public string TCRBusinessCode { get; set; }

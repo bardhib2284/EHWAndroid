@@ -198,30 +198,36 @@ namespace EHWM.ViewModel {
                 return;
             }
             else {
-                var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara");
+                var response = await App.ApiClient.GetAsync("liferimi");
                 if (response.IsSuccessStatusCode) {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
-                    var FaturatEShituraPerNIPT = new List<FaturatEFiskalizuara>();
-                    foreach(var fature in FaturatEFiskalizuara) {
-                        if(fature.DateCreated == DateTime.Today && fature.NIPT == currClient.NIPT) {
-                            FaturatEShituraPerNIPT.Add(fature);
-                        }
+                    var responseLif = await response.Content.ReadAsStringAsync();
+                    var liferimetServer = JsonConvert.DeserializeObject<List<Liferimi>>(responseLif);
+                    var liferimetTodayServer = liferimetServer.Where(x => x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
+                    var lifForNiptServer = new List<Liferimi>();
+                    foreach (var lif in liferimetTodayServer) {
+                        if (klietns.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti) != null)
+                            lifForNipt.Add(lif);
                     }
-                    var niptTotalFF = FaturatEShituraPerNIPT.Sum(x => x.TotalAmount);
-                    if (niptTotalFF >= 150000) {
+                    var niptTotalServer = lifForNipt.Sum(x => x.ShumaPaguar);
+                    if (niptTotalServer >= 150000) {
                         UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
                         UserDialogs.Instance.HideLoading();
                         return;
                     }
+                    niptTotalServer += (float)TotalPrice;
+                    if (niptTotalServer >= 150000) {
+                        UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotalServer);
+                        UserDialogs.Instance.HideLoading();
+                        return;
+                    }
                 }
-                    
                 niptTotal += (float)TotalPrice;
                 if (niptTotal >= 150000) {
                     UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotal);
                     UserDialogs.Instance.HideLoading();
                     return;
                 }
+
             }
             await PerfundoLiferimin();
             await App.Instance.PushAsyncNewPage(new KonfirmoPagesenPage { BindingContext = this });

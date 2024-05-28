@@ -106,11 +106,9 @@ namespace EHWM.ViewModel {
                         return;
                     }
                 }
-                var Liferimet = await App.Database.GetLiferimetAsync();
-                if(Liferimet.Count > 0) {
-                    var sync = await App.Instance.MainViewModel.LoginAsyncWithoutPageChange(App.Instance.MainViewModel.LoginData.IDAgjenti);
-                    if (!sync) return;
-                }
+
+                var sync = await App.Instance.MainViewModel.LoginAsyncWithoutPageChange(App.Instance.MainViewModel.LoginData.IDAgjenti);
+                if (!sync) return;
 
                 if (await UserDialogs.Instance.ConfirmAsync("Ky proçes shkarkon sasitë e mbetura të artikujve nga Palmi \n dhe bën zerimin e sasive në Palm. \n  A dëshironi të vazhdoni?", "Konfirmo", "Po", "Jo")) {
                     try {
@@ -252,6 +250,9 @@ namespace EHWM.ViewModel {
                     }
                     catch (Exception ex) {
                     }
+                }
+                else {
+                    UserDialogs.Instance.HideLoading();
                 }
             }
             catch (Exception ex) {
