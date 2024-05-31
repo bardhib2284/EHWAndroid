@@ -198,27 +198,32 @@ namespace EHWM.ViewModel {
                 return;
             }
             else {
-                var response = await App.ApiClient.GetAsync("liferimi");
-                if (response.IsSuccessStatusCode) {
-                    var responseLif = await response.Content.ReadAsStringAsync();
-                    var liferimetServer = JsonConvert.DeserializeObject<List<Liferimi>>(responseLif);
-                    var liferimetTodayServer = liferimetServer.Where(x => x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
-                    var lifForNiptServer = new List<Liferimi>();
-                    foreach (var lif in liferimetTodayServer) {
-                        if (klietns.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti) != null)
-                            lifForNipt.Add(lif);
-                    }
-                    var niptTotalServer = lifForNipt.Sum(x => x.ShumaPaguar);
-                    if (niptTotalServer >= 150000) {
-                        UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
-                        UserDialogs.Instance.HideLoading();
-                        return;
-                    }
-                    niptTotalServer += (float)TotalPrice;
-                    if (niptTotalServer >= 150000) {
-                        UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotalServer);
-                        UserDialogs.Instance.HideLoading();
-                        return;
+                if(App.Instance.DoIHaveInternetNoAlert()) {
+                    var response = await App.ApiClient.GetAsync("liferimi");
+                    if (response.IsSuccessStatusCode) {
+                        var responseLif = await response.Content.ReadAsStringAsync();
+                        var liferimetServer = JsonConvert.DeserializeObject<List<Liferimi>>(responseLif);
+                        var liferimetTodayServer = liferimetServer.Where(x => x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
+                        var lifForNiptServer = new List<Liferimi>();
+                        foreach (var lif in liferimetTodayServer) {
+                            if (klietns.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti) != null) {
+                                if (liferimetToday.FirstOrDefault(x => x.IDLiferimi == lif.IDLiferimi) == null) {
+                                    lifForNipt.Add(lif);
+                                }
+                            }
+                        }
+                        var niptTotalServer = lifForNipt.Sum(x => x.ShumaPaguar);
+                        if (niptTotalServer >= 150000) {
+                            UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
+                            UserDialogs.Instance.HideLoading();
+                            return;
+                        }
+                        niptTotalServer += (float)TotalPrice;
+                        if (niptTotalServer >= 150000) {
+                            UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotalServer);
+                            UserDialogs.Instance.HideLoading();
+                            return;
+                        }
                     }
                 }
                 niptTotal += (float)TotalPrice;
@@ -227,7 +232,6 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.HideLoading();
                     return;
                 }
-
             }
             await PerfundoLiferimin();
             await App.Instance.PushAsyncNewPage(new KonfirmoPagesenPage { BindingContext = this });
@@ -502,8 +506,8 @@ namespace EHWM.ViewModel {
                             IDKthimi = NrFatKthim > 0 ? NrFatKthim.ToString() : null, // TODO KTHIMI FIX IF KTHIM
                             NumriFisk = _NumriFisk,
                             TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
-                            TCROperatorCode = agjendi.OperatorCode,
-                            TCRBusinessCode = query.FirstOrDefault().BusinessUnitCode, // TODO FIND BUSINESSUNITCODE
+                            TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
+                            TCRBusinessCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, // TODO FIND BUSINESSUNITCODE
                             TCRIssueDateTime = MyTimeInWesternEurope.Date,
                             NrPorosis = nrPor.NrPorosise
                         };
@@ -1072,7 +1076,7 @@ namespace EHWM.ViewModel {
                                 nf.Viti
                             };
 
-                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, App.Instance.MainViewModel.Configurimi.KodiIOperatorit, App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, nipt) <= 0) {
                     UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                     return;
                 }
@@ -1141,7 +1145,7 @@ namespace EHWM.ViewModel {
                                 nf.Viti
                             };
 
-                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+                if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, App.Instance.MainViewModel.Configurimi.KodiIOperatorit, App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, nipt) <= 0) {
                     UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                     return;
                 }
@@ -1293,7 +1297,7 @@ namespace EHWM.ViewModel {
                 var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                await _printer.printText("Adresa: " + currDepo.TAGNR + "             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("Adresa: " + App.Instance.MainViewModel.Configurimi.TAGNR + "             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 var liferimi = await App.Database.GetLiferimetAsync();

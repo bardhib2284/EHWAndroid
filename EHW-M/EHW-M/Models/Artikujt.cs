@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,6 +30,8 @@ namespace EHWM.Models {
         public string CmimiTotalText => Sasia * CmimiNjesi + "€";
 
         public string ArsyejaEKthimit { get; set; }
+        [JsonIgnore]
+        public bool Selected { get; set; }
 
     }
 }

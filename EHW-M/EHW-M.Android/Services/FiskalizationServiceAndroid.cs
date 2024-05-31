@@ -271,7 +271,7 @@ namespace EHW_M.Droid.Services {
                     TypeRef = (CorrectiveInvTypeSType)req.TypeRef,
                     IsCorrectiveInv = req.IsCorrectiveInv,
                     MobileRefId = req.MobileRefId,
-                    SubseqDelivTypeSType = req.SubseqDelivTypeSType
+                    SubseqDelivTypeSType = 0
                 };
                 using (FiscalisationService fs = new FiscalisationService()) {
                     fs.Url = App.Instance.WebServerFiskalizimiUrl;

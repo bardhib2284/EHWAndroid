@@ -38,6 +38,7 @@ namespace EHWM.Views {
                     if (shvm.LastKnownArtikulliForScroll != null) {
                         testList.ScrollTo(shvm.Artikujt.FirstOrDefault(x => x.IDArtikulli == shvm.LastKnownArtikulliForScroll.IDArtikulli), ScrollToPosition.Center, false);
                         testList.SelectedItem = shvm.Artikujt.FirstOrDefault(x => x.IDArtikulli == shvm.LastKnownArtikulliForScroll.IDArtikulli);
+                        (testList.SelectedItem as Artikulli).Selected = true;
                     }
 
                 });
@@ -118,16 +119,16 @@ namespace EHWM.Views {
 
         }
 
-        ViewCell lastCell;
-        private void ViewCell_Tapped(object sender, EventArgs e) {
-            if(lastCell != null)
-                lastCell.View.BackgroundColor = Color.Transparent;
-            var viewCell = (ViewCell)sender;
-            if (viewCell.View != null) {
-                viewCell.View.BackgroundColor = Color.Gray;
-                lastCell = viewCell;
-            }
-        }
+        //ViewCell lastCell;
+        //private void ViewCell_Tapped(object sender, EventArgs e) {
+        //    if(lastCell != null)
+        //        lastCell.View.BackgroundColor = Color.Transparent;
+        //    var viewCell = (ViewCell)sender;
+        //    if (viewCell.View != null) {
+        //        viewCell.View.BackgroundColor = Color.Gray;
+        //        lastCell = viewCell;
+        //    }
+        //}
 
 
     }

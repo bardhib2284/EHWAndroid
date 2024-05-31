@@ -251,7 +251,7 @@ namespace EHWM.ViewModel {
 
                     await _printer.printText("Emri i Nisesit: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                     await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                    await _printer.printText("Adresa: AA951IN             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                    await _printer.printText("Adresa: " + App.Instance.MainViewModel.Configurimi.TAGNR+"             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 
@@ -1034,7 +1034,7 @@ namespace EHWM.ViewModel {
                     NumriFisk = topLevizjeIDN.LevizjeIDN,
                     SyncStatus = 0,
                     TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
-                    TCRBusinessUnitCode = query?.FirstOrDefault().BusinessUnitCode,
+                    TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit,
                     TCRIssueDateTime = Agjendi.TCRRegisteredDateTime,
                     TCROperatorCode = query?.FirstOrDefault().OperatorCode,
                     Totali = decimal.Parse(TotalPrice.ToString()),
@@ -1122,7 +1122,7 @@ namespace EHWM.ViewModel {
                         {
                             Numri_Levizjes = h.NumriLevizjes,
                             DeviceID = h.Depo,
-                            OperatorCode = Agjendi.OperatorCode,
+                            OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
                             InvOrdNum = (int)h.NumriFisk,
                             InvNum = h.NumriFisk + "/" + DateTime.Now.Year,
                             SendDatetime = (DateTime)h.Data,
@@ -1150,7 +1150,7 @@ namespace EHWM.ViewModel {
                     req.InvNum = inv.InvNum.ToString();
                     req.DeviceID = inv.DeviceID;
                     req.MobileRefId = inv.InvOrdNum.ToString();
-                    req.OperatorCode = Agjendi.OperatorCode;
+                    req.OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                     req.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
                     req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                     req.SendDatetime = inv.SendDatetime;
@@ -1175,7 +1175,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = null;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = null;
                             levizjaHeader.TCRNSLFSH = null;
@@ -1204,7 +1204,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
                             levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -1234,7 +1234,7 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
                                     levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -1262,7 +1262,7 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
                                     levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -1294,7 +1294,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
                             levizjaHeader.TCRNSLFSH = log.NSLFSH;

@@ -17,7 +17,7 @@
                     <ListView x:Name="testKrijoList" ItemsSource="{Binding Artikujt}" SelectionMode="Single" ItemTapped="testList_ItemTapped">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <ViewCell Tapped="ViewCell_Tapped">
+                                <ViewCell>
                                     <StackLayout Orientation="Horizontal" Spacing="40">
                                         <Label Text="{Binding Emri}" FontSize="12" VerticalTextAlignment="Center" LineBreakMode="TailTruncation" HorizontalOptions="FillAndExpand"/>
                                     </StackLayout>
@@ -68,7 +68,7 @@
                 </Frame>
 
                 <Frame Padding="10" BorderColor="Black" x:Name="allArtikujt">
-                    <ListView x:Name="testList" ItemsSource="{Binding Artikujt}" RowHeight="50" ItemTapped="testList_ItemTapped" CachingStrategy="RecycleElement">
+                    <ListView x:Name="testList" ItemsSource="{Binding Artikujt}" RowHeight="50" SelectionMode="Single"  ItemTapped="testList_ItemTapped" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

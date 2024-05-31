@@ -168,7 +168,7 @@ namespace EHWM.ViewModel {
 
                 var currLif = liferimet.FirstOrDefault(x => x.IDLiferimi.ToString() == query.ToList().FirstOrDefault().IDLiferimi);
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
+                DateTime MyTimeInWesternEurope = DateTime.Now.AddHours(1);
                 var klientet = await App.Database.GetKlientetAsync();
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
                 var artikujt = await App.Database.GetArtikujtAsync();
@@ -193,7 +193,7 @@ namespace EHWM.ViewModel {
                                  InvoiceSType = "Cash GJITHMON",
                                  InvNum = l.NumriFisk + "/" + DateTime.Now.Year,
                                  InvOrdNum = Convert.ToInt32(l.NumriFisk),
-                                 SendDatetime = l.KohaLiferuar,
+                                 SendDatetime = l.KohaLiferimit,
                                  IsIssuerInVAT = true,
                                  TaxFreeAmt = Math.Round(0d, 2),
                                  PaymentMethodTypesType = l.PayType,
@@ -215,7 +215,7 @@ namespace EHWM.ViewModel {
                                  Item_VR = (double)Math.Round(decimal.Parse(ci.Value.ToString()), 2),
                                  MobileRefId = "",
                                  IICRef = "",
-                                 IssueDateTimeRef = MyTimeInWesternEurope,
+                                 IssueDateTimeRef = DateTime.Now,
                                  TypeRef = "CORRECTIVE|DEBIT|CREDIT",
                                  IsCorrectiveInv = false,
                                  CardNumber = "",
@@ -234,7 +234,7 @@ namespace EHWM.ViewModel {
                         req.InvoiceItems = inv.Items.ToList();
                         req.DeviceID = inv.DeviceID;
                         req.NrLiferimit = inv.NrLiferimit;
-                        req.SubseqDelivTypeSType = -1;//NOINTERNET
+                        req.SubseqDelivTypeSType = 0;//NOINTERNET
                         req.IICRef = inv.IICRef;
                         req.InoiceType = InvoiceSTypePCL.CASH;
                         req.InoiceTypeSpecified = true;
@@ -287,8 +287,8 @@ namespace EHWM.ViewModel {
                             req.TypeRefSpecified = true;
                             req.IsCorrectiveInv = true;
                         }
-                        req.SubseqDelivTypeSType = -1; //ONLINE
 
+                        req.SubseqDelivTypeSType = 0; //ONLINE
 
                         ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
                         if (log == null) {
@@ -581,7 +581,7 @@ namespace EHWM.ViewModel {
                     req.InvNum = inv.InvNum.ToString();
                     req.DeviceID = inv.DeviceID;
                     req.MobileRefId = inv.InvOrdNum.ToString();
-                    req.OperatorCode = Agjendi.OperatorCode;
+                    req.OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                     req.TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR;
                     req.BusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                     req.SendDatetime = inv.SendDatetime;
@@ -605,7 +605,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = null;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = null;
                             levizjaHeader.TCRNSLFSH = null;
@@ -634,7 +634,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
                             levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -664,7 +664,7 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
                                     levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -692,7 +692,7 @@ namespace EHWM.ViewModel {
                                     levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                                     levizjaHeader.UUID = log.ResponseUUIDSH;
                                     levizjaHeader.TCRNSLFSH = log.NSLFSH;
@@ -724,7 +724,7 @@ namespace EHWM.ViewModel {
                             levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                             levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                             levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = Agjendi.OperatorCode;
+                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                             levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
                             levizjaHeader.UUID = log.ResponseUUIDSH;
                             levizjaHeader.TCRNSLFSH = log.NSLFSH;

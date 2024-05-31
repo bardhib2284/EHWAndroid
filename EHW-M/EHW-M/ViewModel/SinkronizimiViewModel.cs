@@ -120,7 +120,7 @@ namespace EHWM.ViewModel {
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
                         EshteRuajtuarArka = false;
                         if (CashRegisters.Count > 0) {
-                            var cReg = CashRegisters.FirstOrDefault(x => veq x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
+                            var cReg = CashRegisters.FirstOrDefault(x => x.DepositType == 0 && x.RegisterDate.Date == DateTime.Now.Date && x.DeviceID == Agjendi.DeviceID && x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
                             if (cReg != null) {
                                 if (cReg.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR) {
                                     EshteRuajtuarArka = true;
@@ -218,7 +218,7 @@ namespace EHWM.ViewModel {
                                 CashAmount = CashRegister.Cashamount,
                                 TCRCode = CashRegister.TCRCode,
                                 DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
-                                OperatorCode = Agjendi.OperatorCode,
+                                OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
                                 SendDateTime = CashRegister.RegisterDate,
                                 SubseqDelivTypeSType = -1
                             });
@@ -1908,6 +1908,10 @@ namespace EHWM.ViewModel {
                     App.Instance.MainViewModel.Configurimi.KodiTCR = quer.TCRCode;
                     App.Instance.MainViewModel.Configurimi.KodiIOperatorit = quer.OperatorCode;
                     App.Instance.MainViewModel.Configurimi.TAGNR = quer.TAGNR;
+
+                    App.Instance.MainViewModel.LoginData.OperatorCode = quer.BusinessUnitCode;
+                    App.Instance.MainViewModel.LoginData.TCRCode = quer.TCRCode;
+                    App.Instance.MainViewModel.LoginData.OperatorCode = quer.OperatorCode;
 
                     await App.Database.SaveConfigurimiAsync(App.Instance.MainViewModel.Configurimi);
                 }

@@ -511,7 +511,7 @@ namespace EHWM.ViewModel {
                             LevizjeIDN = nf != null ? nf.LevizjeIDN : (int?)null,
                             nf.Viti
                         };
-            if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, agjendi.OperatorCode, query.FirstOrDefault().BusinessUnitCode, nipt) <= 0) {
+            if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, App.Instance.MainViewModel.Configurimi.KodiIOperatorit, App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, nipt) <= 0) {
                 UserDialogs.Instance.HideLoading();
                 UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                 return;
@@ -1389,7 +1389,7 @@ namespace EHWM.ViewModel {
                 var currDepo = depot.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Tel: 048 200 711           web: www.ehwgmbh.com \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
-                await _printer.printText("Adresa: "+ currDepo.TAGNR +"             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                await _printer.printText("Adresa: "+ App.Instance.MainViewModel.Configurimi.TAGNR +"             \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Qyteti / Shteti: Tirana, Albania \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 var liferimi = await App.Database.GetLiferimetAsync();
@@ -2740,8 +2740,8 @@ namespace EHWM.ViewModel {
                             IDKthimi = NrFatKthim,
                             NumriFisk = _NumriFisk,
                             TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
-                            TCROperatorCode = agjendi.OperatorCode,
-                            TCRBusinessCode = query.FirstOrDefault().BusinessUnitCode, // TODO FIND BUSINESSUNITCODE
+                            TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
+                            TCRBusinessCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, // TODO FIND BUSINESSUNITCODE
                             TCRIssueDateTime = MyTimeInWesternEurope.Date,
                             NrPorosis = nrPor.NrPorosise
                         };
@@ -4254,7 +4254,12 @@ namespace EHWM.ViewModel {
                 var depotResponse = await depotResult.Content.ReadAsStringAsync();
                 Depot = JsonConvert.DeserializeObject<List<Depot>>(depotResponse);
             }
-            if (Agjendet == null) {
+            var AgjendetResponse = await App.ApiClient.GetAsync("agjendi");
+            if (AgjendetResponse.IsSuccessStatusCode) {
+                var AgjendetResult = await AgjendetResponse.Content.ReadAsStringAsync();
+                Agjendet = JsonConvert.DeserializeObject<List<Agjendet>>(AgjendetResult);
+            }
+            if (Agjendet == null || Agjendet.Count == 0) {
                 Agjendet = new List<Agjendet> { LoginData };
             }
             var numratFiskLokal = await App.Database.GetNumratFiskalAsync();
@@ -4892,7 +4897,7 @@ namespace EHWM.ViewModel {
             UserDialogs.Instance.ShowLoading("Loading..");
             InkasimiPage inkasimiPage = new InkasimiPage();
             var klientet = await App.Database.GetKlientetAsync();
-            klientet = klientet.Where(x => x.Depo.Trim() == LoginData.Depo).ToList();
+            klientet = klientet.Where(x => x.Depo.Trim() == LoginData.Depo || x.Depo.Trim() == "").ToList();
             var detyrimet = await App.Database.GetDetyrimetAsync();
             if(detyrimet.Count < 1) {
                 var detyrimetResult = await App.ApiClient.GetAsync("detyrimet");
