@@ -2647,7 +2647,6 @@ namespace EHWM.ViewModel {
                                                     return true;
                                                 }
                                                 return false;
-                                                return true;
                                             }
                                             else {
                                                 UserDialogs.Instance.HideLoading();

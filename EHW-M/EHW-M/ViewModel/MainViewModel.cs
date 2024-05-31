@@ -73,6 +73,7 @@ namespace EHWM.ViewModel {
         public ICommand CreateLinkunPerAPICommand { get; set; }
         public ICommand EditLinkunPerAPICommand { get; set; }
         public ICommand EditLinkunPerFiskCommand { get; set; }
+        public ICommand AddExtraVizitaCommand { get; set; }
 
 
         public bool DissapearingFromShitjaPage { get; set; }
@@ -270,6 +271,7 @@ namespace EHWM.ViewModel {
             PrintTestCommand = new Command(async () => await PrintoFaturenAsync());
             GoToAddLinksCommand = new Command(async () => await GoToAddLinksAsync());
             GoToDeveloperModeCommand = new Command(async () => await GoToDeveloperModeAsync());
+            AddExtraVizitaCommand = new Command(async () => await AddExtraVizitaAsync());
             CreateLinkunPerFiskalizimCommand = new Command(async () => { EditLinks = false; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerFiskalizimiPopup() { BindingContext = this }); });
 
             CreateLinkunPerAPICommand = new Command(async () => { EditLinks = false; await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroLinkunPerAPIPopup() { BindingContext = this }); });
@@ -289,6 +291,26 @@ namespace EHWM.ViewModel {
             al = new AgjendiLogin();
             LinqetPerAPI = new ObservableCollection<Linqet>();
             LinqetPerFiskalizim = new ObservableCollection<Linqet>();
+        }
+
+        private async Task<bool> AddExtraVizitaAsync() {
+            UserDialogs.Instance.ShowLoading("Duke shtuar vizitat e mbetura");
+            var tempViz = new List<Vizita>(VizitatFilteredByDate);
+            if(VizitatFilteredByDate.Count <= TeGjithaVizitat.Count) {
+                int j = 0;
+                int added = 0;
+                for (int i = (VizitatFilteredByDate.Count - 1); i < TeGjithaVizitat.Count; i++) {
+                    j++;
+                    if (added >= 15)
+                        break;
+                    VizitatFilteredByDate.Add(TeGjithaVizitat[i]);
+                    SearchedVizitat.Add(TeGjithaVizitat[i]);
+                    added++;
+                }
+            }
+            await Task.Delay(50);
+            UserDialogs.Instance.HideLoading();
+            return true;
         }
 
         private async Task GoToDeveloperModeAsync() {
@@ -3509,7 +3531,12 @@ namespace EHWM.ViewModel {
                     if (vizitat.Count > 0) 
                     {
                         foreach(var viz in vizitat) {
-                            if(viz.DataPlanifikimit.Value.AddDays(8) <=  DateTime.Now) {
+                            if((viz.DataPlanifikimit.Value - DateTime.Now).Days >= 8 ) 
+                            {
+                                await App.Database.DeleteVizita(viz);
+                            }
+
+                            if (viz.DataPlanifikimit.Value.AddDays(8) <=  DateTime.Now) {
                                 await App.Database.DeleteVizita(viz);
                             }
                         }
@@ -4843,7 +4870,7 @@ namespace EHWM.ViewModel {
         }
         public ObservableCollection<KlientDheLokacion> KlientetDheLokacionet { get; set; }
         public bool AprovimFaturash { get; private set; }
-
+        public List<Vizita> TeGjithaVizitat { get; private set; }
         public async Task OpenKlientetAsync() {
             UserDialogs.Instance.ShowLoading("Loading..");
             var vizitatLokale = await App.Database.GetVizitatAsync();
@@ -4856,12 +4883,12 @@ namespace EHWM.ViewModel {
             foreach (var v in Vizitat) {
                 if(KlientetDheLokacionet != null) {
                     if (v.DataPlanifikimit != null) {
+                        if (!DatesAreInTheSameWeek((DateTime)v.DataPlanifikimit.Value.Date, DateTime.Today)) {
+                            continue;
+                        }
                         v.Klienti = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.KontaktEmriMbiemri ?? string.Empty;
                         v.Vendi = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.EmriLokacionit ?? string.Empty;
                         v.Adresa = KlientetDheLokacionet.FirstOrDefault(x => x.IDKlienti == v.IDKlientDheLokacion)?.Adresa ?? string.Empty;
-                        if (v.IDStatusiVizites == "1") {
-
-                        }
                         if(v.Klienti != string.Empty && v.Vendi != string.Empty) {
                             if (DatesAreInTheSameWeek((DateTime)v.DataPlanifikimit.Value.Date, DateTime.Today)) {
                                 VizitatFilteredByDate.Add(v);
@@ -4873,9 +4900,11 @@ namespace EHWM.ViewModel {
             }
             VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderBy(x => x.Klienti));
             VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderByDescending(x => x.IDStatusiVizites));
+            TeGjithaVizitat = new List<Vizita>(VizitatFilteredByDate);
+            VizitatFilteredByDate = new ObservableCollection<Vizita>(TeGjithaVizitat.Take(15));
             ClientsPage ClientsPage = new ClientsPage();
             ClientsPage.BindingContext = this;
-            await Task.Delay(400);
+            await Task.Delay(50);
             await App.Instance.PushAsyncNewPage(ClientsPage);
             UserDialogs.Instance.HideLoading();
         }
