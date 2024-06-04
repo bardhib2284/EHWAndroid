@@ -71,6 +71,7 @@ namespace EHWM.ViewModel {
         public ICommand VazhdoTeKonfirmoPageCommand { get; set; }
         public ICommand DaljeCommand { get; set; }
         public ICommand FshijArtikullinCommand { get; set; }
+        public ICommand EditArtikullinCommand { get; set; }
 
 
 
@@ -146,6 +147,7 @@ namespace EHWM.ViewModel {
             IncreaseSasiaCommand = new Command(IncreaseSasia);
             DecreaseSasiaCommand = new Command(DecreaseSasia);
             FshijArtikullinCommand = new Command(FshijArtikullinAsync);
+            EditArtikullinCommand = new Command(EditArtikullinAsync);
             DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
             DataEPageses = MyTimeInWesternEurope;
             SearchedArtikujt = new ObservableCollection<Artikulli>();
@@ -173,6 +175,35 @@ namespace EHWM.ViewModel {
         public static decimal TotaliFature, TotaliPaguar;
         public DateTime DataEPageses { get; set; }
         public string PagesaType { get; set; }
+        public async void EditArtikullinAsync() {
+            EditActive = true;
+            var registerArk = new RegjistroArkenPopup() { BindingContext = this};
+            registerArk.Shitja("dd");
+            await App.Instance.MainPage.Navigation.PushPopupAsync(registerArk, true);
+            while (EditActive) {
+                if(NewSasia > CurrentlySelectedArtikulli.SasiaMax) {
+                    EditActive = true;
+                    UserDialogs.Instance.Alert("Sasia tejkalon sasine maksimale per kete artikull qe eshte : " + CurrentlySelectedArtikulli.SasiaMax);
+                    NewSasia = CurrentlySelectedArtikulli.SasiaMax;
+                }
+                await Task.Delay(50);
+            }
+            var CurrentInxed = SelectedArikujt.IndexOf(CurrentlySelectedArtikulli);
+            SelectedArikujt.Remove(CurrentlySelectedArtikulli);
+            TotalPrice -= (double)CurrentlySelectedArtikulli.CmimiTotal;
+            CurrentlySelectedArtikulli.Sasia = NewSasia;
+            SelectedArikujt.Insert(CurrentInxed,CurrentlySelectedArtikulli);
+            TotalPrice += (double)CurrentlySelectedArtikulli.CmimiTotal;
+            TotalBillPrice = TotalPrice;
+            CurrentlySelectedArtikulli = null;
+            NewSasia = 0;
+        }
+        public bool EditActive { get; set; }
+        private float _newSasia;
+        public float NewSasia {
+            get { return _newSasia; }
+            set { SetProperty(ref _newSasia, value); }
+        }
         public void  FshijArtikullinAsync() {
             SelectedArikujt.Remove(CurrentlySelectedArtikulli);
             TotalPrice -= (double)CurrentlySelectedArtikulli.CmimiTotal;
@@ -1905,6 +1936,7 @@ namespace EHWM.ViewModel {
                     Sasia = -1;
                 return;
             }
+            CurrentlySelectedArtikulli.SasiaMax = (float)CurrentlySelectedArtikulli.Sasia;
             CurrentlySelectedArtikulli.Sasia = Sasia;
             SelectedArikujt.Add(CurrentlySelectedArtikulli);
             if(!KthimMalli)

@@ -43,6 +43,18 @@ namespace EHWM.Views {
 
                 });
             }
+
+            if(bc is LevizjetViewModel lvw) {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    if (lvw.LastKnownArtikulliForScroll != null) {
+                        testList.ScrollTo(lvw.Artikujt.FirstOrDefault(x => x.IDArtikulli == lvw.LastKnownArtikulliForScroll.IDArtikulli), ScrollToPosition.Center, false);
+                        testList.SelectedItem = lvw.Artikujt.FirstOrDefault(x => x.IDArtikulli == lvw.LastKnownArtikulliForScroll.IDArtikulli);
+                        (testList.SelectedItem as Artikulli).Selected = true;
+                    }
+
+                });
+            }
         }
         private async void testList_ItemTapped(object sender, ItemTappedEventArgs e) {
             if (e.Item != null) {
@@ -62,6 +74,8 @@ namespace EHWM.Views {
                     if (levizjetViewModel != null) {
                         levizjetViewModel.CurrentlySelectedArtikulli = e.Item as Artikulli;
                         levizjetViewModel.HasAnArticleBeenSelected = true;
+                        levizjetViewModel.LastKnownArtikulliForScroll = e.Item as Artikulli;
+
                         if (string.IsNullOrEmpty(levizjetViewModel.CurrentlySelectedArtikulli.Seri)) {
                             //viewModel.EnableSeri = true;
                         }

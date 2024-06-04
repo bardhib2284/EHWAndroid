@@ -27,6 +27,9 @@ namespace EHWM.Views {
                 bc.DissapearingFromShitjaPage = false;
             }
             datepickerr.FixData();
+
+            var allclientsvis = AllClientsList.IsVisible;
+            var searchedClientsvis = SearchedClientsList.IsVisible;
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e) {
@@ -36,15 +39,28 @@ namespace EHWM.Views {
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e) {
+            var bc = (MainViewModel)BindingContext;
             if (string.IsNullOrEmpty(e.NewTextValue)) {
-                AllClientsList.IsVisible = true;
-                SearchedClientsList.IsVisible = false;
+                bc = (MainViewModel)BindingContext;
+                if (bc.DissapearingFromShitjaPage) {
+                    bc.SelectedVizita = null;
+                    bc.DissapearingFromShitjaPage = false;
+                }
+                datepickerr.SetNowAndToday();
+                datepickerr.FixData();
                 return;
             }
             AllClientsList.IsVisible = false;
             SearchedClientsList.IsVisible = true;
-            var bc = (MainViewModel)BindingContext;
-            bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.Klienti.Contains(e.NewTextValue.ToUpper())).ToList());
+            var startsWith = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.TeGjithaVizitat.Where(x => x.Klienti.StartsWith(e.NewTextValue.ToUpper()))).ToList();
+            var extras = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.TeGjithaVizitat.Where(x => x.Klienti.Contains(e.NewTextValue.ToUpper()))).ToList();
+            List<Vizita> vizitat = startsWith;
+            foreach(var viz in extras) {
+                if (vizitat.FirstOrDefault(x=> x.IDVizita == viz.IDVizita) != null)
+                    continue; 
+                vizitat.Add(viz);
+            }
+            bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(vizitat);
             bc.SelectedVizita = null;
         }
         public void AllClientsListVisibility(bool visible) {

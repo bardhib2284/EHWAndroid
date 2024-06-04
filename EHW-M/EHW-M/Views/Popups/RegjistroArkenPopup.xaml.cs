@@ -29,6 +29,17 @@ namespace EHWM.Views.Popups {
                 svm.EshteRuajtuarArka = true;
                 await App.Instance.MainPage.Navigation.PopPopupAsync(true);
             }
+            if (BindingContext is ShitjaViewModel lvm) {
+                lvm.EditActive = false;
+                await App.Instance.MainPage.Navigation.PopPopupAsync(true);
+            }
         }
+
+        public void Shitja(string newText) {
+            shitjaStack.IsVisible = true;
+            regjistroArkenStack.IsVisible = false;
+        }
+
+        
     }
 }

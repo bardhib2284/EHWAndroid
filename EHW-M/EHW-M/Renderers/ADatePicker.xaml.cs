@@ -60,7 +60,10 @@ namespace EHWM.Renderers
             }
             SelectedDayAndDate = pickerinho.SelectedItem as DayAndDate;
         }
-
+        public void SetNowAndToday() {
+            pickerinho.SelectedIndex = -1;
+            pickerinho.SelectedIndex = DitetEJaves.IndexOf(DitetEJaves.FirstOrDefault(x => x.Date.Date == DateTime.Now.Date));
+        }
         public void FixData() {
             if (App.Instance.MainPage is NavigationPage np) {
                 if (np.CurrentPage is ClientsPage cp) {
@@ -101,6 +104,8 @@ namespace EHWM.Renderers
         }
         private void Pickerinho_SelectedIndexChanged(object sender, EventArgs e) {
             try {
+                if (pickerinho.SelectedIndex == -1)
+                    return;
                 var bc = App.Instance.MainViewModel;
                 bc.ADatePicker = this;
                 SelectedDayAndDate = DitetEJaves[pickerinho.SelectedIndex] as DayAndDate;
@@ -135,7 +140,7 @@ namespace EHWM.Renderers
                 }
 
                 bc.FilterDate = CurrentDate;
-                bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.VizitatFilteredByDate.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
+                bc.SearchedVizitat = new System.Collections.ObjectModel.ObservableCollection<Vizita>(bc.TeGjithaVizitat.Where(x => x.DataPlanifikimit.Value.Date == bc.FilterDate.Date));
                 bc.SearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
                 LastSearchedVizitat = new ObservableCollection<Vizita>(bc.SearchedVizitat.OrderByDescending(x => x.IDStatusiVizites));
                 bc.AllClientsList = false;

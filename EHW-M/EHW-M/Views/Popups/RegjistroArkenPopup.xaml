@@ -24,10 +24,19 @@
         BackgroundColor="White"
         Padding="20, 20, 20, 20" CornerRadius="20">
         <StackLayout>
-            <Label Text="REGJISTRO ARKEN"/>
-            <Entry x:Name="amountCashRegister" Text="{Binding CashRegister.Cashamount}" Keyboard="Numeric"/>
+            <StackLayout x:Name="regjistroArkenStack">
+                <Label Text="REGJISTRO ARKEN"/>
+                <Entry x:Name="amountCashRegister" Text="{Binding CashRegister.Cashamount}" Keyboard="Numeric"/>
 
-            <Button Text="REGJISTRO" Clicked="Button_Clicked"/>
+                <Button Text="REGJISTRO" Clicked="Button_Clicked"/>
+            </StackLayout>
+
+            <StackLayout x:Name="shitjaStack" IsVisible="false">
+                <Label Text="EDITO SASINE"/>
+                <Entry x:Name="amountCashRegisteir" Text="{Binding NewSasia}" Keyboard="Numeric"/>
+
+                <Button Text="APLIKO" Clicked="Button_Clicked"/>
+            </StackLayout>
         </StackLayout>
 
     </Frame>

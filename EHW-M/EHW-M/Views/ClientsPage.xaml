@@ -35,7 +35,7 @@
                 <Label Text="Klienti/Vendi" Grid.Row="0" HorizontalTextAlignment="Center" Grid.Column="1" FontAttributes="Bold"/>
                 <Label Text="Statusi Vizites" Grid.Row="0" Grid.Column="2" FontAttributes="Bold"/>
             </Grid>
-            <renderers:InfiniteListView x:Name="AllClientsList" ItemsSource="{Binding VizitatFilteredByDate}" SelectionMode="None" ItemTapped="ListView_ItemTapped" IsVisible="{Binding AllClientsList}" LoadMoreCommand="{Binding AddExtraVizitaCommand}">
+            <renderers:InfiniteListView x:Name="AllClientsList" ItemsSource="{Binding VizitatFilteredByDate}" SelectionMode="None" ItemTapped="ListView_ItemTapped" IsVisible="{Binding AllClientsList}" LoadMoreCommand="{Binding AddExtraVizitaCommand}" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell Tapped="ViewCell_Tapped">

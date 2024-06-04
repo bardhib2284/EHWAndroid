@@ -299,16 +299,24 @@ namespace EHWM.ViewModel {
             if(VizitatFilteredByDate.Count <= TeGjithaVizitat.Count) {
                 int j = 0;
                 int added = 0;
+                var shouldAddd = false;
                 for (int i = (VizitatFilteredByDate.Count - 1); i < TeGjithaVizitat.Count; i++) {
                     j++;
                     if (added >= 15)
                         break;
-                    VizitatFilteredByDate.Add(TeGjithaVizitat[i]);
-                    SearchedVizitat.Add(TeGjithaVizitat[i]);
-                    added++;
+                    if(VizitatFilteredByDate.FirstOrDefault(x=>x.IDVizita == TeGjithaVizitat[i].IDVizita) == null) {
+                        VizitatFilteredByDate.Add(TeGjithaVizitat[i]);
+                        shouldAddd = true;
+                    }
+                    if (SearchedVizitat.FirstOrDefault(x => x.IDVizita == TeGjithaVizitat[i].IDVizita) == null) {
+                        SearchedVizitat.Add(TeGjithaVizitat[i]);
+                        if(shouldAddd)
+                            added++;
+                    }
+                    shouldAddd = false;
                 }
             }
-            await Task.Delay(50);
+            await Task.Delay(10);
             UserDialogs.Instance.HideLoading();
             return true;
         }
@@ -539,6 +547,11 @@ namespace EHWM.ViewModel {
                 return;
             }
             else {
+                var userResult = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurte per kthimin e fatures?", "Verejtje", "Po", "Jo");
+                if (!userResult) {
+                    UserDialogs.Instance.HideLoading();
+                    return;
+                }
                 SelectedLiferimetEKryera.Totali = SelectedLiferimetEKryera.Totali * -1;
 
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
@@ -590,13 +603,12 @@ namespace EHWM.ViewModel {
                             };
                             //SEND POROSIA TO API SO 
                             await App.Database.SavePorositeAsync(porosite1);
-                            var userResult = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurte per kthimin e fatures?", "Verejtje", "Po", "Jo");
-                            if(userResult) {
+                            
 
-                                await PerfundoLiferimin(SelectedLiferimetEKryera, IDPorosi);
-                                FixDataVizualizimit();
-                                UserDialogs.Instance.HideLoading();
-                            }
+                            await PerfundoLiferimin(SelectedLiferimetEKryera, IDPorosi);
+                            FixDataVizualizimit();
+                            UserDialogs.Instance.HideLoading();
+                            
                         }
                     }
                 }
@@ -3531,17 +3543,18 @@ namespace EHWM.ViewModel {
                     if (vizitat.Count > 0) 
                     {
                         foreach(var viz in vizitat) {
-                            if((viz.DataPlanifikimit.Value - DateTime.Now).Days >= 8 ) 
+                            if((viz.DataPlanifikimit.Value - DateTime.Now).Days >= 7 ) 
                             {
                                 await App.Database.DeleteVizita(viz);
                             }
 
-                            if (viz.DataPlanifikimit.Value.AddDays(8) <=  DateTime.Now) {
+                            if (viz.DataPlanifikimit.Value.AddDays(7) <=  DateTime.Now) {
                                 await App.Database.DeleteVizita(viz);
                             }
                         }
                     }
                 }
+
                 if(!App.Instance.DoIHaveInternetNoAlert()) { 
                     if(string.IsNullOrEmpty(Configurimi.Token)) {
                         App.Instance.DoIHaveInternet();

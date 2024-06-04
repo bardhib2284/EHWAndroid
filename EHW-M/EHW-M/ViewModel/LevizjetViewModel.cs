@@ -177,6 +177,7 @@ namespace EHWM.ViewModel {
         public MPosControllerPrinter _printer;
         public MposConnectionInformation _connectionInfo;
         public static SemaphoreSlim _printSemaphore = new SemaphoreSlim(1, 1);
+        public Artikulli LastKnownArtikulliForScroll { get; set; }
 
         public async Task PrintoFaturenAsync() {
             await App.Instance.PushAsyncNewPage(new PrinterSelectionPage() { BindingContext = this });
@@ -278,7 +279,7 @@ namespace EHWM.ViewModel {
     "---------------------------------------------------------------------");
                     await _printer.printText("\nTransportues:  " + currAgjendi.Emri.ToUpper() + " " + currAgjendi.Mbiemri.ToUpper() + "  J61804031V");
                     await _printer.printText("\nAdresa: Autostrada Tirane Durres");
-                    await _printer.printText("\nMjeti: " + currentDepo.TARGE);
+                    await _printer.printText("\nMjeti: " + App.Instance.MainViewModel.Configurimi.TAGNR);
                     await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss") + " \n");
 
                 }
@@ -293,7 +294,7 @@ namespace EHWM.ViewModel {
                     await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                     await _printer.printText("\nHyrje nga :  " + CurrentlySelectedLevizjetHeader.LevizjeNga);
-                    await _printer.printText("\nMjeti: " + currentDepo.TARGE);
+                    await _printer.printText("\nMjeti: " + App.Instance.MainViewModel.Configurimi.TAGNR);
                     await _printer.printText("\nData dhe ora e furnizimit:  " + CurrentlySelectedLevizjetHeader.Data.Value.ToString("dd.MM.yyyy HH:mm:ss") + " \n");
                     if (CurrentlySelectedLevizjetHeader.NumriLevizjes.Contains("-")) {
                         var nrPorosiseDepo = CurrentlySelectedLevizjetHeader.NumriLevizjes.Split('-');

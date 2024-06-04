@@ -32,6 +32,8 @@ namespace EHWM.Models {
         public string ArsyejaEKthimit { get; set; }
         [JsonIgnore]
         public bool Selected { get; set; }
+        [JsonIgnore]
+        public float SasiaMax { get; set; }
 
     }
 }

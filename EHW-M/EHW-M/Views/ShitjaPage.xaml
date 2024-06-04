@@ -97,9 +97,10 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackLayout Orientation="Horizontal">
-                        <Label Text="Totali per pages : " VerticalTextAlignment="Center"/>
+                        <Label Text="Totali per pages : " VerticalTextAlignment="Center" />
                         <Label Text="{Binding TotalPrice,StringFormat='{0:F2}'}" VerticalTextAlignment="Center" FontAttributes="Bold"/>
-                        <Button x:Name="fshijButton" Command="{Binding FshijArtikullinCommand}" Clicked="fshijButton_Clicked" IsVisible="False" Text="Fshije" BackgroundColor="Red" Background="red" HorizontalOptions="EndAndExpand"/>
+                        <Button x:Name="editoButton" Command="{Binding EditArtikullinCommand}" Clicked="editButton_Clicked" IsVisible="False" WidthRequest="50" Text="Edito" BackgroundColor="Red" Background="red" HorizontalOptions="EndAndExpand"/>
+                        <Button x:Name="fshijButton" Command="{Binding FshijArtikullinCommand}" Clicked="fshijButton_Clicked" IsVisible="False" WidthRequest="50" Text="Fshije" BackgroundColor="Red" Background="red" HorizontalOptions="EndAndExpand"/>
                         <Button Text="Regjistro" Command="{Binding RegjistroCommand}" HorizontalOptions="EndAndExpand"/>
                     </StackLayout>
                 </StackLayout>

@@ -44,6 +44,7 @@ namespace EHWM.Views {
 
         private void testList_ItemTapped(object sender, ItemTappedEventArgs e) {
             fshijButton.IsVisible = true;
+            editoButton.IsVisible = true;
             var bc = (ShitjaViewModel)BindingContext;
             bc.CurrentlySelectedArtikulli = (sender as ListView).SelectedItem as Artikulli;
             
@@ -53,6 +54,9 @@ namespace EHWM.Views {
             fshijButton.IsVisible = false;
         }
 
+        private void editButton_Clicked(object sender, EventArgs e) {
+            //editoButton.IsVisible = false;
+        }
         private void Entry_TextChanged(object sender, TextChangedEventArgs e) {
 
         }
