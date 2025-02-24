@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace EHWM.Views {
+namespace EHWM.Views
+{
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ShfaqPorosinePage : ContentPage {
-        public ShfaqPorosinePage() {
-            InitializeComponent();
-        }
-
-        protected override bool OnBackButtonPressed()
+    public partial class DebugModalPage : ContentPage
+    {
+        public DebugModalPage(string textToWrite)
         {
-            return false;
+            InitializeComponent();
+            debug.Text = textToWrite;
         }
     }
 }

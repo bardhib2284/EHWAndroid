@@ -29,7 +29,7 @@ namespace EHWM.Converters {
 
     public class VizitaStatusToInt : IValueConverter {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            int status = 0;
+            int status = 1;
             var statuesEVizites = App.Instance.MainViewModel.StatusetEVizites;
             if(value == statuesEVizites[0]) {
                 status = 1;

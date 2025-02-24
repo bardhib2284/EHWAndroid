@@ -21,6 +21,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -119,7 +120,7 @@ namespace EHWM.ViewModel {
         }
 
         public string Title { get; set; }
-        public DateTime TodayDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+        public DateTime TodayDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
         public ShitjaViewModel(ShitjaNavigationParameters navigationParameters) {
             Sasia = 0;
             if(navigationParameters.VizitaEHapur != null) {
@@ -148,7 +149,7 @@ namespace EHWM.ViewModel {
             DecreaseSasiaCommand = new Command(DecreaseSasia);
             FshijArtikullinCommand = new Command(FshijArtikullinAsync);
             EditArtikullinCommand = new Command(EditArtikullinAsync);
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
             DataEPageses = MyTimeInWesternEurope;
             SearchedArtikujt = new ObservableCollection<Artikulli>();
             KrijoPorosine = false;
@@ -175,18 +176,36 @@ namespace EHWM.ViewModel {
         public static decimal TotaliFature, TotaliPaguar;
         public DateTime DataEPageses { get; set; }
         public string PagesaType { get; set; }
+        public bool ClosedEditPopup { get; set; }
         public async void EditArtikullinAsync() {
+            ClosedEditPopup = false;
             EditActive = true;
             var registerArk = new RegjistroArkenPopup() { BindingContext = this};
             registerArk.Shitja("dd");
             await App.Instance.MainPage.Navigation.PushPopupAsync(registerArk, true);
             while (EditActive) {
-                if(NewSasia > CurrentlySelectedArtikulli.SasiaMax) {
-                    EditActive = true;
-                    UserDialogs.Instance.Alert("Sasia tejkalon sasine maksimale per kete artikull qe eshte : " + CurrentlySelectedArtikulli.SasiaMax);
-                    NewSasia = CurrentlySelectedArtikulli.SasiaMax;
+                if(KthimMalli) {
+                    if(NewSasia > 0) {
+                        EditActive = true;
+                        UserDialogs.Instance.Alert("Ju lutemi permiresoni sasin, duhet te jete me vlere negative", "Verejtje", "Ok");
+                        NewSasia *= -1;
+                    }
                 }
-                await Task.Delay(50);
+                if(CurrentlySelectedArtikulli != null)
+                {
+                    if (NewSasia > CurrentlySelectedArtikulli.SasiaMax)
+                    {
+                        EditActive = true;
+                        UserDialogs.Instance.Alert("Sasia tejkalon sasine maksimale per kete artikull qe eshte : " + CurrentlySelectedArtikulli.SasiaMax);
+                        NewSasia = CurrentlySelectedArtikulli.SasiaMax;
+                    }
+                    await Task.Delay(50);
+                }
+            }
+            if (!ClosedEditPopup)
+            {
+                CurrentlySelectedArtikulli = null;
+                return;
             }
             var CurrentInxed = SelectedArikujt.IndexOf(CurrentlySelectedArtikulli);
             SelectedArikujt.Remove(CurrentlySelectedArtikulli);
@@ -213,6 +232,133 @@ namespace EHWM.ViewModel {
         public async Task VazhdoTeKonfirmoPageAsync() {
             UserDialogs.Instance.ShowLoading("Duke perfunduar faturen");
             var liferimet = await App.Database.GetLiferimetAsync();
+            bool checkServer = true;
+            if (KthimMalli)
+            {
+                decimal lastPriceAdded = 0;
+                decimal PriceToNotPass = 0;
+                foreach (var lif in liferimet)
+                {
+                    if (lif.NumriFisk == NrFatKthim && lif.DeviceID == App.Instance.MainViewModel.Configurimi.Paisja)
+                    {
+                        if(lif.DataLiferuar.Day == DateTime.Now.Day)
+                        {
+                            checkServer = false;
+                        }
+                        PriceToNotPass = (decimal)lif.CmimiTotal;
+                        break;
+                    }
+
+                }
+                if(PriceToNotPass > 0)
+                {
+                    if ((decimal)(TotalPrice) < (PriceToNotPass * -1))
+                    {
+                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass);
+                        UserDialogs.Instance.HideLoading();
+                        return;
+                    }
+                }
+                lastPriceAdded += (decimal)TotalPrice;
+                foreach (var lif in liferimet)
+                {
+
+                    if (lif.IDKthimi != NrFatKthim.ToString())
+                        continue;
+                    if ((decimal)lif.CmimiTotal - (decimal)TotalPrice < (PriceToNotPass * -1))
+                    {
+                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + lif.CmimiTotal);
+                        UserDialogs.Instance.HideLoading();
+
+                        return;
+                    }
+                    lastPriceAdded = Math.Abs(lastPriceAdded) + Math.Abs((decimal)lif.CmimiTotal);
+                    
+                    lastPriceAdded *= -1;
+                    if (lastPriceAdded < (PriceToNotPass * -1))
+                    {
+                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + lif.CmimiTotal);
+                        UserDialogs.Instance.HideLoading();
+
+                        return;
+                    }
+                    if ((decimal)(TotalPrice) < (PriceToNotPass * -1))
+                    {
+                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass);
+                        UserDialogs.Instance.HideLoading();
+                        return;
+                    }
+                }
+                if (App.Instance.DoIHaveInternetNoAlert())
+                {
+                    if(checkServer)
+                    {
+                        var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseString = await response.Content.ReadAsStringAsync();
+                            var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
+                            var klients = await App.Database.GetKlientetAsync();
+                            var currKlient = klients.FirstOrDefault(x => x.IDKlienti == VizitaESelektuar.IDKlientDheLokacion);
+                            foreach (var fature in FaturatEFiskalizuara)
+                            {
+                                if (fature.IDFature == NrFatKthim.ToString() && fature.DeviceID == App.Instance.MainViewModel.Configurimi.Shfrytezuesi && fature.NIPT == currKlient.NIPT)
+                                {
+                                    PriceToNotPass = fature.TotalAmount;
+                                    break;
+                                }
+
+                            }
+                            if (PriceToNotPass > 0)
+                            {
+                                if ((decimal)(TotalPrice) < (PriceToNotPass * -1))
+                                {
+                                    UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass);
+                                    UserDialogs.Instance.HideLoading();
+                                    return;
+                                }
+                            }
+                            foreach (var fature in FaturatEFiskalizuara)
+                            {
+                                if (fature.IDFatureCorrected == NrFatKthim.ToString() && fature.DeviceID == App.Instance.MainViewModel.Configurimi.Shfrytezuesi)
+                                {
+                                    if (fature.Type != "KTHIM")
+                                    {
+                                        continue;
+                                    }
+                                    if (fature.TotalAmount + (decimal)TotalPrice < (PriceToNotPass * -1))
+                                    {
+                                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + fature.TotalAmount);
+                                        UserDialogs.Instance.HideLoading();
+
+                                        return;
+                                    }
+                                    lastPriceAdded = Math.Abs(lastPriceAdded) + Math.Abs(fature.TotalAmount);
+                                    lastPriceAdded *= -1;
+                                    if (lastPriceAdded < (PriceToNotPass * -1))
+                                    {
+                                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + lastPriceAdded);
+                                        UserDialogs.Instance.HideLoading();
+
+                                        return;
+                                    }
+                                    if (fature.TotalAmount - (decimal)TotalPrice < (PriceToNotPass * -1))
+                                    {
+                                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + fature.TotalAmount);
+                                        UserDialogs.Instance.HideLoading();
+
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+
+                
+ 
+            }
             var liferimetToday = liferimet.Where(x=> x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
             var klietns = await App.Database.GetKlientetAsync();
             var currClient = klietns.FirstOrDefault(x => x.IDKlienti == VizitaESelektuar.IDKlientDheLokacion);
@@ -230,32 +376,45 @@ namespace EHWM.ViewModel {
             }
             else {
                 if(App.Instance.DoIHaveInternetNoAlert()) {
-                    var response = await App.ApiClient.GetAsync("liferimi");
-                    if (response.IsSuccessStatusCode) {
-                        var responseLif = await response.Content.ReadAsStringAsync();
-                        var liferimetServer = JsonConvert.DeserializeObject<List<Liferimi>>(responseLif);
-                        var liferimetTodayServer = liferimetServer.Where(x => x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
-                        var lifForNiptServer = new List<Liferimi>();
-                        foreach (var lif in liferimetTodayServer) {
-                            if (klietns.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti) != null) {
-                                if (liferimetToday.FirstOrDefault(x => x.IDLiferimi == lif.IDLiferimi) == null) {
-                                    lifForNipt.Add(lif);
+                    try
+                    {
+                        var response = await App.ApiClient.GetAsync("liferimi");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseLif = await response.Content.ReadAsStringAsync();
+                            var liferimetServer = JsonConvert.DeserializeObject<List<Liferimi>>(responseLif);
+                            var liferimetTodayServer = liferimetServer.Where(x => x.KohaLiferuar.Date.Day == DateTime.Now.Day && x.KohaLiferuar.Date.Month == DateTime.Now.Month && x.KohaLiferuar.Year == DateTime.Now.Year);
+                            var lifForNiptServer = new List<Liferimi>();
+                            foreach (var lif in liferimetTodayServer)
+                            {
+                                if (klietns.FirstOrDefault(x => x.IDKlienti == lif.IDKlienti) != null)
+                                {
+                                    if (liferimetToday.FirstOrDefault(x => x.IDLiferimi == lif.IDLiferimi) == null)
+                                    {
+                                        lifForNipt.Add(lif);
+                                    }
                                 }
                             }
+                            var niptTotalServer = lifForNipt.Sum(x => x.ShumaPaguar);
+                            if (niptTotalServer >= 150000)
+                            {
+                                UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
+                                UserDialogs.Instance.HideLoading();
+                                return;
+                            }
+                            niptTotalServer += (float)TotalPrice;
+                            if (niptTotalServer >= 150000)
+                            {
+                                UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotalServer);
+                                UserDialogs.Instance.HideLoading();
+                                return;
+                            }
                         }
-                        var niptTotalServer = lifForNipt.Sum(x => x.ShumaPaguar);
-                        if (niptTotalServer >= 150000) {
-                            UserDialogs.Instance.Alert("Ju keni arritur faturimin maximal per NIPT per sot");
-                            UserDialogs.Instance.HideLoading();
-                            return;
-                        }
-                        niptTotalServer += (float)TotalPrice;
-                        if (niptTotalServer >= 150000) {
-                            UserDialogs.Instance.Alert("Fatura kalon faturimin maximal per NIPT : " + niptTotalServer);
-                            UserDialogs.Instance.HideLoading();
-                            return;
-                        }
+                    }catch(Exception ex)
+                    {
+
                     }
+
                 }
                 niptTotal += (float)TotalPrice;
                 if (niptTotal >= 150000) {
@@ -497,7 +656,7 @@ namespace EHWM.ViewModel {
                                     };
                         var nrPorosise = await App.Database.GetNumriPorosiveAsync();
                         var nrPor = nrPorosise.FirstOrDefault(x => x.TIPI == "SHITJE");
-                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                         if (nrPor == null) {
                             nrPor = new NumriPorosive
@@ -570,36 +729,6 @@ namespace EHWM.ViewModel {
                             }
                         }
 
-                        ////FISKALIZIMIF
-                        //FiskalizimiService bc = new FiskalizimiService();
-                        try {
-                            await FiskalizoTCRInvoice(IDLiferimi.ToString());
-                        }catch(Exception ex) {
-                            await Task.Delay(500);
-                            try {
-                                await FiskalizoTCRInvoice(IDLiferimi.ToString());
-
-                            }catch(Exception exc) {
-                                
-                            }
-                        }
-                        if(string.IsNullOrEmpty(liferimi.TCRNSLF))
-                        {
-                            var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/" + NrFatures.ToString());
-                            if (response.IsSuccessStatusCode) {
-                                var responseString = await response.Content.ReadAsStringAsync();
-                                var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
-                                foreach (var fature in FaturatEFiskalizuara) {
-                                    if (fature.NrLiferimit == NrFatures.ToString() && fature.DeviceID == App.Instance.MainViewModel.LoginData.DeviceID) {
-                                        liferimi.TCRNSLF = fature.TCRNSLF;
-                                        liferimi.TCRNIVF = fature.TCRNIVF;
-                                        await App.Database.UpdateLiferimiAsync(liferimi);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                            
                         VizitaESelektuar.IDStatusiVizites = "6";
                         VizitaESelektuar.DataRealizimit = MyTimeInWesternEurope;
                         VizitaESelektuar.SyncStatus = 0;
@@ -608,11 +737,46 @@ namespace EHWM.ViewModel {
                         var NumriFaturaveList = await App.Database.GetNumriFaturaveAsync();
                         var numriFatures = NumriFaturaveList.FirstOrDefault(x => x.KOD == agjendi.IDAgjenti);
                         numriFatures.CurrNrFat = numriFatures.CurrNrFat + 1;
-                        if (numriFatures.CurrNrFat > 0) {
+                        if (numriFatures.CurrNrFat > 0)
+                        {
                             numriFatures.NRKUFIP += numriFatures.CurrNrFat;
                             numriFatures.CurrNrFat = 0;
                             await App.Database.SaveNumriFaturaveAsync(numriFatures);
                         }
+
+                        try
+                        {
+                            if (App.Instance.DoIHaveInternetNoAlert())
+                            {
+                                if (string.IsNullOrEmpty(liferimi.TCRNSLF))
+                                {
+                                    var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/" + NrFatures.ToString());
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        var responseString = await response.Content.ReadAsStringAsync();
+                                        var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
+                                        foreach (var fature in FaturatEFiskalizuara)
+                                        {
+                                            if (fature.NrLiferimit == NrFatures.ToString() && fature.DeviceID == App.Instance.MainViewModel.Configurimi.Shfrytezuesi)
+                                            {
+                                                liferimi.TCRNSLF = fature.TCRNSLF;
+                                                liferimi.TCRNIVF = fature.TCRNIVF;
+                                                await App.Database.UpdateLiferimiAsync(liferimi);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }catch(Exception e)
+                        {
+
+                        }
+                        
+
+                        
+                            
+                       
                         //UPDATE EVERYTHING LOCALLY IN ORDER TO SYNC LATER
 
                         //SYNC MALLI MBETUR DIRECTLY SINCE IT DOESN'T EXIST IN SYNC ALL 
@@ -656,6 +820,18 @@ namespace EHWM.ViewModel {
                             };
                             await App.Database.SaveEvidencaPagesaveAsync(evidencaPagesave);
                         }
+
+                        ////FISKALIZIMIF
+                        //FiskalizimiService bc = new FiskalizimiService();
+                        try {
+                            await FiskalizoTCRInvoice(IDLiferimi.ToString());
+                        }
+                        catch (Exception ex) {
+
+                        }
+
+                        if (liferimi.TCRSyncStatus == null)
+                            liferimi.TCRSyncStatus = -1;
                     }
                 }
             }
@@ -667,12 +843,15 @@ namespace EHWM.ViewModel {
             await App.Instance.PushAsyncNewPage(new ClientsPage() { BindingContext = App.Instance.MainViewModel });
             App.Instance.MainViewModel.VizitatFilteredByDate.Remove(VizitaESelektuar);
             App.Instance.MainViewModel.VizitatFilteredByDate.Insert(0, VizitaESelektuar);
+            App.Instance.MainViewModel.SearchedVizitat.Remove(VizitaESelektuar);
+            App.Instance.MainViewModel.SearchedVizitat.Insert(0, VizitaESelektuar);
             UserDialogs.Instance.HideLoading();
         }
 
 
         public async Task FiskalizoTCRInvoice(string idLiferimi) {
             var liferimet = await App.Database.GetLiferimetAsync();
+            var liferimi = liferimet.FirstOrDefault(x => x.IDLiferimi == IDLiferimi);
             var liferimetArt = await App.Database.GetLiferimetArtAsync();
             var query = from l2 in liferimet
                         join la2 in liferimetArt on l2.IDLiferimi equals la2.IDLiferimi
@@ -689,6 +868,25 @@ namespace EHWM.ViewModel {
                         };
 
             List<MapperHeader> mapperHeaderList = query.ToList();
+            if (liferimi != null)
+            {
+                if (liferimi.TotaliPaTVSH != mapperHeaderList[0].TotaliPaTVSH)
+                {
+                    liferimi.TotaliPaTVSH = float.Parse(mapperHeaderList[0].TotaliPaTVSH.ToString());
+                }
+                if(liferimi.CmimiTotal != mapperHeaderList[0].TotaliMeTVSH)
+                {
+                    liferimi.CmimiTotal = float.Parse(mapperHeaderList[0].TotaliMeTVSH.ToString());
+                }
+                if(liferimi.PayType != "BANK")
+                {
+                    if (liferimi.ShumaPaguar != mapperHeaderList[0].TotaliMeTVSH)
+                    {
+                        liferimi.ShumaPaguar = float.Parse(mapperHeaderList[0].TotaliMeTVSH.ToString());
+                    }
+                }
+                await App.Database.SaveLiferimiAsync(liferimi);
+            }
             if (mapperHeaderList.Count > 0) {
                 var klientet = await App.Database.GetKlientetAsync();
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
@@ -811,234 +1009,275 @@ namespace EHWM.ViewModel {
 
 
                         try {
-                            ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
-                            if (log == null) {
-                                liferimet = await App.Database.GetLiferimetAsync();
-                                liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                var liferimiToUpdate = liferimet
-                                                    .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                            {
+                                ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
+                                if (log == null)
+                                {
+                                    liferimet = await App.Database.GetLiferimetAsync();
+                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                    var liferimiToUpdate = liferimet
+                                                        .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                if (liferimiToUpdate != null) {
-                                    liferimiToUpdate.TCRSyncStatus = -1;
-                                    liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
-                                    liferimiToUpdate.TCRQRCodeLink = null;
-                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                    liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                    liferimiToUpdate.UUID = null;
-                                    liferimiToUpdate.EIC = null;
+                                    if (liferimiToUpdate != null)
+                                    {
+                                        liferimiToUpdate.TCRSyncStatus = -1;
+                                        liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                        liferimiToUpdate.TCRQRCodeLink = null;
+                                        liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                        liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                        liferimiToUpdate.UUID = null;
+                                        liferimiToUpdate.EIC = null;
+                                        try
+                                        {
+                                            if (App.Instance.DoIHaveInternetNoAlert())
+                                            {
 
-                                    var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/" + NrFatures.ToString());
-                                    if (response.IsSuccessStatusCode) {
-                                        var responseString = await response.Content.ReadAsStringAsync();
-                                        var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
-                                        foreach (var fature in FaturatEFiskalizuara) {
-                                            if (fature.NrLiferimit == NrFatures.ToString() && fature.DeviceID == App.Instance.MainViewModel.LoginData.DeviceID) {
-                                                liferimiToUpdate.TCRNSLF = fature.TCRNSLF;
-                                                liferimiToUpdate.TCRNIVF = fature.TCRNIVF;
-                                                break;
+                                                var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/" + NrFatures.ToString());
+                                                if (response.IsSuccessStatusCode)
+                                                {
+                                                    var responseString = await response.Content.ReadAsStringAsync();
+                                                    var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
+                                                    foreach (var fature in FaturatEFiskalizuara)
+                                                    {
+                                                        if (fature.NrLiferimit == NrFatures.ToString() && fature.DeviceID == App.Instance.MainViewModel.Configurimi.Shfrytezuesi)
+                                                        {
+                                                            liferimiToUpdate.TCRNSLF = fature.TCRNSLF;
+                                                            liferimiToUpdate.TCRNIVF = fature.TCRNIVF;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception e)
+                                        {
+
+                                        }
+
+                                        liferimiToUpdate.Message = "Komunikimi me service ka deshtuar shkaku pajisja nuk ka qen e konektuar me rrjet";
+
+                                        await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                        var liferimiArtToUpdate = liferimetArt
+                                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        foreach (var art in liferimiArtToUpdate)
+                                        {
+                                            art.TCRSyncStatus = -1;
+                                            await App.Database.UpdateLiferimiArtAsync(art);
+                                        }
+                                    }
+                                    return;
+                                }
+                                if (log.Status == StatusPCL.Ok)
+                                {
+                                    liferimet = await App.Database.GetLiferimetAsync();
+                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                    var liferimiToUpdate = liferimet
+                                                        .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    if (liferimiToUpdate != null)
+                                    {
+                                        liferimiToUpdate.TCRSyncStatus = 1;
+                                        liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                        liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                        liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                        liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                        liferimiToUpdate.UUID = log.ResponseUUID;
+                                        liferimiToUpdate.EIC = log.EIC;
+                                        liferimiToUpdate.TCRNSLF = log.NSLF;
+                                        liferimiToUpdate.TCRNIVF = log.NIVF;
+                                        liferimiToUpdate.Message = log.Message.Replace("'", "");
+
+                                        await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                        var liferimiArtToUpdate = liferimetArt
+                                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        foreach (var art in liferimiArtToUpdate)
+                                        {
+                                            art.TCRSyncStatus = 1;
+                                            await App.Database.UpdateLiferimiArtAsync(art);
+                                        }
+                                    }
+                                }
+                                else if (log.Status == StatusPCL.FaultCode)
+                                {
+                                    if (string.IsNullOrEmpty(log.Message))
+                                    {
+                                        liferimet = await App.Database.GetLiferimetAsync();
+                                        liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                        var liferimiToUpdate = liferimet
+                                                            .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        if (liferimiToUpdate != null)
+                                        {
+                                            liferimiToUpdate.TCRSyncStatus = -1;
+                                            liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                            liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                            liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                            liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                            liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                            liferimiToUpdate.UUID = log.ResponseUUID;
+                                            liferimiToUpdate.EIC = log.EIC;
+                                            liferimiToUpdate.TCRNSLF = log.NSLF;
+                                            liferimiToUpdate.TCRNIVF = log.NIVF;
+                                            liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                                            await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+
+                                            var liferimiArtToUpdate = liferimetArt
+                                                    .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                            foreach (var art in liferimiArtToUpdate)
+                                            {
+                                                art.TCRSyncStatus = -1;
+                                                await App.Database.UpdateLiferimiArtAsync(art);
                                             }
                                         }
                                     }
-                                    liferimiToUpdate.Message = "Komunikimi me service ka deshtuar shkaku pajisja nuk ka qen e konektuar me rrjet";
+                                    else
+                                    {
+                                        liferimet = await App.Database.GetLiferimetAsync();
+                                        liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                        var liferimiToUpdate = liferimet
+                                                            .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                    await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+                                        if (liferimiToUpdate != null)
+                                        {
+                                            liferimiToUpdate.TCRSyncStatus = -1;
+                                            liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
+                                            liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                            liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                            liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                            liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                            liferimiToUpdate.UUID = log.ResponseUUID;
+                                            liferimiToUpdate.EIC = log.EIC;
+                                            liferimiToUpdate.TCRNSLF = log.NSLF;
+                                            liferimiToUpdate.TCRNIVF = log.NIVF;
+                                            liferimiToUpdate.Message = log.Message;
 
-                                    var liferimiArtToUpdate = liferimetArt
-                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                                            await App.Database.SaveLiferimiAsync(liferimiToUpdate);
 
-                                    foreach (var art in liferimiArtToUpdate) {
-                                        art.TCRSyncStatus = -1;
-                                        await App.Database.UpdateLiferimiArtAsync(art);
-                                    }
-                                }
-                                return;
-                            }
-                            if (log.Status == StatusPCL.Ok) {
-                                liferimet = await App.Database.GetLiferimetAsync();
-                                liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                var liferimiToUpdate = liferimet
-                                                    .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                                            var liferimiArtToUpdate = liferimetArt
+                                                    .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                if (liferimiToUpdate != null) {
-                                    liferimiToUpdate.TCRSyncStatus = 1;
-                                    liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
-                                    liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                    liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                    liferimiToUpdate.UUID = log.ResponseUUID;
-                                    liferimiToUpdate.EIC = log.EIC;
-                                    liferimiToUpdate.TCRNSLF = log.NSLF;
-                                    liferimiToUpdate.TCRNIVF = log.NIVF;
-                                    liferimiToUpdate.Message = log.Message.Replace("'", "");
-
-                                    await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-                                    var liferimiArtToUpdate = liferimetArt
-                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                    foreach (var art in liferimiArtToUpdate) {
-                                        art.TCRSyncStatus = 1;
-                                        await App.Database.UpdateLiferimiArtAsync(art);
-                                    }
-                                }
-                            }
-                            else if (log.Status == StatusPCL.FaultCode) {
-                                if (string.IsNullOrEmpty(log.Message)) {
-                                    liferimet = await App.Database.GetLiferimetAsync();
-                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                    var liferimiToUpdate = liferimet
-                                                        .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                    if (liferimiToUpdate != null) {
-                                        liferimiToUpdate.TCRSyncStatus = -1;
-                                        liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
-                                        liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                        liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                        liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                        liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                        liferimiToUpdate.UUID = log.ResponseUUID;
-                                        liferimiToUpdate.EIC = log.EIC;
-                                        liferimiToUpdate.TCRNSLF = log.NSLF;
-                                        liferimiToUpdate.TCRNIVF = log.NIVF;
-                                        liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
-
-                                        await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-
-                                        var liferimiArtToUpdate = liferimetArt
-                                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                        foreach (var art in liferimiArtToUpdate) {
-                                            art.TCRSyncStatus = -1;
-                                            await App.Database.UpdateLiferimiArtAsync(art);
+                                            foreach (var art in liferimiArtToUpdate)
+                                            {
+                                                art.TCRSyncStatus = -1;
+                                                await App.Database.UpdateLiferimiArtAsync(art);
+                                            }
                                         }
                                     }
                                 }
-                                else {
-                                    liferimet = await App.Database.GetLiferimetAsync();
-                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                    var liferimiToUpdate = liferimet
-                                                        .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                    if (liferimiToUpdate != null) {
-                                        liferimiToUpdate.TCRSyncStatus = -1;
-                                        liferimiToUpdate.TCRIssueDateTime = DateTime.Now;
-                                        liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                        liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                        liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                        liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                        liferimiToUpdate.UUID = log.ResponseUUID;
-                                        liferimiToUpdate.EIC = log.EIC;
-                                        liferimiToUpdate.TCRNSLF = log.NSLF;
-                                        liferimiToUpdate.TCRNIVF = log.NIVF;
-                                        liferimiToUpdate.Message = log.Message;
-
-                                        await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-                                        var liferimiArtToUpdate = liferimetArt
-                                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                        foreach (var art in liferimiArtToUpdate) {
-                                            art.TCRSyncStatus = -1;
-                                            await App.Database.UpdateLiferimiArtAsync(art);
-                                        }
-                                    }
-                                }
-                            }
-                            else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
-                                liferimet = await App.Database.GetLiferimetAsync();
-                                liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                var liferimiToUpdate = liferimet
-                                    .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var liferi in liferimiToUpdate) {
-                                    liferi.TCRSyncStatus = 4;
-                                    liferi.TCRIssueDateTime = DateTime.Now;
-                                    liferi.TCRQRCodeLink = log.QRCodeLink;
-                                    liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    liferi.TCROperatorCode = LoginData.OperatorCode;
-                                    liferi.TCRBusinessCode = liferi.TCRBusinessCode;
-                                    liferi.UUID = log.ResponseUUID;
-                                    liferi.EIC = log.EIC;
-                                    liferi.TCRNSLF = log.NSLF;
-                                    liferi.TCRNIVF = log.NIVF;
-                                    liferi.Message = log.Message.Replace("'", "");
-                                    await App.Database.SaveLiferimiAsync(liferi);
-                                }
-
-                                var liferimiArtToUpdate = liferimetArt
-                                    .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = 4;
-                                    await App.Database.UpdateLiferimiArtAsync(art);
-                                }
-                            }
-                            else if (log.Status == StatusPCL.InProcess) {
-                                liferimet = await App.Database.GetLiferimetAsync();
-                                liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                var liferimiToUpdate = liferimet
-                                    .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var liferi in liferimiToUpdate) {
-                                    liferi.TCRSyncStatus = -2;
-                                    liferi.TCRIssueDateTime = DateTime.Now;
-                                    liferi.TCRQRCodeLink = log.QRCodeLink;
-                                    liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    liferi.TCROperatorCode = LoginData.OperatorCode;
-                                    liferi.TCRBusinessCode = liferi.TCRBusinessCode;
-                                    liferi.UUID = log.ResponseUUID;
-                                    liferi.EIC = log.EIC;
-                                    liferi.TCRNSLF = log.NSLF;
-                                    liferi.TCRNIVF = log.NIVF;
-                                    liferi.Message = log.Message.Replace("'", "");
-                                    await App.Database.SaveLiferimiAsync(liferi);
-
-                                }
-
-                                var liferimiArtToUpdate = liferimetArt
-                                    .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = -2;
-                                    await App.Database.UpdateLiferimiArtAsync(art);
-                                }
-                            }
-                            else {
-                                try {
+                                else if (log.Status == StatusPCL.TCRAlreadyRegistered)
+                                {
                                     liferimet = await App.Database.GetLiferimetAsync();
                                     liferimetArt = await App.Database.GetLiferimetArtAsync();
                                     var liferimiToUpdate = liferimet
                                         .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                    foreach (var lif in liferimiToUpdate) {
-                                        lif.TCRSyncStatus = -3;
-                                        lif.TCRIssueDateTime = DateTime.Now;
-                                        lif.TCRQRCodeLink = log.QRCodeLink;
-                                        lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                        lif.TCROperatorCode = LoginData.OperatorCode;
-                                        lif.TCRBusinessCode = lif.TCRBusinessCode;
-                                        lif.UUID = log.ResponseUUID;
-                                        lif.EIC = log.EIC;
-                                        lif.TCRNSLF = log.NSLF;
-                                        lif.TCRNIVF = log.NIVF;
-                                        lif.Message = log.Message.Replace("'", "");
-                                        await App.Database.SaveLiferimiAsync(lif);
+                                    foreach (var liferi in liferimiToUpdate)
+                                    {
+                                        liferi.TCRSyncStatus = 4;
+                                        liferi.TCRIssueDateTime = DateTime.Now;
+                                        liferi.TCRQRCodeLink = log.QRCodeLink;
+                                        liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        liferi.TCROperatorCode = LoginData.OperatorCode;
+                                        liferi.TCRBusinessCode = liferi.TCRBusinessCode;
+                                        liferi.UUID = log.ResponseUUID;
+                                        liferi.EIC = log.EIC;
+                                        liferi.TCRNSLF = log.NSLF;
+                                        liferi.TCRNIVF = log.NIVF;
+                                        liferi.Message = log.Message.Replace("'", "");
+                                        await App.Database.SaveLiferimiAsync(liferi);
+                                    }
+
+                                    var liferimiArtToUpdate = liferimetArt
+                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = 4;
+                                        await App.Database.UpdateLiferimiArtAsync(art);
+                                    }
+                                }
+                                else if (log.Status == StatusPCL.InProcess)
+                                {
+                                    liferimet = await App.Database.GetLiferimetAsync();
+                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                    var liferimiToUpdate = liferimet
+                                        .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var liferi in liferimiToUpdate)
+                                    {
+                                        liferi.TCRSyncStatus = -2;
+                                        liferi.TCRIssueDateTime = DateTime.Now;
+                                        liferi.TCRQRCodeLink = log.QRCodeLink;
+                                        liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        liferi.TCROperatorCode = LoginData.OperatorCode;
+                                        liferi.TCRBusinessCode = liferi.TCRBusinessCode;
+                                        liferi.UUID = log.ResponseUUID;
+                                        liferi.EIC = log.EIC;
+                                        liferi.TCRNSLF = log.NSLF;
+                                        liferi.TCRNIVF = log.NIVF;
+                                        liferi.Message = log.Message.Replace("'", "");
+                                        await App.Database.SaveLiferimiAsync(liferi);
 
                                     }
 
                                     var liferimiArtToUpdate = liferimetArt
                                         .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                    foreach (var art in liferimiArtToUpdate) {
-                                        art.TCRSyncStatus = -1;
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = -2;
                                         await App.Database.UpdateLiferimiArtAsync(art);
                                     }
                                 }
-                                catch (Exception ex) {
-                                    // Handle exception
+                                else
+                                {
+                                    try
+                                    {
+                                        liferimet = await App.Database.GetLiferimetAsync();
+                                        liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                        var liferimiToUpdate = liferimet
+                                            .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        foreach (var lif in liferimiToUpdate)
+                                        {
+                                            lif.TCRSyncStatus = -3;
+                                            lif.TCRIssueDateTime = DateTime.Now;
+                                            lif.TCRQRCodeLink = log.QRCodeLink;
+                                            lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                            lif.TCROperatorCode = LoginData.OperatorCode;
+                                            lif.TCRBusinessCode = lif.TCRBusinessCode;
+                                            lif.UUID = log.ResponseUUID;
+                                            lif.EIC = log.EIC;
+                                            lif.TCRNSLF = log.NSLF;
+                                            lif.TCRNIVF = log.NIVF;
+                                            lif.Message = log.Message.Replace("'", "");
+                                            await App.Database.SaveLiferimiAsync(lif);
+
+                                        }
+
+                                        var liferimiArtToUpdate = liferimetArt
+                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        foreach (var art in liferimiArtToUpdate)
+                                        {
+                                            art.TCRSyncStatus = -1;
+                                            await App.Database.UpdateLiferimiArtAsync(art);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        // Handle exception
+                                    }
                                 }
                             }
                         }
@@ -1053,7 +1292,7 @@ namespace EHWM.ViewModel {
 
 
         public async Task RegjistroAsync() {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             App.Instance.MainViewModel.TodaysDate = MyTimeInWesternEurope;
             await App.Instance.MainViewModel.FixDataVizualizimit();
@@ -1069,7 +1308,7 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert(@"Duhet të plotësohet fusha ""Nr. Fat. Kthim"" Kjo është fushë obligative për fiskalizim!", "Vërejtje");
                     return;
                 }
-                var vizitat = App.Instance.MainViewModel.VizitatFilteredByDate;
+                var vizitat = await App.Database.GetVizitatAsync();
                 var klientet = await App.Database.GetKlientetAsync();
                 var liferimi = await App.Database.GetLiferimetAsync();
                 var nipt = (from v in vizitat
@@ -1127,7 +1366,9 @@ namespace EHWM.ViewModel {
                                 LevizjeIDN = nf != null ? nf.LevizjeIDN : (int?)null,
                                 nf.Viti
                             };
-
+                //LOKALE nrCount
+                //fiskServ serv
+                var fiskServ = FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, App.Instance.MainViewModel.Configurimi.KodiIOperatorit, App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, nipt);
                 if (nrCount == 0 && FiscalisationService.CheckCorrectiveInvoice(NrFatKthim.ToString().Trim(), agjendi.Depo, App.Instance.MainViewModel.Configurimi.KodiTCR, App.Instance.MainViewModel.Configurimi.KodiIOperatorit, App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit, nipt) <= 0) {
                     UserDialogs.Instance.Alert(@"Fusha ""Nr. Fat. Kthim"" nuk është i sakt, ju lutemi rishikoni edhe njëherë!", "Verejtje");
                     return;
@@ -1138,7 +1379,7 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert(@"Duhet të plotësohet fusha ""Nr. Fat. Kthim"" Kjo është fushë obligative për fiskalizim!", "Vërejtje");
                     return;
                 }
-                var vizitat = App.Instance.MainViewModel.VizitatFilteredByDate;
+                var vizitat =await App.Database.GetVizitatAsync();
                 var klientet = await App.Database.GetKlientetAsync();
                 var liferimi = await App.Database.GetLiferimetAsync();
                 var nipt = (from v in vizitat
@@ -1366,10 +1607,10 @@ namespace EHWM.ViewModel {
                 }
                 await _printer.printText(
 "---------------------------------------------------------------------");
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
-                await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:mm:ss"));
+                await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.DataLiferimit.Year);
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + lif.DataLiferimit.ToString("dd.MM.yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -1391,7 +1632,7 @@ namespace EHWM.ViewModel {
                 var currAgjendi = agjendet.FirstOrDefault(x => x.Depo == LoginData.Depo);
                 await _printer.printText("\nTransportues: E. H. W. J61804031V");
                 await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + ")");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.DataLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -1411,11 +1652,6 @@ namespace EHWM.ViewModel {
                 string slevizje;
                 string smbetur;
                 string scmimi;
-                if (lif.CmimiTotal < 0) {
-                    SelectedArikujt = new ObservableCollection<Artikulli>((from s in SelectedArikujt
-                                                                           orderby s.IDArtikulli
-                                                                           select s).ToList());
-                }
 
                 foreach (var art in SelectedArikujt) {
                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri);

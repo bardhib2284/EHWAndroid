@@ -20,5 +20,6 @@ namespace EHWM.Models {
         public string URLFotoWebServer { get; set; }
         public string URLFiskalizim { get; set; }
         public string Token { get; set; }
+        public bool VetemPerPorosi { get; set; }
     }
 }

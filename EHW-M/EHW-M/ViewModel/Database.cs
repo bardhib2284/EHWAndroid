@@ -493,6 +493,14 @@ namespace EHWM.ViewModel
                 return -1;
             }
         }
+        public async Task<int> DeleteLevizjeDetailsAsync(LevizjetDetails cr) {
+            try {
+                return await _database.DeleteAsync(cr);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+        }
         public async Task<int> UpdateLevizjeHeaderAsync(LevizjetHeader cr) {
             try {
                 return await _database.UpdateAsync(cr);
@@ -572,6 +580,14 @@ namespace EHWM.ViewModel
         public async Task<int> UpdateCashRegisterAsync(CashRegister cr) {
             try {
                 return await _database.UpdateAsync(cr);
+            }
+            catch (Exception e) {
+                return -1;
+            }
+        }
+        public async Task<int> DeleteCashRegister(CashRegister cr) {
+            try {
+                return await _database.DeleteAsync(cr);
             }
             catch (Exception e) {
                 return -1;

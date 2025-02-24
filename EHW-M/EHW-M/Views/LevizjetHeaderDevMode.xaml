@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.LevizjetHeaderDevMode">
+    <ContentPage.Content>
+
+        <ScrollView>
+            <StackLayout Padding="20">
+
+
+                <Label Text="TransferID"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TransferID,Mode=TwoWay}"/>
+
+                <Label Text="NumriLevizjes"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.NumriLevizjes,Mode=TwoWay}"/>
+
+                <Label Text="LevizjeNga"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.LevizjeNga,Mode=TwoWay}"/>
+
+                <Label Text="LevizjeNe"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.LevizjeNe,Mode=TwoWay}"/>
+
+                <Label Text="Totali"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.Totali,Mode=TwoWay}" IsEnabled="False"/>
+
+                <Label Text="Data"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.Data,Mode=TwoWay}"/>
+
+                <Label Text="IDAgjenti"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.IDAgjenti,Mode=TwoWay}"/>
+
+                <Label Text="SyncStatus"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.SyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="KodiDyqanit"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.KodiDyqanit,Mode=TwoWay}" IsEnabled="False"/>
+
+                <Label Text="NumriDaljes"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.NumriDaljes,Mode=TwoWay}"/>
+
+                <Label Text="Depo"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.Depo,Mode=TwoWay}"/>
+
+                <Label Text="TCRSyncStatus"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCRSyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="TCRIssueDateTime"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCRIssueDateTime,Mode=TwoWay}"/>
+
+                <Label Text="NumriFisk"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.NumriFisk,Mode=TwoWay}" IsEnabled="False"/>
+
+                <Label Text="Depo"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.Depo,Mode=TwoWay}"/>
+
+                <Label Text="TCRNSLF"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCRNSLF,Mode=TwoWay}"/>
+                <Label Text="TCRNIVF"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCRNIVF,Mode=TwoWay}"/>
+
+                <Label Text="TCRQRCodeLink"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCRQRCodeLink,Mode=TwoWay}"/>
+                <Label Text="TCR"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCR,Mode=TwoWay}"/>
+
+                <Label Text="TCROperatorCode"/>
+                <Entry Text="{Binding SelectedLevizjaHeaderDevMode.TCROperatorCode,Mode=TwoWay}"/>
+
+
+                <Button Text="Ruaj Ndryshimet" Clicked="Button_Clicked"/>
+                <Button Text="Levizjet Details" Clicked="Button_Clicked_1"/>
+            </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

@@ -37,7 +37,10 @@ namespace EHWM.Views {
             bc.SelectedVizita = (e.Item as Vizita);
             bc.LastSelectedVizita = (e.Item as Vizita);
         }
-
+        public string GetSearchText()
+        {
+            return searchText.Text;
+        }
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e) {
             var bc = (MainViewModel)BindingContext;
             if (string.IsNullOrEmpty(e.NewTextValue)) {

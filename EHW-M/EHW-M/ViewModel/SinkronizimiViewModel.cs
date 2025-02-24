@@ -69,6 +69,8 @@ namespace EHWM.ViewModel {
         public ICommand ShkarkoCommand { get; set; }
         public ICommand SinkronizoCommand { get; set; }
         public ICommand AzhurnoCommand { get; set; }
+        public ICommand LifDheArtCommand { get; set; }
+
         private CashRegister _cashRegister;
         public CashRegister CashRegister {
             get { return _cashRegister; }
@@ -91,6 +93,326 @@ namespace EHWM.ViewModel {
             ShkarkoCommand = new Command(async () => await ShkarkoAsync());
             SinkronizoCommand = new Command(async () => await SinkronizoAsync());
             AzhurnoCommand = new Command(async () => await AzhurnoAsync());
+            LifDheArtCommand = new Command(async () => await LifAndArt());
+        }
+
+        private async Task LifAndArt()
+        {
+            try
+            {
+                if (!App.Instance.DoIHaveInternet())
+                {
+                    return;
+                }
+                UserDialogs.Instance.ShowLoading("Inicializimi... ");
+                string[] KeyFields = null;//Used in sync
+                string strFilterDwn = "1=1";//Used in sync
+                string strFilterUp = "1=1"; //Used in sync           
+                string strTableName = "";//Used in sync            
+                App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", App.Instance.MainViewModel.Configurimi.Token);
+                App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                int _CurrNrFat = 0; //used for fixNrKufijt
+                int _CurrNrFatJT = 0;//used for fixNrKufijt
+                int _CurrNrFat_D = 0; //used for fixNrKufijt
+                StringBuilder strbSyncLog = new StringBuilder();//used for Log in TextBox Control
+
+                bool SyncSuccesful = true; //Used in sync
+                bool SyncSendSuccessful = true; //Used in Sync
+                MobSellSyncDirection MobSyncDirection; //Used in Sync
+                int _stoqetServer = 0;
+                Sync sync = new Sync();
+                var SyncConfigSynced = await sync.SyncTable("SyncConfiguration", null, PnSyncDirection.SnapshotDownload, "", "", "");
+                //MessageBox.Show("SyncConfigSynced " + SyncConfigSynced.ToString());
+                var ConfigSynced = await sync.SyncTable("Konfigurimi", null, PnSyncDirection.SnapshotDownload, "", "", Agjendi.DeviceID);
+
+                if (!SyncConfigSynced || !ConfigSynced)
+                {
+                    UserDialogs.Instance.Alert("Sinkronizimi nuk mund te vazhdoje [KOMUNIKIMI ME MSQLMOBILESERVER deshtoi]", "Gabim");
+                    UserDialogs.Instance.HideLoading();
+                    return;
+                }
+                EditorView = "";
+                EditorView += "Sync Config dhe Konfig SnapShotDownload Sukses\n";
+                var konfigurimi = (await App.Database.GetKonfigurimetAsync()).FirstOrDefault(x => x.DeviceID == Agjendi.DeviceID);
+                Agjendi.IDAgjenti = konfigurimi.IDAgent;
+                Agjendi.Depo = konfigurimi.IDAgent;
+
+                try
+                {
+                    var Sinkronizimet = (await App.Database.GetSyncConfigurationsAsync()).OrderBy(x => x.ID).ToList();
+                    Sinkronizimet = Sinkronizimet.Where(x => x.Equals("Lif") || x.Equals("Por")).ToList();
+                    if (Sinkronizimet != null && Sinkronizimet.Count > 0)
+                    {
+                        var strSessionID = new Guid();
+                        await InsertLog(Agjendi.DeviceID, strSessionID, DateTime.Now, null, "START_SESSION", "", "", 0, 0, 0, 0, 0);
+                        var indexTable = 0;
+                        //FOR EACH TABLE IN SYNCCONFIG
+                        foreach (var config in Sinkronizimet)
+                        {
+                            MobSyncDirection = (MobSellSyncDirection)Convert.ToInt16(config.SyncDirection);
+                            strTableName = config.TableName;
+                            KeyFields = config.PK_FieldName.Split(',');
+                            indexTable++;
+                            UserDialogs.Instance.ShowLoading("Sinkronizimi Tabela: " + strTableName + " " + indexTable + "/" + Sinkronizimet.Count);
+                            if (strTableName == "Detyrimet")
+                            {
+
+                            }
+                            strFilterUp = config.FilterUp.ToString();
+                            strFilterDwn = config.FilterDown.ToString();
+
+                            if (strFilterUp.Trim() == "")
+                                strFilterUp = "1=1";
+
+                            if (strFilterDwn.Trim() == "")
+                                strFilterDwn = "1=1";
+                            if (strTableName == "Krijimi_Porosive")
+                            {
+
+                            }
+                            switch (strTableName)
+                            {
+
+                                case "KlientDheLokacion":
+                                case "Klientet":
+                                case "Stoqet":
+                                    {
+                                        strFilterDwn = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL)";
+                                        strFilterUp = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL)";
+                                        break;
+                                    }
+                                case "SalesPrice":
+                                    {
+                                        string getOnlyThisWeekKlients = @"SalesCode IN 
+                                                                    (  SELECT IDKlientDheLokacion FROM Vizitat WHERE IDAgjenti ='" + Agjendi.IDAgjenti + @"' ) OR SalesCode='STANDARD' ";
+                                        strFilterDwn = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL) and (" + getOnlyThisWeekKlients + ")";
+                                        strFilterUp = "(Depo='" + Agjendi.Depo + "' OR Depo='' OR Depo IS NULL) and (" + getOnlyThisWeekKlients + ")";
+                                        break;
+                                    }
+                                case "Vizitat":
+                                    {
+                                        string AddUPFilter = config.FilterUp.ToString();
+                                        string AddDwnFilter = config.FilterDown.ToString();
+
+                                        strFilterDwn = "DeviceID='" + Agjendi.DeviceID + "'";
+                                        strFilterUp = "DeviceID='" + Agjendi.DeviceID + "'";
+
+                                        if (AddDwnFilter.Trim() != "")
+                                            strFilterDwn += " AND '" + AddDwnFilter + "'";
+                                        if (AddUPFilter.Trim() != "") //if Filter from SyncCOnfig not empty
+                                            strFilterUp += " AND '" + AddUPFilter + "'";
+
+                                        break;
+                                    }
+                                case "Malli_Mbetur":
+                                    {
+                                        await UpdateMalli_Mbetur();
+                                        break;
+                                    }
+                            }
+                            await Task.Delay(200);
+                            SaveValuesKufijtFaturave(strTableName);
+                            await Task.Delay(200);
+                            #region DoPnSync
+                            switch (MobSyncDirection)
+                            {
+
+                                case MobSellSyncDirection.SnapshotSpecial:
+                                    {
+                                        //Wont't do the snapshot if server returns nothing
+                                        EditorView += "Syncing Mob Sync Direction SnapshotSpecial " + strTableName + " STARTED \n";
+                                        if (strTableName == "Stoqet")
+                                        {
+                                            _stoqetServer = await GetStoqetCount(Agjendi.Depo);
+                                        }
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.SnapshotSpecial, strFilterDwn, "SyncStatus", Agjendi.Depo);
+                                        var sasiaShitur = (double)await SumDataColumn("Malli_Mbetur", "SasiaShitur");
+                                        var SasiaKthyer = await SumDataColumn("Malli_Mbetur", "SasiaKthyer");
+
+                                        if ((int)sasiaShitur == 0 && (int)SasiaKthyer == 0)
+                                        {
+                                            if (_stoqetServer != 0) //Nese ka stoke per ngarkim
+                                            {
+                                                CopyStock();
+                                            }
+                                        }
+                                        EditorView += "Syncing Mob Sync SnapshotSpecial Snapshot " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+
+                                case MobSellSyncDirection.Snapshot:
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Snapshot " + strTableName + " STARTED \n";
+                                        SyncSuccesful = await sync.SyncTable(strTableName, null, PnSyncDirection.SnapshotDownload, strFilterUp, "", Agjendi.Depo);
+                                        EditorView += "Syncing Mob Sync Direction Snapshot " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+
+                                case MobSellSyncDirection.Download:  //download with insert and Update
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Download " + strTableName + " STARTED \n";
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", "");
+                                        EditorView += "Syncing Mob Sync Direction Download " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+
+                                        break;
+                                    }
+                                case MobSellSyncDirection.Upload: //upload with insert and update
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Upload " + strTableName + " STARTED \n";
+                                        string StatusField = "SyncStatus";
+                                        if (strTableName == "Malli_Mbetur")
+                                        {
+                                            StatusField = "0";
+                                        }
+                                        else
+                                        {
+                                            KeyFields = null;
+                                        }
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Upload, strFilterUp, StatusField, "");
+                                        if (SyncSuccesful == false)
+                                        {
+                                            if (strTableName == "LEVIZJET_DETAILS")
+                                            {
+                                                EditorView += "********************************************\n " + sync.LevizjetDetailsFailedRequest + "\"********************************************\n";
+                                            }
+                                        }
+                                        if (SyncSuccesful)
+                                        {
+                                            switch (strTableName)
+                                            {
+                                                case "Liferimi":
+                                                    {
+                                                        //SafeDelete("Liferimi", "IDLiferimi");
+                                                        //TODO : UPDATE LIFERIMI API
+                                                        var liferimet = await App.Database.ClearAllLiferimet();
+                                                        //var updateLiferimetResult = await App.ApiClient.PutAsync("")
+                                                        break;
+                                                    }
+                                                case "LiferimiArt":
+                                                    {
+                                                        var liferimetArt = await App.Database.ClearAllLiferimetArt();
+                                                        break;
+
+                                                    }
+                                                case "Porosite":
+                                                    {
+                                                        var porosite = await App.Database.ClearAllPorosite();
+                                                        break;
+                                                    }
+                                                case "PorosiaArt":
+                                                    {
+                                                        var porositeArt = await App.Database.ClearAllPorositeArt();
+                                                        break;
+                                                    }
+                                                case "LEVIZJET_HEADER":
+                                                    {
+                                                        //SafeDelete("LEVIZJET_HEADER", "TransferID");
+                                                        //Snc.ExecuteServerQuery("UPDATE LEVIZJET_HEADER set ImpStatus = 0 where Depo = '" + SyncParams.DeviceID.Replace("-", "") + "' AND ImpStatus =2");
+                                                        var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+                                                        var query = from header in levizjetHeader
+                                                                    where header.Depo == Agjendi.Depo && header.ImpStatus == 2
+                                                                    select header;
+                                                        foreach (var res in query)
+                                                        {
+                                                            res.ImpStatus = 0;
+                                                            await App.Database.SaveLevizjeHeaderAsync(res);
+                                                        }
+                                                        levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+                                                        var levizjetHeaderJson = JsonConvert.SerializeObject(levizjetHeader);
+                                                        var stringContent = new StringContent(levizjetHeaderJson, Encoding.UTF8, "application/json");
+                                                        var result = await App.ApiClient.PutAsync("levizje-header", stringContent);
+                                                        if (!result.IsSuccessStatusCode)
+                                                        {
+                                                            SyncSuccesful = false;
+                                                        }
+                                                        await App.Database.ClearAllLevizjetHeaderAsync();
+                                                        break;
+                                                    }
+                                                case "LEVIZJET_DETAILS":
+                                                    {
+                                                        await App.Database.ClearAllLevizjetDetailsAsync();
+                                                        break;
+                                                    }
+                                                case "Krijimi_Porosive":
+                                                    {
+                                                        await App.Database.ClearAllKrijimiPorosive();
+                                                        break;
+                                                    }
+                                                case "Orders":
+                                                    {
+                                                        await App.Database.ClearAllOrdersAsync();
+                                                        break;
+                                                    }
+                                                case "Order_Details":
+                                                    {
+                                                        //TODO UPDATE ORDER DETAILS
+
+                                                        await App.Database.ClearAllOrderDetailsAsync();
+                                                        SyncSuccesful = true;
+
+                                                        break;
+                                                    }
+
+                                            }
+                                        }
+                                        EditorView += "Syncing Mob Sync Direction Upload " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+
+                                        break;
+                                    }
+                                case MobSellSyncDirection.Bidirectional: //Download and Upload with Update and insert (bidirectional)
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction Bidirectional " + strTableName + " STARTED \n";
+
+                                        //***Upload***
+                                        if (strTableName == "Vizitat")
+                                        {
+                                            SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Upload, strFilterUp, "SyncStatus", Agjendi.DeviceID);
+                                        }
+                                        else
+                                            SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Upload, strFilterUp, "SyncStatus", Agjendi.Depo);
+                                        //LiveLog(SyncParams, strbSyncLog, strTableName, SyncSuccesful, MobSyncDirection, con, strSessionID);
+
+                                        //****Now download****
+                                        if (strTableName == "Vizitat")
+                                        {
+                                            SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", Agjendi.DeviceID);
+                                        }
+                                        else
+                                            SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", Agjendi.Depo);
+                                        //LiveLog(SyncParams, strbSyncLog, strTableName, SyncSuccesful, MobSyncDirection, con, strSessionID);
+                                        EditorView += "Syncing Mob Sync Direction Bidirectional " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+
+                                case MobSellSyncDirection.BidirectionalSpecial: //this Downloads to Device (insert,update) to spec. table, Uploads to tableName+"_upl" (insert,update)
+                                    {
+                                        EditorView += "Syncing Mob Sync Direction BidirectionalSpecial " + strTableName + "STARTED \n";
+                                        //***Upload***SEND DATA TO SPECIFIED TABLENAME+"_upl" WITH INSERT AND UPDATE
+                                        //****Now download**** NORMAL DOWNLOAD WITH INSERT AND UPDATE
+                                        SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Download, strFilterDwn, "SyncStatus", "");
+                                        EditorView += "Syncing Mob Sync Direction BidirectionalSpecial " + strTableName + "  " + (SyncSuccesful ? "Success" : "False") + "\n";
+                                        break;
+                                    }
+                            } //END SWRITCH MobSellDirection
+                            #endregion
+                        }
+                    }
+                    else
+                    {
+                        UserDialogs.Instance.Alert("Nuk ka tabela per sinkronizim ne SyncConfig");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UserDialogs.Instance.HideLoading();
+                }
+            }
+            catch (Exception e)
+            {
+                UserDialogs.Instance.HideLoading();
+            }
+            UserDialogs.Instance.HideLoading();
+            UserDialogs.Instance.Alert("Sinkronizimi perfundoi");
         }
 
         public async Task SinkronizoAsync() {
@@ -106,15 +428,60 @@ namespace EHWM.ViewModel {
                         return;
                     }
                 }
+                var levizjet = await App.Database.GetLevizjetHeaderAsync();
+                var lifs = await App.Database.GetLiferimetAsync();
+                if(levizjet.Count < 1 && lifs.Count < 1)
+                {
+                    var synci = await App.Instance.MainViewModel.LoginAsyncWithoutPageChange(App.Instance.MainViewModel.LoginData.IDAgjenti,false);
+                }
+                else
+                {
+                    var sync = await App.Instance.MainViewModel.LoginAsyncWithoutPageChange(App.Instance.MainViewModel.LoginData.IDAgjenti,true);
+                    if (!sync) return;
+                }
+                var numriFiskal = await App.Database.GetNumratFiskalAsync();
+                var numriFisk = numriFiskal.FirstOrDefault(x => x.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR);
+                if (numriFisk == null)
+                {
+                    var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk/" + App.Instance.MainViewModel.LoginData.Depo);
+                    var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+                    if (numratFiskalResult.IsSuccessStatusCode)
+                    {
+                        var numratFiskal = JsonConvert.DeserializeObject<NumriFisk>(numratFiskalResponse);
+                        numriFisk = numratFiskal;
+                        var resultInsert = await App.Database.SaveNumriFiskalAsync(numratFiskal);
+                    }
+                }
+                else
+                {
+                    var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk/" + App.Instance.MainViewModel.LoginData.Depo);
+                    var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
+                    if (numratFiskalResult.IsSuccessStatusCode)
+                    {
+                        var numratFiskal = JsonConvert.DeserializeObject<NumriFisk>(numratFiskalResponse);
+                        if (numratFiskal.Depo == App.Instance.MainViewModel.LoginData.Depo && numratFiskal.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
+                        {
+                            if (numratFiskal.IDN != numriFisk.IDN)
+                            {
+                                var deleteResult = await App.Database.ClearAllNumratFiskalAsync();
+                                numriFisk = numratFiskal;
+                                var resultInsert = await App.Database.SaveNumriFiskalAsync(numratFiskal);
+                            }
+                            if (numratFiskal.LevizjeIDN != numriFisk.LevizjeIDN)
+                            {
+                                var deleteResult = await App.Database.ClearAllNumratFiskalAsync();
+                                numriFisk = numratFiskal;
+                                var resultInsert = await App.Database.SaveNumriFiskalAsync(numratFiskal);
+                            }
+                        }
 
-                var sync = await App.Instance.MainViewModel.LoginAsyncWithoutPageChange(App.Instance.MainViewModel.LoginData.IDAgjenti);
-                if (!sync) return;
-
+                    }
+                }
                 if (await UserDialogs.Instance.ConfirmAsync("Ky proçes shkarkon sasitë e mbetura të artikujve nga Palmi \n dhe bën zerimin e sasive në Palm. \n  A dëshironi të vazhdoni?", "Konfirmo", "Po", "Jo")) {
                     try {
                         // Perform synchronization
                         await SyncAll();
-                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                         UserDialogs.Instance.HideLoading();
                         var CashRegisters = await App.Database.GetCashRegisterAsync();
@@ -213,30 +580,35 @@ namespace EHWM.ViewModel {
 
 
                         if (CashRegister.TCRSyncStatus <= 0) {
-                            var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
                             {
-                                CashAmount = CashRegister.Cashamount,
-                                TCRCode = CashRegister.TCRCode,
-                                DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
-                                OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
-                                SendDateTime = CashRegister.RegisterDate,
-                                SubseqDelivTypeSType = -1
-                            });
+                                var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                                {
+                                    CashAmount = CashRegister.Cashamount,
+                                    TCRCode = CashRegister.TCRCode,
+                                    DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
+                                    OperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
+                                    SendDateTime = CashRegister.RegisterDate,
+                                    SubseqDelivTypeSType = -1
+                                });
 
-                            if (result.Status == StatusPCL.Ok) {
-                                CashRegister.TCRSyncStatus = 1;
-                                if (result.Message != null)
+                                if (result.Status == StatusPCL.Ok)
+                                {
+                                    CashRegister.TCRSyncStatus = 1;
+                                    if (result.Message != null)
+                                        CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else if (result.Status == StatusPCL.TCRAlreadyRegistered)
+                                {
+                                    CashRegister.TCRSyncStatus = 4;
                                     CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else
+                                {
+                                    CashRegister.TCRSyncStatus = -1;
+                                    CashRegister.Message = result.Message.Replace("'", "");
+                                }
                             }
-                            else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
-                                CashRegister.TCRSyncStatus = 4;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-                            else {
-                                CashRegister.TCRSyncStatus = -1;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
 
@@ -313,7 +685,7 @@ namespace EHWM.ViewModel {
                                 var cashRegister = await App.Database.GetCashRegisterAsync();
                                 var levizjetHeaderList = await App.Database.GetLevizjetHeaderAsync();
                                 var checkMalliMbetur = levizjetHeaderList.OrderByDescending(x => x.Data).FirstOrDefault();
-                                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                                 DateTime DataCashRegister = MyTimeInWesternEurope.Date.AddDays(-5);
                                 if (cashRegister.Count > 0) {
@@ -337,7 +709,16 @@ namespace EHWM.ViewModel {
                                             SendDateTime = MyTimeInWesternEurope,
                                             SubseqDelivTypeSType = -1
                                         };
-
+                                        var cashRegisters = await App.Database.GetCashRegisterAsync();
+                                        bool fiskCash = true;
+                                        foreach(var cash in cashRegisters)
+                                        {
+                                            if(cash.Cashamount == CashShumaTotale)
+                                            {
+                                                if (cash.TCRSyncStatus > 0)
+                                                    fiskCash = false;
+                                            }
+                                        }
                                         //register cash deposit
                                         var newCashRegister = new CashRegister
                                         {
@@ -351,22 +732,32 @@ namespace EHWM.ViewModel {
                                             TCRCode = App.Instance.MainViewModel.Configurimi.KodiTCR,
                                             TCRSyncStatus = 0,
                                         };
-                                        await App.Database.SaveCashRegisterAsync(newCashRegister);
-                                        var result = App.Instance.FiskalizationService.RegisterCashDeposit(cashDepositRequest);
+                                        if(fiskCash)
+                                        {
+                                            await App.Database.SaveCashRegisterAsync(newCashRegister);
+                                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                                            {
+                                                var result = App.Instance.FiskalizationService.RegisterCashDeposit(cashDepositRequest);
 
-                                        if (result.Status == StatusPCL.Ok) {
-                                            newCashRegister.TCRSyncStatus = 1;
-                                            newCashRegister.Message = result.Message.Replace("'", "");
+                                                if (result.Status == StatusPCL.Ok)
+                                                {
+                                                    newCashRegister.TCRSyncStatus = 1;
+                                                    newCashRegister.Message = result?.Message?.Replace("'", "");
+                                                }
+                                                else if (result.Status == StatusPCL.TCRAlreadyRegistered)
+                                                {
+                                                    newCashRegister.TCRSyncStatus = 4;
+                                                    newCashRegister.Message = result.Message.Replace("'", "");
+                                                }
+                                                else
+                                                {
+                                                    newCashRegister.TCRSyncStatus = -1;
+                                                    newCashRegister.Message = result.Message.Replace("'", "");
+                                                }
+                                            }
+                                            await App.Database.UpdateCashRegisterAsync(newCashRegister);
                                         }
-                                        else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
-                                            newCashRegister.TCRSyncStatus = 4;
-                                            newCashRegister.Message = result.Message.Replace("'", "");
-                                        }
-                                        else {
-                                            newCashRegister.TCRSyncStatus = -1;
-                                            newCashRegister.Message = result.Message.Replace("'", "");
-                                        }
-                                        await App.Database.UpdateCashRegisterAsync(newCashRegister);
+                                       
 
                                         //register cash deposit
                                     }
@@ -417,133 +808,159 @@ namespace EHWM.ViewModel {
         }
 
         public async Task FiskalizoMalliMbetur() {
-            var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
-            var malliMbetur = await App.Database.GetMalliMbeturAsync();
-            var salesPrice = await App.Database.GetSalesPriceAsync();
-            var numriFisk = await App.Database.GetNumratFiskalAsync();
-            var numriFaturave = await App.Database.GetNumriFaturaveAsync();
-            var artikujt = await App.Database.GetArtikujtAsync();
-            var result = levizjetHeader.Where(header => header.LevizjeNe == "PG1" && header.Longitude == "8" && header.Latitude == "8").ToList();
-            if (result.Count == 0) {
-                var sm = malliMbetur
-                            .Join(salesPrice,
-                                m => m.IDArtikulli,
-                                ss => ss.ItemNo,
-                                (m, ss) => new { m, ss });
-                var sma = sm.Join(artikujt,
-                                a => a.m.IDArtikulli,
-                                m => m.IDArtikulli,
-                                (a, m) => new { a, m });
-
-                var smaw = sma.Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.001m && joinedTables.a.m.Depo == Agjendi.Depo);
-                var total = malliMbetur
-                            .Join(salesPrice,
-                                m => m.IDArtikulli,
-                                ss => ss.ItemNo,
-                                (m, ss) => new { m, ss })
-                            .Join(artikujt,
-                                a => a.m.IDArtikulli,
-                                m => m.IDArtikulli,
-                                (a, m) => new { a, m })
-                            .Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.001m && joinedTables.a.m.Depo == Agjendi.Depo)
-                            .Sum(joinedTables => joinedTables.a.ss.UnitPrice * joinedTables.a.m.SasiaMbetur);
-
-                var _LevizjeIDN = numriFisk
-                        .Where(v => v.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
-                        .OrderBy(v => v.LevizjeIDN)
-                        .Select(v => v.LevizjeIDN)
-                        .FirstOrDefault();
-
-                _LevizjeIDN = _LevizjeIDN + 1;
-
-                var _NrFatures = numriFaturave
-                    .Where(n => n.KOD == Agjendi.IDAgjenti)
-                    .Select(n => n.NRKUFIP_D + n.CurrNrFat_D)
-                    .FirstOrDefault();
-                var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
-                var NumriPorosive = gNumriPorosive.FirstOrDefault(x => x.TIPI == "LEVIZJE");
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
-
-                if (NumriPorosive == null) {
-                    NumriPorosive = new NumriPorosive
-                    {
-                        TIPI = "LEVIZJE",
-                        NrPorosise = 01,
-                        Date = MyTimeInWesternEurope,
-                    };
-                    await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
-                }
-                else {
-                    NumriPorosive.NrPorosise += 1;
-                }
-                var newLevizjetHeader = new LevizjetHeader
+            try
+            {
+                var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
+                var malliMbetur = await App.Database.GetMalliMbeturAsync();
+                var salesPrice = await App.Database.GetSalesPriceAsync();
+                var numriFisk = await App.Database.GetNumratFiskalAsync();
+                var numriFaturave = await App.Database.GetNumriFaturaveAsync();
+                var artikujt = await App.Database.GetArtikujtAsync();
+                var result = levizjetHeader.Where(header => header.LevizjeNe == "PG1" && header.Longitude == "8" && header.Latitude == "8").ToList();
+                if (result.Count == 0)
                 {
-                    TransferID = Guid.NewGuid(),
-                    NumriLevizjes = _NrFatures.ToString(),
-                    LevizjeNga = Agjendi.IDAgjenti,
-                    LevizjeNe = "PG1",
-                    Data = MyTimeInWesternEurope, // Assuming you want the current date and time
-                    Totali = (decimal?)total,
-                    IDAgjenti = Agjendi.IDAgjenti,
-                    SyncStatus = 0,
-                    ImpStatus = 0,
-                    KodiDyqanit = Agjendi.Depo,
-                    NumriDaljes = "",
-                    Depo = Agjendi.Depo,
-                    Longitude = "8",
-                    Latitude = "8",
-                    NumriFisk = _LevizjeIDN,
-                    TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
-                    TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
-                    TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit,
-                    NrPorosis = NumriPorosive.NrPorosise
-                };
-                var res = await App.Database.SaveLevizjeHeaderAsync(newLevizjetHeader);
-                await App.Database.UpdateNumriPorosiveAsync(NumriPorosive);
+                    var sm = malliMbetur
+                                .Join(salesPrice,
+                                    m => m.IDArtikulli,
+                                    ss => ss.ItemNo,
+                                    (m, ss) => new { m, ss });
+                    var sma = sm.Join(artikujt,
+                                    a => a.m.IDArtikulli,
+                                    m => m.IDArtikulli,
+                                    (a, m) => new { a, m });
 
-                var levizjetDetailsList = (
-                    from m in malliMbetur
-                    join ss in salesPrice on m.IDArtikulli equals ss.ItemNo
-                    join a in artikujt on m.IDArtikulli equals a.IDArtikulli
-                    where ss.SalesCode == "STANDARD" && m.SasiaMbetur > 0.001 && m.Depo == Agjendi.Depo
-                    select new LevizjetDetails
-                    {
-                        NumriLevizjes = _NrFatures.ToString(),
-                        Artikulli = m.Emri,
-                        IDArtikulli = m.IDArtikulli,
-                        Sasia = (decimal?)m.SasiaMbetur,
-                        Cmimi = (decimal?)ss.UnitPrice,
-                        Njesia_matese = a.BUM,
-                        Totali = Math.Round((decimal)(ss.UnitPrice * m.SasiaMbetur), 2),
-                        SyncStatus = 0,
-                        Seri = m.Seri != null ? m.Seri : "EMPTY",
-                        Depo = Agjendi.Depo
-                    }
-                ).ToList();
+                    var smaw = sma.Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.001m && joinedTables.a.m.Depo == Agjendi.Depo);
+                    var total = malliMbetur
+                                .Join(salesPrice,
+                                    m => m.IDArtikulli,
+                                    ss => ss.ItemNo,
+                                    (m, ss) => new { m, ss })
+                                .Join(artikujt,
+                                    a => a.m.IDArtikulli,
+                                    m => m.IDArtikulli,
+                                    (a, m) => new { a, m })
+                                .Where(joinedTables => joinedTables.a.ss.SalesCode == "STANDARD" && (decimal)joinedTables.a.m.SasiaMbetur >= 0.001m && joinedTables.a.m.Depo == Agjendi.Depo)
+                                .Sum(joinedTables => joinedTables.a.ss.UnitPrice * joinedTables.a.m.SasiaMbetur);
 
-                var resld = await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetailsList);
-
-                var _UpdatedLevizjeIDN = numriFisk
+                    var _LevizjeIDN = numriFisk
                             .Where(v => v.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
                             .OrderBy(v => v.LevizjeIDN)
+                            .Select(v => v.LevizjeIDN)
                             .FirstOrDefault();
-                _UpdatedLevizjeIDN.LevizjeIDN = _LevizjeIDN;
-                await App.Database.UpdateNumriFiskalAsync(_UpdatedLevizjeIDN);
 
-                var _UpdatedNrFatures = numriFaturave
+                    _LevizjeIDN = _LevizjeIDN + 1;
+
+                    var _NrFatures = numriFaturave
                         .Where(n => n.KOD == Agjendi.IDAgjenti)
+                        .Select(n => n.NRKUFIP_D + n.CurrNrFat_D)
                         .FirstOrDefault();
-                _UpdatedNrFatures.CurrNrFat_D = _UpdatedNrFatures.CurrNrFat_D + 1;
-                await App.Database.UpdateNumriFaturave(_UpdatedNrFatures);
+                    var gNumriPorosive = await App.Database.GetNumriPorosiveAsync();
+                    var NumriPorosive = gNumriPorosive.FirstOrDefault(x => x.TIPI == "LEVIZJE");
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
-                await RegisterTCRWTN(_NrFatures.ToString());
+                    if (NumriPorosive == null)
+                    {
+                        NumriPorosive = new NumriPorosive
+                        {
+                            TIPI = "LEVIZJE",
+                            NrPorosise = 01,
+                            Date = MyTimeInWesternEurope,
+                        };
+                        await App.Database.SaveNumriPorosiveAsync(NumriPorosive);
+                    }
+                    else
+                    {
+                        NumriPorosive.NrPorosise += 1;
+                    }
+                    var newLevizjetHeader = new LevizjetHeader
+                    {
+                        TransferID = Guid.NewGuid(),
+                        NumriLevizjes = _NrFatures.ToString(),
+                        LevizjeNga = Agjendi.IDAgjenti,
+                        LevizjeNe = "PG1",
+                        Data = MyTimeInWesternEurope, // Assuming you want the current date and time
+                        Totali = (decimal?)total,
+                        IDAgjenti = Agjendi.IDAgjenti,
+                        SyncStatus = 0,
+                        ImpStatus = 0,
+                        KodiDyqanit = Agjendi.Depo,
+                        NumriDaljes = "",
+                        Depo = Agjendi.Depo,
+                        Longitude = "8",
+                        Latitude = "8",
+                        NumriFisk = _LevizjeIDN,
+                        TCR = App.Instance.MainViewModel.Configurimi.KodiTCR,
+                        TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit,
+                        TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit,
+                        NrPorosis = NumriPorosive.NrPorosise
+                    };
+                    var res = await App.Database.SaveLevizjeHeaderAsync(newLevizjetHeader);
+                    if (res < 0)
+                    {
+                        res = await App.Database.SaveLevizjeHeaderAsync(newLevizjetHeader);
+                    }
+                    await App.Database.UpdateNumriPorosiveAsync(NumriPorosive);
 
- 
+                    var levizjetDetailsList = (
+                        from m in malliMbetur
+                        join ss in salesPrice on m.IDArtikulli equals ss.ItemNo
+                        join a in artikujt on m.IDArtikulli equals a.IDArtikulli
+                        where ss.SalesCode == "STANDARD" && m.SasiaMbetur > 0.001 && m.Depo == Agjendi.Depo
+                        select new LevizjetDetails
+                        {
+                            NumriLevizjes = _NrFatures.ToString(),
+                            Artikulli = m?.Emri,
+                            IDArtikulli = m?.IDArtikulli,
+                            Sasia = (decimal?)m?.SasiaMbetur,
+                            Cmimi = (decimal?)ss?.UnitPrice,
+                            Njesia_matese = a?.BUM,
+                            Totali = Math.Round((decimal)(ss?.UnitPrice * m?.SasiaMbetur), 2),
+                            SyncStatus = 0,
+                            Seri = m?.Seri != null ? m?.Seri : "EMPTY",
+                            Depo = Agjendi?.Depo
+                        }
+                    ).ToList();
+
+                    var resld = await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetailsList);
+                    if (resld < 0)
+                    {
+                        await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetailsList);
+                        if (res <= 0)
+                        {
+                            if (res <= 0)
+                            {
+                                await App.Database.SaveAllLevizjeDetailsAsync(levizjetDetailsList);
+                            }
+                        }
+                    }
+                    var _UpdatedLevizjeIDN = numriFisk
+                                .Where(v => v.TCRCode == App.Instance.MainViewModel.Configurimi.KodiTCR)
+                                .OrderBy(v => v.LevizjeIDN)
+                                .FirstOrDefault();
+                    _UpdatedLevizjeIDN.LevizjeIDN = _LevizjeIDN;
+                    await App.Database.UpdateNumriFiskalAsync(_UpdatedLevizjeIDN);
+
+                    var _UpdatedNrFatures = numriFaturave
+                            .Where(n => n.KOD == Agjendi.IDAgjenti)
+                            .FirstOrDefault();
+                    _UpdatedNrFatures.CurrNrFat_D = _UpdatedNrFatures.CurrNrFat_D + 1;
+                    await App.Database.UpdateNumriFaturave(_UpdatedNrFatures);
+
+                    await RegisterTCRWTN(_NrFatures.ToString());
+
+                }
+
+
+            }catch(Exception e)
+            {
+                UserDialogs.Instance.Alert("Error ne Fiskalizo Malli I Mbetur : " + e.Message);
+                UserDialogs.Instance.Alert("Error ne Fiskalizo Malli I Mbetur : " + e.StackTrace);
+                return;
             }
         }
 
         public async Task RegisterTCRWTN(string nrLevizjes) {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             var levizjetHeader = await App.Database.GetLevizjetHeaderAsync();
             var depot = await App.Database.GetDepotAsync();
@@ -619,81 +1036,27 @@ namespace EHWM.ViewModel {
                     req.StartPointSTypeSpecified = true;
                     req.FromDeviceId = inv.FromDevice;
                     req.ToDeviceId = inv.ToDevice;
-
-                    ResultLogPCL log = App.Instance.FiskalizationService.RegisterWTN(req);
-                    if(log == null) {
-                        var levizjaHeader = levizjetHeader
-                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
-
-                        if (levizjaHeader != null) {
-                            levizjaHeader.TCRSyncStatus = -1;
-                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
-                            levizjaHeader.TCRQRCodeLink = null;
-                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
-                            levizjaHeader.UUID = null;
-                            levizjaHeader.TCRNSLFSH = null;
-                            levizjaHeader.TCRNIVFSH = null;
-                            levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
-
-                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
-                        }
-
-                        var levizjetDetailsToUpdate = levizjetDetails
-                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
-                                    .ToList();
-
-                        foreach (var detail in levizjetDetailsToUpdate) {
-                            detail.TCRSyncStatus = -1;
-                            await App.Database.UpdateLevizjeDetailsAsync(detail);
-                        }
-                        return;
-                    }
-                    if (log.Status == StatusPCL.Ok) {
-                        var levizjaHeader = levizjetHeader
-                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
-
-                        if (levizjaHeader != null) {
-                            levizjaHeader.TCRSyncStatus = 1;
-                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
-                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
-                            levizjaHeader.UUID = log.ResponseUUIDSH;
-                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
-                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
-                            levizjaHeader.Message = log.Message.Replace("'", "");
-
-                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
-                        }
-
-                        var levizjetDetailsToUpdate = levizjetDetails
-                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
-                                    .ToList();
-
-                        foreach (var detail in levizjetDetailsToUpdate) {
-                            detail.TCRSyncStatus = 1;
-                            await App.Database.UpdateLevizjeDetailsAsync(detail);
-                        }
-                    }
-                    else if (log.Status == StatusPCL.FaultCode) {
-                        try {
-                            if (String.IsNullOrEmpty(log.Message)) {
+                    try
+                    {
+                        if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                        {
+                            ResultLogPCL log = App.Instance.FiskalizationService.RegisterWTN(req);
+                            if (log == null)
+                            {
                                 var levizjaHeader = levizjetHeader
-                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+                                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
 
-                                if (levizjaHeader != null) {
+                                if (levizjaHeader != null)
+                                {
                                     levizjaHeader.TCRSyncStatus = -1;
                                     levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
-                                    levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                    levizjaHeader.TCRQRCodeLink = null;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
                                     levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
                                     levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
-                                    levizjaHeader.UUID = log.ResponseUUIDSH;
-                                    levizjaHeader.TCRNSLFSH = log.NSLFSH;
-                                    levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                    levizjaHeader.UUID = null;
+                                    levizjaHeader.TCRNSLFSH = null;
+                                    levizjaHeader.TCRNIVFSH = null;
                                     levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
 
                                     await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
@@ -703,17 +1066,21 @@ namespace EHWM.ViewModel {
                                             .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
                                             .ToList();
 
-                                foreach (var detail in levizjetDetailsToUpdate) {
+                                foreach (var detail in levizjetDetailsToUpdate)
+                                {
                                     detail.TCRSyncStatus = -1;
                                     await App.Database.UpdateLevizjeDetailsAsync(detail);
                                 }
+                                return;
                             }
-                            else {
+                            if (log.Status == StatusPCL.Ok)
+                            {
                                 var levizjaHeader = levizjetHeader
                                         .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
 
-                                if (levizjaHeader != null) {
-                                    levizjaHeader.TCRSyncStatus = -1;
+                                if (levizjaHeader != null)
+                                {
+                                    levizjaHeader.TCRSyncStatus = 1;
                                     levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
                                     levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
                                     levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
@@ -731,43 +1098,120 @@ namespace EHWM.ViewModel {
                                             .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
                                             .ToList();
 
-                                foreach (var detail in levizjetDetailsToUpdate) {
-                                    detail.TCRSyncStatus = -1;
+                                foreach (var detail in levizjetDetailsToUpdate)
+                                {
+                                    detail.TCRSyncStatus = 1;
+                                    await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                }
+                            }
+                            else if (log.Status == StatusPCL.FaultCode)
+                            {
+                                try
+                                {
+                                    if (String.IsNullOrEmpty(log.Message))
+                                    {
+                                        var levizjaHeader = levizjetHeader
+                                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                        if (levizjaHeader != null)
+                                        {
+                                            levizjaHeader.TCRSyncStatus = -1;
+                                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
+                                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                            levizjaHeader.UUID = log.ResponseUUIDSH;
+                                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                            levizjaHeader.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
+
+                                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                        }
+
+                                        var levizjetDetailsToUpdate = levizjetDetails
+                                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                                    .ToList();
+
+                                        foreach (var detail in levizjetDetailsToUpdate)
+                                        {
+                                            detail.TCRSyncStatus = -1;
+                                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var levizjaHeader = levizjetHeader
+                                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                        if (levizjaHeader != null)
+                                        {
+                                            levizjaHeader.TCRSyncStatus = -1;
+                                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
+                                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                            levizjaHeader.UUID = log.ResponseUUIDSH;
+                                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                            levizjaHeader.Message = log.Message.Replace("'", "");
+
+                                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                        }
+
+                                        var levizjetDetailsToUpdate = levizjetDetails
+                                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                                    .ToList();
+
+                                        foreach (var detail in levizjetDetailsToUpdate)
+                                        {
+                                            detail.TCRSyncStatus = -1;
+                                            await App.Database.UpdateLevizjeDetailsAsync(detail);
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                }
+                            }
+                            else if (log.Status == StatusPCL.TCRAlreadyRegistered)
+                            {
+                                var levizjaHeader = levizjetHeader
+                                                .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
+
+                                if (levizjaHeader != null)
+                                {
+                                    levizjaHeader.TCRSyncStatus = 4;
+                                    levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
+                                    levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                    levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
+                                    levizjaHeader.UUID = log.ResponseUUIDSH;
+                                    levizjaHeader.TCRNSLFSH = log.NSLFSH;
+                                    levizjaHeader.TCRNIVFSH = log.NIVFSH;
+                                    levizjaHeader.Message = log.Message.Replace("'", "");
+
+                                    await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
+                                }
+
+                                var levizjetDetailsToUpdate = levizjetDetails
+                                            .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
+                                            .ToList();
+
+                                foreach (var detail in levizjetDetailsToUpdate)
+                                {
+                                    detail.TCRSyncStatus = 4;
                                     await App.Database.UpdateLevizjeDetailsAsync(detail);
                                 }
                             }
                         }
-                        catch (Exception ex) {
-                        }
+                    }catch(Exception e)
+                    {
+
                     }
-                    else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
-                        var levizjaHeader = levizjetHeader
-                                        .FirstOrDefault(h => h.NumriLevizjes == inv.Numri_Levizjes);
-
-                        if (levizjaHeader != null) {
-                            levizjaHeader.TCRSyncStatus = 4;
-                            levizjaHeader.TCRIssueDateTime = MyTimeInWesternEurope;
-                            levizjaHeader.TCRQRCodeLink = log.QRCodeLink;
-                            levizjaHeader.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            levizjaHeader.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                            levizjaHeader.TCRBusinessUnitCode = App.Instance.MainViewModel.Configurimi.KodiINjesiseSeBiznesit;
-                            levizjaHeader.UUID = log.ResponseUUIDSH;
-                            levizjaHeader.TCRNSLFSH = log.NSLFSH;
-                            levizjaHeader.TCRNIVFSH = log.NIVFSH;
-                            levizjaHeader.Message = log.Message.Replace("'", "");
-
-                            await App.Database.UpdateLevizjeHeaderAsync(levizjaHeader);
-                        }
-
-                        var levizjetDetailsToUpdate = levizjetDetails
-                                    .Where(d => d.NumriLevizjes == inv.Numri_Levizjes)
-                                    .ToList();
-
-                        foreach (var detail in levizjetDetailsToUpdate) {
-                            detail.TCRSyncStatus = 4;
-                            await App.Database.UpdateLevizjeDetailsAsync(detail);
-                        }
-                    }
+                   
                 }
 
             }
@@ -805,7 +1249,7 @@ namespace EHWM.ViewModel {
                 var Klientdhelokacion = await App.Database.GetKlientetDheLokacionetAsync();
                 var artikujt = await App.Database.GetArtikujtAsync();
                 var companyInfo = await App.Database.GetCompanyInfoAsync();
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 var query2 = from l in liferimi
                              join la in liferimiArt on l.IDLiferimi equals la.IDLiferimi
@@ -917,47 +1361,58 @@ namespace EHWM.ViewModel {
                         req.TypeRefSpecified = true;
                         req.IsCorrectiveInv = true;
                     }
+                    if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                    {
+                        ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
+                        if (log == null)
+                        {
+                            try
+                            {
+                                var liferimet = await App.Database.GetLiferimetAsync();
+                                var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                var liferimiToUpdate = liferimet
+                                    .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                    ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
+                                foreach (var lif in liferimiToUpdate)
+                                {
+                                    lif.TCRSyncStatus = -3;
+                                    lif.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    lif.TCRQRCodeLink = log.QRCodeLink;
+                                    lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    lif.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                    lif.TCRBusinessCode = lif.TCRBusinessCode;
+                                    lif.UUID = log.ResponseUUID;
+                                    lif.EIC = log.EIC;
+                                    lif.TCRNSLF = log.NSLF;
+                                    lif.TCRNIVF = log.NIVF;
+                                    lif.Message = "Fiskalizimi deshtoi, provoni perseri";
+                                    await App.Database.SaveLiferimiAsync(lif);
 
-                    if (log.Status == StatusPCL.Ok) {
-                        var liferimet = await App.Database.GetLiferimetAsync();
-                        var liferimetArt = await App.Database.GetLiferimetArtAsync();
-                        var liferimiToUpdate = liferimet
-                                            .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                                }
 
-                        if (liferimiToUpdate != null) {
-                            liferimiToUpdate.TCRSyncStatus = -1;
-                            liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
-                            liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                            liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                            liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                            liferimiToUpdate.UUID = log.ResponseUUID;
-                            liferimiToUpdate.EIC = log.EIC;
-                            liferimiToUpdate.TCRNSLF = log.NSLF;
-                            liferimiToUpdate.TCRNIVF = log.NIVF;
-                            liferimiToUpdate.Message = log.Message.Replace("'", "");
-
-                            await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-                            var liferimiArtToUpdate = liferimetArt
+                                var liferimiArtToUpdate = liferimetArt
                                     .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                            foreach (var art in liferimiArtToUpdate) {
-                                art.TCRSyncStatus = 2;
-                                await App.Database.UpdateLiferimiArtAsync(art);
+                                foreach (var art in liferimiArtToUpdate)
+                                {
+                                    art.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLiferimiArtAsync(art);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                // Handle exception
                             }
                         }
-                    }
-                    else if (log.Status == StatusPCL.FaultCode) {
-                        if (string.IsNullOrEmpty(log.Message)) {
+                        else if (log.Status == StatusPCL.Ok)
+                        {
                             var liferimet = await App.Database.GetLiferimetAsync();
                             var liferimetArt = await App.Database.GetLiferimetArtAsync();
                             var liferimiToUpdate = liferimet
                                                 .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                            if (liferimiToUpdate != null) {
+                            if (liferimiToUpdate != null)
+                            {
                                 liferimiToUpdate.TCRSyncStatus = -1;
                                 liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                 liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
@@ -968,144 +1423,195 @@ namespace EHWM.ViewModel {
                                 liferimiToUpdate.EIC = log.EIC;
                                 liferimiToUpdate.TCRNSLF = log.NSLF;
                                 liferimiToUpdate.TCRNIVF = log.NIVF;
-                                liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
-
-                                await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-
-                                var liferimiArtToUpdate = liferimetArt
-                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = -1;
-                                    await App.Database.UpdateLiferimiArtAsync(art);
-                                }
-                            }
-                        }
-                        else {
-                            var liferimet = await App.Database.GetLiferimetAsync();
-                            var liferimetArt = await App.Database.GetLiferimetArtAsync();
-                            var liferimiToUpdate = liferimet
-                                                .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                            if (liferimiToUpdate != null) {
-                                liferimiToUpdate.TCRSyncStatus = -1;
-                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
-                                liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                                liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                liferimiToUpdate.UUID = log.ResponseUUID;
-                                liferimiToUpdate.EIC = log.EIC;
-                                liferimiToUpdate.TCRNSLF = log.NSLF;
-                                liferimiToUpdate.TCRNIVF = log.NIVF;
-                                liferimiToUpdate.Message = log.Message;
+                                liferimiToUpdate.Message = log.Message.Replace("'", "");
 
                                 await App.Database.SaveLiferimiAsync(liferimiToUpdate);
 
                                 var liferimiArtToUpdate = liferimetArt
                                         .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = -1;
+                                foreach (var art in liferimiArtToUpdate)
+                                {
+                                    art.TCRSyncStatus = 2;
                                     await App.Database.UpdateLiferimiArtAsync(art);
                                 }
                             }
                         }
-                    }
-                    else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
-                        var liferimet = await App.Database.GetLiferimetAsync();
-                        var liferimetArt = await App.Database.GetLiferimetArtAsync();
-                        var liferimiToUpdate = liferimet
-                            .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                        else if (log.Status == StatusPCL.FaultCode)
+                        {
+                            if (string.IsNullOrEmpty(log.Message))
+                            {
+                                var liferimet = await App.Database.GetLiferimetAsync();
+                                var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                var liferimiToUpdate = liferimet
+                                                    .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                        foreach (var liferi in liferimiToUpdate) {
-                            liferi.TCRSyncStatus = 4;
-                            liferi.TCRIssueDateTime = MyTimeInWesternEurope;
-                            liferi.TCRQRCodeLink = log.QRCodeLink;
-                            liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                            liferi.TCRBusinessCode = liferi.TCRBusinessCode;
-                            liferi.UUID = log.ResponseUUID;
-                            liferi.EIC = log.EIC;
-                            liferi.TCRNSLF = log.NSLF;
-                            liferi.TCRNIVF = log.NIVF;
-                            liferi.Message = log.Message.Replace("'", "");
-                            await App.Database.SaveLiferimiAsync(liferi);
+                                if (liferimiToUpdate != null)
+                                {
+                                    liferimiToUpdate.TCRSyncStatus = -1;
+                                    liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                    liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                    liferimiToUpdate.UUID = log.ResponseUUID;
+                                    liferimiToUpdate.EIC = log.EIC;
+                                    liferimiToUpdate.TCRNSLF = log.NSLF;
+                                    liferimiToUpdate.TCRNIVF = log.NIVF;
+                                    liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
 
+                                    await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+
+                                    var liferimiArtToUpdate = liferimetArt
+                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = -1;
+                                        await App.Database.UpdateLiferimiArtAsync(art);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var liferimet = await App.Database.GetLiferimetAsync();
+                                var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                var liferimiToUpdate = liferimet
+                                                    .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                if (liferimiToUpdate != null)
+                                {
+                                    liferimiToUpdate.TCRSyncStatus = -1;
+                                    liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    liferimiToUpdate.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                    liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                    liferimiToUpdate.UUID = log.ResponseUUID;
+                                    liferimiToUpdate.EIC = log.EIC;
+                                    liferimiToUpdate.TCRNSLF = log.NSLF;
+                                    liferimiToUpdate.TCRNIVF = log.NIVF;
+                                    liferimiToUpdate.Message = log.Message;
+
+                                    await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                    var liferimiArtToUpdate = liferimetArt
+                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = -1;
+                                        await App.Database.UpdateLiferimiArtAsync(art);
+                                    }
+                                }
+                            }
                         }
-
-                        var liferimiArtToUpdate = liferimetArt
-                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                        foreach (var art in liferimiArtToUpdate) {
-                            art.TCRSyncStatus = 4;
-                            await App.Database.UpdateLiferimiArtAsync(art);
-                        }
-                    }
-                    else if (log.Status == StatusPCL.InProcess) {
-                        var liferimet = await App.Database.GetLiferimetAsync();
-                        var liferimetArt = await App.Database.GetLiferimetArtAsync();
-                        var liferimiToUpdate = liferimet
-                            .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                        foreach (var liferi in liferimiToUpdate) {
-                            liferi.TCRSyncStatus = -2;
-                            liferi.TCRIssueDateTime = MyTimeInWesternEurope;
-                            liferi.TCRQRCodeLink = log.QRCodeLink;
-                            liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                            liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                            liferi.TCRBusinessCode = liferi.TCRBusinessCode;
-                            liferi.UUID = log.ResponseUUID;
-                            liferi.EIC = log.EIC;
-                            liferi.TCRNSLF = log.NSLF;
-                            liferi.TCRNIVF = log.NIVF;
-                            liferi.Message = log.Message.Replace("'", "");
-                            await App.Database.SaveLiferimiAsync(liferi);
-
-                        }
-
-                        var liferimiArtToUpdate = liferimetArt
-                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                        foreach (var art in liferimiArtToUpdate) {
-                            art.TCRSyncStatus = -2;
-                            await App.Database.UpdateLiferimiArtAsync(art);
-                        }
-                    }
-                    else {
-                        try {
+                        else if (log.Status == StatusPCL.TCRAlreadyRegistered)
+                        {
                             var liferimet = await App.Database.GetLiferimetAsync();
                             var liferimetArt = await App.Database.GetLiferimetArtAsync();
                             var liferimiToUpdate = liferimet
                                 .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                            foreach (var lif in liferimiToUpdate) {
-                                lif.TCRSyncStatus = -3;
-                                lif.TCRIssueDateTime = MyTimeInWesternEurope;
-                                lif.TCRQRCodeLink = log.QRCodeLink;
-                                lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                lif.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
-                                lif.TCRBusinessCode = lif.TCRBusinessCode;
-                                lif.UUID = log.ResponseUUID;
-                                lif.EIC = log.EIC;
-                                lif.TCRNSLF = log.NSLF;
-                                lif.TCRNIVF = log.NIVF;
-                                lif.Message = log.Message.Replace("'", "");
-                                await App.Database.SaveLiferimiAsync(lif);
+                            foreach (var liferi in liferimiToUpdate)
+                            {
+                                liferi.TCRSyncStatus = 4;
+                                liferi.TCRIssueDateTime = MyTimeInWesternEurope;
+                                liferi.TCRQRCodeLink = log.QRCodeLink;
+                                liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                liferi.TCRBusinessCode = liferi.TCRBusinessCode;
+                                liferi.UUID = log.ResponseUUID;
+                                liferi.EIC = log.EIC;
+                                liferi.TCRNSLF = log.NSLF;
+                                liferi.TCRNIVF = log.NIVF;
+                                liferi.Message = log.Message.Replace("'", "");
+                                await App.Database.SaveLiferimiAsync(liferi);
 
                             }
 
                             var liferimiArtToUpdate = liferimetArt
                                 .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                            foreach (var art in liferimiArtToUpdate) {
-                                art.TCRSyncStatus = -1;
+                            foreach (var art in liferimiArtToUpdate)
+                            {
+                                art.TCRSyncStatus = 4;
                                 await App.Database.UpdateLiferimiArtAsync(art);
                             }
                         }
-                        catch (Exception ex) {
-                            // Handle exception
+                        else if (log.Status == StatusPCL.InProcess)
+                        {
+                            var liferimet = await App.Database.GetLiferimetAsync();
+                            var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                            var liferimiToUpdate = liferimet
+                                .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                            foreach (var liferi in liferimiToUpdate)
+                            {
+                                liferi.TCRSyncStatus = -2;
+                                liferi.TCRIssueDateTime = MyTimeInWesternEurope;
+                                liferi.TCRQRCodeLink = log.QRCodeLink;
+                                liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                liferi.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                liferi.TCRBusinessCode = liferi.TCRBusinessCode;
+                                liferi.UUID = log.ResponseUUID;
+                                liferi.EIC = log.EIC;
+                                liferi.TCRNSLF = log.NSLF;
+                                liferi.TCRNIVF = log.NIVF;
+                                liferi.Message = log.Message.Replace("'", "");
+                                await App.Database.SaveLiferimiAsync(liferi);
+
+                            }
+
+                            var liferimiArtToUpdate = liferimetArt
+                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                            foreach (var art in liferimiArtToUpdate)
+                            {
+                                art.TCRSyncStatus = -2;
+                                await App.Database.UpdateLiferimiArtAsync(art);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                var liferimet = await App.Database.GetLiferimetAsync();
+                                var liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                var liferimiToUpdate = liferimet
+                                    .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                foreach (var lif in liferimiToUpdate)
+                                {
+                                    lif.TCRSyncStatus = -3;
+                                    lif.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    lif.TCRQRCodeLink = log.QRCodeLink;
+                                    lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    lif.TCROperatorCode = App.Instance.MainViewModel.Configurimi.KodiIOperatorit;
+                                    lif.TCRBusinessCode = lif.TCRBusinessCode;
+                                    lif.UUID = log.ResponseUUID;
+                                    lif.EIC = log.EIC;
+                                    lif.TCRNSLF = log.NSLF;
+                                    lif.TCRNIVF = log.NIVF;
+                                    lif.Message = log.Message.Replace("'", "");
+                                    await App.Database.SaveLiferimiAsync(lif);
+
+                                }
+
+                                var liferimiArtToUpdate = liferimetArt
+                                    .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                foreach (var art in liferimiArtToUpdate)
+                                {
+                                    art.TCRSyncStatus = -1;
+                                    await App.Database.UpdateLiferimiArtAsync(art);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                // Handle exception
+                            }
                         }
                     }
                 }
@@ -1337,6 +1843,13 @@ namespace EHWM.ViewModel {
                                             KeyFields = null;
                                         }
                                         SyncSuccesful = await sync.SyncTable(strTableName, KeyFields, PnSyncDirection.Upload, strFilterUp, StatusField, "");
+                                        if(SyncSuccesful == false)
+                                        {
+                                            if(strTableName == "LEVIZJET_DETAILS")
+                                            {
+                                                EditorView += "********************************************\n " + sync.LevizjetDetailsFailedRequest + "\"********************************************\n";
+                                            }
+                                        }
                                         if (SyncSuccesful) {
                                             switch (strTableName) {
                                                 case "Liferimi": {
@@ -1786,7 +2299,7 @@ namespace EHWM.ViewModel {
 
         private async Task<bool> UpdateMalli_Mbetur() {
             bool a = false;
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             var malliMbetur = await App.Database.GetMalliMbeturAsyncWithDepo(Agjendi.Depo);
             foreach(var malli in malliMbetur) {
@@ -2826,6 +3339,7 @@ namespace EHWM.ViewModel {
                                 var LEVIZJET_HEADEREUpdatuara = await CreateInsertScriptLevizjetHeaderDetails(tableName, KeyFields, SqlCondition, StatusField);
                                 if (LEVIZJET_HEADEREUpdatuara != null && LEVIZJET_HEADEREUpdatuara.Count >= 1) {
                                     result = await CreateUpdateScriptLevizjetHeaderDetails(LEVIZJET_HEADEREUpdatuara);
+
                                     break;
                                 }
                                 result = true;
@@ -2874,9 +3388,14 @@ namespace EHWM.ViewModel {
                                         if (ClientWithDepoResponse.IsSuccessStatusCode) {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<Klientet>>(ClientWithDepoResult);
                                             await App.Database.ClearAllKlientet();
-                                            if (listOfClientsWithDepo.Count > 0) {
-                                                listOfClientsWithDepo = listOfClientsWithDepo.Where(x => x.Depo.Trim() == Depo.Trim() || string.IsNullOrEmpty(x.Depo.Trim())).ToList();
+                                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                                            {
+                                                if (listOfClientsWithDepo.Count > 0)
+                                                {
+                                                    listOfClientsWithDepo = listOfClientsWithDepo.Where(x => x.Depo.Trim() == Depo.Trim() || string.IsNullOrEmpty(x.Depo.Trim())).ToList();
+                                                }
                                             }
+
                                             var currentClients = await App.Database.GetKlientetAsync();
                                             await App.Database.SaveKlienteteAsync(listOfClientsWithDepo);
                                             currentClients = await App.Database.GetKlientetAsync();
@@ -2916,11 +3435,19 @@ namespace EHWM.ViewModel {
                                         var ClientWithDepoResult = await ClientWithDepoResponse.Content.ReadAsStringAsync();
                                         if (ClientWithDepoResponse.IsSuccessStatusCode) {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<KlientDheLokacion>>(ClientWithDepoResult);
-                                            if(listOfClientsWithDepo.Count > 0) {
-                                                listOfClientsWithDepo = listOfClientsWithDepo.Where(x => x.Depo.Trim() == Depo.Trim() || string.IsNullOrEmpty(x.Depo.Trim())).ToList();
+                                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                                            {
+                                                if (listOfClientsWithDepo.Count > 0)
+                                                {
+                                                    listOfClientsWithDepo = listOfClientsWithDepo.Where(x => x.Depo.Trim() == Depo.Trim() || string.IsNullOrEmpty(x.Depo.Trim())).ToList();
+                                                }
                                             }
                                             await App.Database.ClearAllKlientetDheLokacion();
                                             var currentClients = await App.Database.GetKlientetDheLokacionetAsync();
+                                            if(App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                                            {
+                                                listOfClientsWithDepo = new List<KlientDheLokacion>( listOfClientsWithDepo.Where(x => x.EmriLokacionit == "TIRANE"));
+                                            }
                                             await App.Database.SaveKlientetDheLokacionet(listOfClientsWithDepo);
                                             currentClients = await App.Database.GetKlientetDheLokacionetAsync();
                                             return true;
@@ -2938,6 +3465,10 @@ namespace EHWM.ViewModel {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<KlientDheLokacion>>(ClientWithDepoResult);
                                             await App.Database.ClearAllKlientetDheLokacion();
                                             var currentClients = await App.Database.GetKlientetDheLokacionetAsync();
+                                            if (App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                                            {
+                                                listOfClientsWithDepo = new List<KlientDheLokacion>(listOfClientsWithDepo.Where(x => x.EmriLokacionit == "TIRANE"));
+                                            }
                                             await App.Database.SaveKlientetDheLokacionet(listOfClientsWithDepo);
                                             currentClients = await App.Database.GetKlientetDheLokacionetAsync();
                                             return true;
@@ -2977,6 +3508,10 @@ namespace EHWM.ViewModel {
                                             var listOfClientsWithDepo = JsonConvert.DeserializeObject<List<KlientDheLokacion>>(ClientWithDepoResult);
                                             await App.Database.ClearAllKlientetDheLokacion();
                                             var currentClients = await App.Database.GetKlientetDheLokacionetAsync();
+                                            if (App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                                            {
+                                                listOfClientsWithDepo = new List<KlientDheLokacion>(listOfClientsWithDepo.Where(x => x.EmriLokacionit == "TIRANE"));
+                                            }
                                             await App.Database.SaveKlientetDheLokacionet(listOfClientsWithDepo);
                                             currentClients = await App.Database.GetKlientetDheLokacionetAsync();
                                             return true;
@@ -3310,6 +3845,7 @@ namespace EHWM.ViewModel {
             }
             return result;
         }
+        public string LevizjetDetailsFailedRequest;
 
         private async Task UpdateStatusFieldsVizita(List<Vizita> tables) {
             int index = 0;
@@ -3715,20 +4251,30 @@ namespace EHWM.ViewModel {
                 index++;
             }
         }
-
         private async Task<bool> CreateUpdateScriptLevizjetHeaderDetails(List<LevizjetDetails> OrderDetails) {
-            var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
-            var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
-            var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
-            
-            if (result.IsSuccessStatusCode) {
-                return true;
+            try
+            {
+                var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
+                var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
+                var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
+                LevizjetDetailsFailedRequest = LevizjetHeaderJson;
+                if (result.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                foreach (var porosia in OrderDetails)
+                {
+                    porosia.SyncStatus = 0;
+                    await App.Database.UpdateLevizjeDetailsAsync(porosia);
+                }
+                return false;
             }
-            foreach (var porosia in OrderDetails) {
-                porosia.SyncStatus = 0;
-                await App.Database.UpdateLevizjeDetailsAsync(porosia);
+            catch(Exception ex)
+            {
+                UserDialogs.Instance.Alert(ex.Message);
+                return false;
             }
-            return false;
+
         }       
         private async Task<bool> CreateUpdateScriptLevizjetHeader(List<LevizjetHeader> OrderDetails) {
             var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
@@ -3749,6 +4295,13 @@ namespace EHWM.ViewModel {
             var stringContent = new StringContent(OrderDetailsJson, Encoding.UTF8, "application/json");
             var result = await App.ApiClient.PostAsync("cash-register", stringContent);
             if (result.IsSuccessStatusCode) {
+                foreach(var cr in OrderDetasails)
+                {
+                    if(cr.TCRSyncStatus <= 0)
+                    {
+                        await App.Database.DeleteCashRegister(cr);
+                    }
+                }
                 return true;
             }
             foreach (var porosia in OrderDetasails) {
@@ -3758,7 +4311,7 @@ namespace EHWM.ViewModel {
             return false;
         }
         private async Task<bool> CreateUpdateScriptMalli_Mbetur(List<Malli_Mbetur> OrderDetasails) {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
             foreach (var mall in OrderDetasails) {
                 mall.Data = MyTimeInWesternEurope;
                 mall.Export_Status = 0;

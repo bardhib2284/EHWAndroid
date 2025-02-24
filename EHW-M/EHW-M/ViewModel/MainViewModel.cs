@@ -94,7 +94,23 @@ namespace EHWM.ViewModel {
             }
         }
 
+        private ObservableCollection<Klientet> _SearchedKlientet;
+        public ObservableCollection<Klientet> SearchedKlientet
+        {
+            get { return _SearchedKlientet; }
+            set { SetProperty(ref _SearchedKlientet, value); }
+        }
         public Klientet CreatedKlient { get; set; }
+        private ObservableCollection<Klientet> _klientet;
+        public ObservableCollection<Klientet> Klientet {
+            get {
+                return _klientet;
+            }
+            set {
+                SetProperty(ref _klientet, value);
+            }
+        }
+
         private ObservableCollection<Klientet> _clients;
         public ObservableCollection<Klientet> Clients {
             get {
@@ -144,6 +160,17 @@ namespace EHWM.ViewModel {
             }
         }
 
+        private LevizjetDetails _SelectedLevizjetDetailsDevMode;
+        public LevizjetDetails SelectedLevizjetDetailsDevMode
+        {
+            get {
+                return _SelectedLevizjetDetailsDevMode;
+            }
+            set {
+                SetProperty(ref _SelectedLevizjetDetailsDevMode, value);
+            }
+        }
+
         private LiferimiArt _SelectedLiferimiArtDevMode;
         public LiferimiArt SelectedLiferimiArtDevMode {
             get {
@@ -161,6 +188,17 @@ namespace EHWM.ViewModel {
             }
             set {
                 SetProperty(ref _SelectedLiferimiDevMode, value);
+            }
+        }
+
+        private LevizjetHeader _SelectedLevizjaHeaderDevMode;
+        public LevizjetHeader SelectedLevizjaHeaderDevMode
+        {
+            get {
+                return _SelectedLevizjaHeaderDevMode;
+            }
+            set {
+                SetProperty(ref _SelectedLevizjaHeaderDevMode, value);
             }
         }
         private NumriFaturave _SelectedNumriFatDevMode;
@@ -199,6 +237,15 @@ namespace EHWM.ViewModel {
             }
             set {
                 SetProperty(ref _selectedVizita, value);
+            }
+        }
+        private Vizita _SelectedVizitaForStatus;
+        public Vizita SelectedVizitaForStatus {
+            get {
+                return _SelectedVizitaForStatus;
+            }
+            set {
+                SetProperty(ref _SelectedVizitaForStatus, value);
             }
         }
 
@@ -295,8 +342,9 @@ namespace EHWM.ViewModel {
 
         private async Task<bool> AddExtraVizitaAsync() {
             UserDialogs.Instance.ShowLoading("Duke shtuar vizitat e mbetura");
+            await Task.Delay(100);
             var tempViz = new List<Vizita>(VizitatFilteredByDate);
-            if(VizitatFilteredByDate.Count <= TeGjithaVizitat.Count) {
+             if(VizitatFilteredByDate.Count <= TeGjithaVizitat.Count) {
                 int j = 0;
                 int added = 0;
                 var shouldAddd = false;
@@ -304,6 +352,24 @@ namespace EHWM.ViewModel {
                     j++;
                     if (added >= 15)
                         break;
+                    if ((App.Instance.MainPage as NavigationPage).CurrentPage is ClientsPage cp)
+                    {
+                        if(!string.IsNullOrEmpty(cp.GetSearchText()))
+                        {
+                            if (SearchedVizitat.FirstOrDefault(x => x.IDVizita == TeGjithaVizitat[i].IDVizita) == null)
+                            {
+                                if (TeGjithaVizitat[i].Klienti.Contains(cp.GetSearchText()))
+                                {
+                                    SearchedVizitat.Add(TeGjithaVizitat[i]);
+                                    if (shouldAddd)
+                                        added++;
+                                }
+                                else
+                                    continue;
+                            }
+                        }
+                        continue;
+                    }
                     if(VizitatFilteredByDate.FirstOrDefault(x=>x.IDVizita == TeGjithaVizitat[i].IDVizita) == null) {
                         VizitatFilteredByDate.Add(TeGjithaVizitat[i]);
                         shouldAddd = true;
@@ -316,7 +382,7 @@ namespace EHWM.ViewModel {
                     shouldAddd = false;
                 }
             }
-            await Task.Delay(10);
+            await Task.Delay(100);
             UserDialogs.Instance.HideLoading();
             return true;
         }
@@ -404,17 +470,20 @@ namespace EHWM.ViewModel {
         }
 
         public async Task ChangeVizitaStatusAsync() {
-            VizitatFilteredByDate.Remove(SelectedVizita);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
+
+            SelectedVizitaForStatus.DataRealizimit = MyTimeInWesternEurope;
+            VizitatFilteredByDate.Remove(SelectedVizitaForStatus);
             VizitatFilteredByDate = new ObservableCollection<Vizita>(VizitatFilteredByDate.OrderBy(x => x.Klienti));
-            VizitatFilteredByDate.Insert(0,SelectedVizita);
+            VizitatFilteredByDate.Insert(0, SelectedVizitaForStatus);
             if(SearchedVizitat!= null) {
-                SearchedVizitat.Remove(SelectedVizita);
-                SearchedVizitat.Insert(0, SelectedVizita);
+                SearchedVizitat.Remove(SelectedVizitaForStatus);
+                SearchedVizitat.Insert(0, SelectedVizitaForStatus);
             }
             UserDialogs.Instance.Alert("Vizita eshte ndryshuar me sukses");
-            await App.Database.UpdateVizitaAsync(SelectedVizita);
+            await App.Database.UpdateVizitaAsync(SelectedVizitaForStatus);
             await App.Instance.PopPageAsync();
-            SelectedVizita = null;
+            SelectedVizitaForStatus = null;
         }
 
         private CashRegister _cashRegister;
@@ -454,6 +523,9 @@ namespace EHWM.ViewModel {
         }
 
         public async Task LogoutAsync() {
+            var result = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurt per Ckycje?","Ckycja", "Po", "Jo");
+            if (!result)
+                return;
             LoginPage mp = new LoginPage();
             NavigationPage navigationPage = new NavigationPage(mp) { BarBackgroundColor = Color.LightBlue };
             mp.BindingContext = App.Instance.MainViewModel;
@@ -463,14 +535,119 @@ namespace EHWM.ViewModel {
         }
             
         public async Task KthePorosineAutomatikishtAsync() {
-            UserDialogs.Instance.ShowLoading("Duke kthyer porosine automatikisht...");
+            var userResult = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurte per kthimin e fatures?", "Verejtje", "Po", "Jo");
+            if (!userResult)
+            {
+                UserDialogs.Instance.HideLoading();
+                return;
+            }
+            else
+            {
+                await Task.Delay(60);
+                UserDialogs.Instance.ShowLoading("Duke kthyer porosine automatikisht...");
+            }
+            var liferimi = await App.Database.GetLiferimetAsync();
+
+            NrFatKthim = SelectedLiferimetEKryera.NrFisk.ToString();
+            bool checkServer = true;
+            decimal lastPriceAdded = 0;
+                decimal PriceToNotPass = 0;
+                foreach (var lif in liferimi)
+                {
+                    if (lif.IDKthimi == null)
+                        continue;
+                    if (lif.IDKthimi.ToString() == NrFatKthim && lif.DeviceID == App.Instance.MainViewModel.Configurimi.Paisja)
+                    {
+                        UserDialogs.Instance.Alert("Nuk lejohet kthim automatik per kete fature pasi ka fature manuale ne vlere prej : " + lif.CmimiTotal + ".\n Fatura ka numrin e liferimit " + lif.NrLiferimit);
+                    UserDialogs.Instance.HideLoading();
+                    return;
+                    }
+                }
+
+                foreach (var lif in liferimi)
+                {
+
+                    if (lif.IDKthimi != NrFatKthim.ToString())
+                        continue;
+                    if(lif.DataLiferuar.Day == DateTime.Now.Day)
+                    {
+                    checkServer = false;
+                }
+                lastPriceAdded = Math.Abs(lastPriceAdded) + Math.Abs((decimal)lif.CmimiTotal);
+
+                lastPriceAdded *= -1;
+                if(PriceToNotPass < 0)
+                {
+                    if (lastPriceAdded < (PriceToNotPass * -1))
+                    {
+                        UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + lif.CmimiTotal);
+                        UserDialogs.Instance.HideLoading();
+
+                        return;
+                    }
+                }
+            }
+            if (App.Instance.DoIHaveInternetNoAlert())
+            {
+                if(checkServer)
+                {
+                    var response = await App.ApiClient.GetAsync("fatura-e-fiskalizuara/");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        var FaturatEFiskalizuara = JsonConvert.DeserializeObject<List<FaturatEFiskalizuara>>(responseString);
+                        foreach (var fature in FaturatEFiskalizuara)
+                        {
+                            if (fature.IDFature == NrFatKthim.ToString() && fature.DeviceID == App.Instance.MainViewModel.Configurimi.Shfrytezuesi)
+                            {
+                                PriceToNotPass = fature.TotalAmount;
+                                break;
+                            }
+
+                        }
+                        foreach (var fature in FaturatEFiskalizuara)
+                        {
+                            if (fature.IDFatureCorrected == NrFatKthim.ToString() && fature.DeviceID == App.Instance.MainViewModel.Configurimi.Shfrytezuesi)
+                            {
+                                if (fature.Type != "KTHIM")
+                                {
+                                    continue;
+                                }
+
+                                lastPriceAdded = Math.Abs(lastPriceAdded) + Math.Abs(fature.TotalAmount);
+                                lastPriceAdded *= -1;
+                                if (lastPriceAdded < (PriceToNotPass * -1))
+                                {
+                                    UserDialogs.Instance.Alert("Kthimi me kete shume kalon/afron shumen totale te fatures : " + PriceToNotPass + " \nPer kete fature ka kthim ne vlere : " + lastPriceAdded);
+                                    UserDialogs.Instance.HideLoading();
+
+                                    return;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+            
+
+            var checkForAlreadyKthimList = LiferimetEKryera.Where(x => x.IDVizita == SelectedLiferimetEKryera.IDVizita);
+            if (checkForAlreadyKthimList.Count() < 1)
+            {
+                UserDialogs.Instance.Alert("Error, ju lutem provoni perseri");
+                UserDialogs.Instance.HideLoading();
+                return;
+            }
+
             if (SelectedLiferimetEKryera == null) {
                 UserDialogs.Instance.HideLoading();
                 UserDialogs.Instance.Alert("Fatura eshte e that, ju lutem rishikoni selektimin perseri");
                 return;
             }
-            var liferimi = await App.Database.GetLiferimetAsync();
-            var checkForAlreadyKthimList = LiferimetEKryera.Where(x => x.IDVizita == SelectedLiferimetEKryera.IDVizita);
+            
             if(checkForAlreadyKthimList.Count() > 1) {
                 foreach(var lif in checkForAlreadyKthimList) {
                     var lifi = liferimi.FirstOrDefault(x => x.IDLiferimi == lif.IDLiferimi);
@@ -481,9 +658,8 @@ namespace EHWM.ViewModel {
                     }
                 }
             }
-            NrFatKthim = SelectedLiferimetEKryera.NrFisk.ToString();
-            
-            var vizitat = App.Instance.MainViewModel.VizitatFilteredByDate;
+
+            var vizitat = await App.Database.GetVizitatAsync();
             var klientet = await App.Database.GetKlientetAsync();
             var nipt = (from v in vizitat
                         join k in klientet on v.IDKlientDheLokacion equals k.IDKlienti
@@ -547,17 +723,17 @@ namespace EHWM.ViewModel {
                 return;
             }
             else {
-                var userResult = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurte per kthimin e fatures?", "Verejtje", "Po", "Jo");
+                /*var userResult = await UserDialogs.Instance.ConfirmAsync("Jeni te sigurte per kthimin e fatures?", "Verejtje", "Po", "Jo");
                 if (!userResult) {
                     UserDialogs.Instance.HideLoading();
                     return;
-                }
+                }*/
                 SelectedLiferimetEKryera.Totali = SelectedLiferimetEKryera.Totali * -1;
 
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     art.Sasia = art.Sasia * -1;
                 }
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
                 var FaturaArritjes = MyTimeInWesternEurope;
 
                 var NumriFaturaveList = await App.Database.GetNumriFaturaveAsync();
@@ -714,7 +890,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 var agjender = await App.Database.GetAgjendetAsync();
                 var agjendi = agjender.FirstOrDefault(x => x.Depo == LoginData.Depo);
@@ -1441,10 +1617,10 @@ namespace EHWM.ViewModel {
                 }
                 await _printer.printText(
 "---------------------------------------------------------------------");
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
-                await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.KohaLiferimit.Year);
-                await _printer.printText("\nData dhe ora e leshimit te fatures: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss"));
+                await _printer.printText("\nNumri i fatures: " + lif.NumriFisk + "/" + lif.DataLiferimit.Year);
+                await _printer.printText("\nData dhe ora e leshimit te fatures: " + lif.DataLiferimit.ToString("dd.MM.yyyy HH:mm:ss"));
                 await _printer.printText("\nMenyra e pageses: " + lif.PayType);
                 await _printer.printText("\nMonedha e fatures: ALL");
                 await _printer.printText("\nKodi i vendit te ushtrimit te veprimtarise se biznesit: " + lif.TCRBusinessCode);
@@ -1467,7 +1643,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText("\nTransportues: E. H. W. J61804031V");
                
                 await _printer.printText("\nAdresa: " + currDepo.TAGNR + "  (" + currAgjendi.Emri + " " + currAgjendi.Mbiemri + ")");
-                await _printer.printText("\nData dhe ora e furinizimit: " + lif.KohaLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
+                await _printer.printText("\nData dhe ora e furinizimit: " + lif.DataLiferimit.ToString("dd.MM.yyyy HH:mm:ss") + "  \n");
 
                 await _printer.printText("------------------------------------------------------------------------------------------------------------------------------------------");
 
@@ -1486,12 +1662,7 @@ namespace EHWM.ViewModel {
                 string sKthyer;
                 string slevizje;
                 string smbetur;
-                string scmimi;
-                if (lif.CmimiTotal < 0) {
-                    SelectedLiferimetEKryera.ListaEArtikujve = (from s in SelectedLiferimetEKryera.ListaEArtikujve
-                                                                orderby s.IDArtikulli
-                                                                select s).ToList();
-                }
+                string scmimi;  
                 
                 foreach (var art in SelectedLiferimetEKryera.ListaEArtikujve) {
                     await _printer.printText("\n" + art.IDArtikulli + "   " + art.Emri + "   " + art.Seri);
@@ -1983,7 +2154,7 @@ namespace EHWM.ViewModel {
 
                 await _printer.setTransaction((int)MPosTransactionMode.MPOS_PRINTER_TRANSACTION_IN);
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 await _printer.printBitmap(DependencyService.Get<IPlatformInfo>().GetImgResource(),
                             100/*(int)MPosImageWidth.MPOS_IMAGE_WIDTH_ASIS*/,   // Image Width
@@ -2339,7 +2510,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText(
 "---------------------------------------------------------------------\n");
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 await _printer.printText("", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
@@ -2734,7 +2905,7 @@ namespace EHWM.ViewModel {
 
                         var nrPorosise = await App.Database.GetNumriPorosiveAsync();
                         var nrPor = nrPorosise.FirstOrDefault(x => x.TIPI == "SHITJE");
-                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                        DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                         if (nrPor == null) {
                             nrPor = new NumriPorosive
@@ -2884,7 +3055,7 @@ namespace EHWM.ViewModel {
                             TotaliMeTVSH = g.Sum(x => Math.Round(x.Totali, 2)),
                             TVSH = g.Sum(x => Math.Round(x.Totali - x.TotaliPaTVSH, 2))
                         };
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             List<MapperHeader> mapperHeaderList = query.ToList();
             if (mapperHeaderList.Count > 0) {
@@ -3007,78 +3178,53 @@ namespace EHWM.ViewModel {
                         }
                         req.SubseqDelivTypeSType = -1; //ONLINE
 
-
-                        ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
-                        if (log == null) {
-                            liferimet = await App.Database.GetLiferimetAsync();
-                            liferimetArt = await App.Database.GetLiferimetArtAsync();
-                            var liferimiToUpdate = liferimet
-                                                .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                            if (liferimiToUpdate != null) {
-                                liferimiToUpdate.TCRSyncStatus = -1;
-                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
-                                liferimiToUpdate.TCRQRCodeLink = null;
-                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                liferimiToUpdate.UUID = null;
-                                liferimiToUpdate.EIC = null;
-                                liferimiToUpdate.TCRNSLF = null;
-                                liferimiToUpdate.TCRNIVF = null;
-                                liferimiToUpdate.Message = "Komunikimi me service ka deshtuar shkaku pajisja nuk ka qen e konektuar me rrjet";
-
-                                await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-                                var liferimiArtToUpdate = liferimetArt
-                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = -1;
-                                    await App.Database.UpdateLiferimiArtAsync(art);
-                                }
-                            }
-                            return;
-                        }
-                        if (log.Status == StatusPCL.Ok) {
-                            liferimet = await App.Database.GetLiferimetAsync();
-                            liferimetArt = await App.Database.GetLiferimetArtAsync();
-                            var liferimiToUpdate = liferimet
-                                                .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                            if (liferimiToUpdate != null) {
-                                liferimiToUpdate.TCRSyncStatus = 1;
-                                liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
-                                liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                liferimiToUpdate.UUID = log.ResponseUUID;
-                                liferimiToUpdate.EIC = log.EIC;
-                                liferimiToUpdate.TCRNSLF = log.NSLF;
-                                liferimiToUpdate.TCRNIVF = log.NIVF;
-                                liferimiToUpdate.Message = log.Message.Replace("'", "");
-
-                                await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-                                var liferimiArtToUpdate = liferimetArt
-                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = 1;
-                                    await App.Database.UpdateLiferimiArtAsync(art);
-                                }
-                            }
-                        }
-                        else if (log.Status == StatusPCL.FaultCode) {
-                            if (string.IsNullOrEmpty(log.Message)) {
+                        if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+                        {
+                            ResultLogPCL log = App.Instance.FiskalizationService.RegisterInvoice(req);
+                            if (log == null)
+                            {
                                 liferimet = await App.Database.GetLiferimetAsync();
                                 liferimetArt = await App.Database.GetLiferimetArtAsync();
                                 var liferimiToUpdate = liferimet
                                                     .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                if (liferimiToUpdate != null) {
+                                if (liferimiToUpdate != null)
+                                {
                                     liferimiToUpdate.TCRSyncStatus = -1;
+                                    liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    liferimiToUpdate.TCRQRCodeLink = null;
+                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                    liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                    liferimiToUpdate.UUID = null;
+                                    liferimiToUpdate.EIC = null;
+                                    liferimiToUpdate.TCRNSLF = null;
+                                    liferimiToUpdate.TCRNIVF = null;
+                                    liferimiToUpdate.Message = "Komunikimi me service ka deshtuar shkaku pajisja nuk ka qen e konektuar me rrjet";
+
+                                    await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                    var liferimiArtToUpdate = liferimetArt
+                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = -1;
+                                        await App.Database.UpdateLiferimiArtAsync(art);
+                                    }
+                                }
+                                return;
+                            }
+                            if (log.Status == StatusPCL.Ok)
+                            {
+                                liferimet = await App.Database.GetLiferimetAsync();
+                                liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                var liferimiToUpdate = liferimet
+                                                    .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                if (liferimiToUpdate != null)
+                                {
+                                    liferimiToUpdate.TCRSyncStatus = 1;
                                     liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
                                     liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
                                     liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
@@ -3088,143 +3234,194 @@ namespace EHWM.ViewModel {
                                     liferimiToUpdate.EIC = log.EIC;
                                     liferimiToUpdate.TCRNSLF = log.NSLF;
                                     liferimiToUpdate.TCRNIVF = log.NIVF;
-                                    liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
-
-                                    await App.Database.SaveLiferimiAsync(liferimiToUpdate);
-
-
-                                    var liferimiArtToUpdate = liferimetArt
-                                            .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                    foreach (var art in liferimiArtToUpdate) {
-                                        art.TCRSyncStatus = -1;
-                                        await App.Database.UpdateLiferimiArtAsync(art);
-                                    }
-                                }
-                            }
-                            else {
-                                liferimet = await App.Database.GetLiferimetAsync();
-                                liferimetArt = await App.Database.GetLiferimetArtAsync();
-                                var liferimiToUpdate = liferimet
-                                                    .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                                if (liferimiToUpdate != null) {
-                                    liferimiToUpdate.TCRSyncStatus = -1;
-                                    liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
-                                    liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
-                                    liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
-                                    liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
-                                    liferimiToUpdate.UUID = log.ResponseUUID;
-                                    liferimiToUpdate.EIC = log.EIC;
-                                    liferimiToUpdate.TCRNSLF = log.NSLF;
-                                    liferimiToUpdate.TCRNIVF = log.NIVF;
-                                    liferimiToUpdate.Message = log.Message;
+                                    liferimiToUpdate.Message = log.Message.Replace("'", "");
 
                                     await App.Database.SaveLiferimiAsync(liferimiToUpdate);
 
                                     var liferimiArtToUpdate = liferimetArt
                                             .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                    foreach (var art in liferimiArtToUpdate) {
-                                        art.TCRSyncStatus = -1;
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = 1;
                                         await App.Database.UpdateLiferimiArtAsync(art);
                                     }
                                 }
                             }
-                        }
-                        else if (log.Status == StatusPCL.TCRAlreadyRegistered) {
-                            liferimet = await App.Database.GetLiferimetAsync();
-                            liferimetArt = await App.Database.GetLiferimetArtAsync();
-                            var liferimiToUpdate = liferimet
-                                .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+                            else if (log.Status == StatusPCL.FaultCode)
+                            {
+                                if (string.IsNullOrEmpty(log.Message))
+                                {
+                                    liferimet = await App.Database.GetLiferimetAsync();
+                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                    var liferimiToUpdate = liferimet
+                                                        .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                            foreach (var liferi in liferimiToUpdate) {
-                                liferi.TCRSyncStatus = 4;
-                                liferi.TCRIssueDateTime = MyTimeInWesternEurope;
-                                liferi.TCRQRCodeLink = log.QRCodeLink;
-                                liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                liferi.TCROperatorCode = LoginData.OperatorCode;
-                                liferi.TCRBusinessCode = liferi.TCRBusinessCode;
-                                liferi.UUID = log.ResponseUUID;
-                                liferi.EIC = log.EIC;
-                                liferi.TCRNSLF = log.NSLF;
-                                liferi.TCRNIVF = log.NIVF;
-                                liferi.Message = log.Message.Replace("'", "");
-                                await App.Database.SaveLiferimiAsync(liferi);
+                                    if (liferimiToUpdate != null)
+                                    {
+                                        liferimiToUpdate.TCRSyncStatus = -1;
+                                        liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
+                                        liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                        liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                        liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                        liferimiToUpdate.UUID = log.ResponseUUID;
+                                        liferimiToUpdate.EIC = log.EIC;
+                                        liferimiToUpdate.TCRNSLF = log.NSLF;
+                                        liferimiToUpdate.TCRNIVF = log.NIVF;
+                                        liferimiToUpdate.Message = "Fiskalizimi deshtoi, ju lutemi provoni me vone!";
 
+                                        await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+
+                                        var liferimiArtToUpdate = liferimetArt
+                                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        foreach (var art in liferimiArtToUpdate)
+                                        {
+                                            art.TCRSyncStatus = -1;
+                                            await App.Database.UpdateLiferimiArtAsync(art);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    liferimet = await App.Database.GetLiferimetAsync();
+                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                    var liferimiToUpdate = liferimet
+                                                        .FirstOrDefault(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    if (liferimiToUpdate != null)
+                                    {
+                                        liferimiToUpdate.TCRSyncStatus = -1;
+                                        liferimiToUpdate.TCRIssueDateTime = MyTimeInWesternEurope;
+                                        liferimiToUpdate.TCRQRCodeLink = log.QRCodeLink;
+                                        liferimiToUpdate.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        liferimiToUpdate.TCROperatorCode = LoginData.OperatorCode;
+                                        liferimiToUpdate.TCRBusinessCode = liferimiToUpdate.TCRBusinessCode;
+                                        liferimiToUpdate.UUID = log.ResponseUUID;
+                                        liferimiToUpdate.EIC = log.EIC;
+                                        liferimiToUpdate.TCRNSLF = log.NSLF;
+                                        liferimiToUpdate.TCRNIVF = log.NIVF;
+                                        liferimiToUpdate.Message = log.Message;
+
+                                        await App.Database.SaveLiferimiAsync(liferimiToUpdate);
+
+                                        var liferimiArtToUpdate = liferimetArt
+                                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                        foreach (var art in liferimiArtToUpdate)
+                                        {
+                                            art.TCRSyncStatus = -1;
+                                            await App.Database.UpdateLiferimiArtAsync(art);
+                                        }
+                                    }
+                                }
                             }
-
-                            var liferimiArtToUpdate = liferimetArt
-                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                            foreach (var art in liferimiArtToUpdate) {
-                                art.TCRSyncStatus = 4;
-                                await App.Database.UpdateLiferimiArtAsync(art);
-                            }
-                        }
-                        else if (log.Status == StatusPCL.InProcess) {
-                            liferimet = await App.Database.GetLiferimetAsync();
-                            liferimetArt = await App.Database.GetLiferimetArtAsync();
-                            var liferimiToUpdate = liferimet
-                                .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                            foreach (var liferi in liferimiToUpdate) {
-                                liferi.TCRSyncStatus = -2;
-                                liferi.TCRIssueDateTime = MyTimeInWesternEurope;
-                                liferi.TCRQRCodeLink = log.QRCodeLink;
-                                liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                liferi.TCROperatorCode = LoginData.OperatorCode;
-                                liferi.TCRBusinessCode = liferi.TCRBusinessCode;
-                                liferi.UUID = log.ResponseUUID;
-                                liferi.EIC = log.EIC;
-                                liferi.TCRNSLF = log.NSLF;
-                                liferi.TCRNIVF = log.NIVF;
-                                liferi.Message = log.Message.Replace("'", "");
-                                await App.Database.SaveLiferimiAsync(liferi);
-                            }
-
-                            var liferimiArtToUpdate = liferimetArt
-                                .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
-
-                            foreach (var art in liferimiArtToUpdate) {
-                                art.TCRSyncStatus = -2;
-                                await App.Database.UpdateLiferimiArtAsync(art);
-                            }
-                        }
-                        else {
-                            try {
+                            else if (log.Status == StatusPCL.TCRAlreadyRegistered)
+                            {
                                 liferimet = await App.Database.GetLiferimetAsync();
                                 liferimetArt = await App.Database.GetLiferimetArtAsync();
                                 var liferimiToUpdate = liferimet
                                     .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                foreach (var lif in liferimiToUpdate) {
-                                    lif.TCRSyncStatus = -3;
-                                    lif.TCRIssueDateTime = MyTimeInWesternEurope;
-                                    lif.TCRQRCodeLink = log.QRCodeLink;
-                                    lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
-                                    lif.TCROperatorCode = LoginData.OperatorCode;
-                                    lif.TCRBusinessCode = lif.TCRBusinessCode;
-                                    lif.UUID = log.ResponseUUID;
-                                    lif.EIC = log.EIC;
-                                    lif.TCRNSLF = log.NSLF;
-                                    lif.TCRNIVF = log.NIVF;
-                                    lif.Message = log.Message.Replace("'", "");
-                                    await App.Database.SaveLiferimiAsync(lif);
+                                foreach (var liferi in liferimiToUpdate)
+                                {
+                                    liferi.TCRSyncStatus = 4;
+                                    liferi.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    liferi.TCRQRCodeLink = log.QRCodeLink;
+                                    liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    liferi.TCROperatorCode = LoginData.OperatorCode;
+                                    liferi.TCRBusinessCode = liferi.TCRBusinessCode;
+                                    liferi.UUID = log.ResponseUUID;
+                                    liferi.EIC = log.EIC;
+                                    liferi.TCRNSLF = log.NSLF;
+                                    liferi.TCRNIVF = log.NIVF;
+                                    liferi.Message = log.Message.Replace("'", "");
+                                    await App.Database.SaveLiferimiAsync(liferi);
 
                                 }
 
                                 var liferimiArtToUpdate = liferimetArt
                                     .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
 
-                                foreach (var art in liferimiArtToUpdate) {
-                                    art.TCRSyncStatus = -1;
+                                foreach (var art in liferimiArtToUpdate)
+                                {
+                                    art.TCRSyncStatus = 4;
                                     await App.Database.UpdateLiferimiArtAsync(art);
                                 }
                             }
-                            catch (Exception ex) {
-                                // Handle exception
+                            else if (log.Status == StatusPCL.InProcess)
+                            {
+                                liferimet = await App.Database.GetLiferimetAsync();
+                                liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                var liferimiToUpdate = liferimet
+                                    .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                foreach (var liferi in liferimiToUpdate)
+                                {
+                                    liferi.TCRSyncStatus = -2;
+                                    liferi.TCRIssueDateTime = MyTimeInWesternEurope;
+                                    liferi.TCRQRCodeLink = log.QRCodeLink;
+                                    liferi.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                    liferi.TCROperatorCode = LoginData.OperatorCode;
+                                    liferi.TCRBusinessCode = liferi.TCRBusinessCode;
+                                    liferi.UUID = log.ResponseUUID;
+                                    liferi.EIC = log.EIC;
+                                    liferi.TCRNSLF = log.NSLF;
+                                    liferi.TCRNIVF = log.NIVF;
+                                    liferi.Message = log.Message.Replace("'", "");
+                                    await App.Database.SaveLiferimiAsync(liferi);
+                                }
+
+                                var liferimiArtToUpdate = liferimetArt
+                                    .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                foreach (var art in liferimiArtToUpdate)
+                                {
+                                    art.TCRSyncStatus = -2;
+                                    await App.Database.UpdateLiferimiArtAsync(art);
+                                }
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    liferimet = await App.Database.GetLiferimetAsync();
+                                    liferimetArt = await App.Database.GetLiferimetArtAsync();
+                                    var liferimiToUpdate = liferimet
+                                        .Where(l => l.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var lif in liferimiToUpdate)
+                                    {
+                                        lif.TCRSyncStatus = -3;
+                                        lif.TCRIssueDateTime = MyTimeInWesternEurope;
+                                        lif.TCRQRCodeLink = log.QRCodeLink;
+                                        lif.TCR = App.Instance.MainViewModel.Configurimi.KodiTCR;
+                                        lif.TCROperatorCode = LoginData.OperatorCode;
+                                        lif.TCRBusinessCode = lif.TCRBusinessCode;
+                                        lif.UUID = log.ResponseUUID;
+                                        lif.EIC = log.EIC;
+                                        lif.TCRNSLF = log.NSLF;
+                                        lif.TCRNIVF = log.NIVF;
+                                        lif.Message = log.Message.Replace("'", "");
+                                        await App.Database.SaveLiferimiAsync(lif);
+
+                                    }
+
+                                    var liferimiArtToUpdate = liferimetArt
+                                        .Where(la => la.IDLiferimi.ToString().Trim().ToLower() == inv.IDLiferimi.Trim().ToLower());
+
+                                    foreach (var art in liferimiArtToUpdate)
+                                    {
+                                        art.TCRSyncStatus = -1;
+                                        await App.Database.UpdateLiferimiArtAsync(art);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Handle exception
+                                }
                             }
                         }
                     }
@@ -3450,7 +3647,12 @@ namespace EHWM.ViewModel {
             _ret = culture.TextInfo.ToTitleCase(_ret.ToLower()); 
             return _ret;
         }
-
+        private Klientet _selectedKlient;
+        public Klientet SelectedKlient
+        {
+            get { return _selectedKlient; }
+            set { SetProperty(ref _selectedKlient, value); }
+        }
 
         public async Task GoToShtoVizitenPageAsync() {
             foreach (var viz in VizitatFilteredByDate) {
@@ -3464,10 +3666,24 @@ namespace EHWM.ViewModel {
                 if (klientet.Count > 0) {
                     await App.Instance.MainPage.Navigation.PopPopupAsync();
                     Clients = new ObservableCollection<Klientet>(klientet.OrderBy(x=> x.Emri));
+                    Klientet = Clients;
+                    if (LastSelectedVizita != null)
+                    {
+                        if (LastSelectedVizita.IDKlientDheLokacion != null)
+                        {
+                            var kdl = await App.Database.GetKlientetDheLokacionetAsync();
+                            SelectedClient = Clients.FirstOrDefault(x => x.IDKlienti == kdl.FirstOrDefault(y => y.IDKlientDheLokacion == LastSelectedVizita.IDKlientDheLokacion).IDKlienti);
+                            SelectedKlient = Clients.FirstOrDefault(x => x.IDKlienti == kdl.FirstOrDefault(y => y.IDKlientDheLokacion == LastSelectedVizita.IDKlientDheLokacion).IDKlienti);
+                        }
+                        else
+                        {
+                            UserDialogs.Instance.Alert("Vizita e selektuar nuk ka klient te lidhur me viziten, ju lutem raportoni problemin, dhe ri-zgjedhni klientin perseri");
+                        }
+                    }
                     await App.Instance.PushAsyncNewPage(new RegjistrimiIVizitesPage() { BindingContext = this });
                     DateTime MyTime = DateTime.UtcNow;
 
-                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
                     RegjistroVizitenDate = MyTimeInWesternEurope;
                 }
                 else {
@@ -3488,7 +3704,7 @@ namespace EHWM.ViewModel {
         public async Task LoginAsync() {
             try {
                 Configurimi = await App.Database.GetConfigurimiAsync();
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 if (Configurimi != null) {
                     if (Configurimi.Serveri != null) {
@@ -3596,7 +3812,12 @@ namespace EHWM.ViewModel {
                                             .Sum(l => l.ShumaPaguar);
                                     }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
-                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                    if(!Configurimi.VetemPerPorosi)
+                                        await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                    else
+                                    {
+                                        EshteRuajtuarArka = true;
+                                    }
                                 }
                             }
                             else {
@@ -3622,7 +3843,12 @@ namespace EHWM.ViewModel {
                                 }
 
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
-                                await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                if (!Configurimi.VetemPerPorosi)
+                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                else
+                                {
+                                    EshteRuajtuarArka = true;
+                                }
                             }
                         }
                         else {
@@ -3647,7 +3873,12 @@ namespace EHWM.ViewModel {
                                     .Sum(l => l.ShumaPaguar);
                             }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
-                            await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                            if (!Configurimi.VetemPerPorosi)
+                                await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                            else
+                            {
+                                EshteRuajtuarArka = true;
+                            }
                         }
                         while (!EshteRuajtuarArka) {
                             await Task.Delay(2000);
@@ -3662,27 +3893,33 @@ namespace EHWM.ViewModel {
 
                         
                         if(CashRegister.TCRSyncStatus <= 0) {
-                            var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
                             {
-                                CashAmount = CashRegister.Cashamount,
-                                TCRCode = CashRegister.TCRCode,
-                                DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
-                                OperatorCode = LoginData.OperatorCode,
-                                SendDateTime = CashRegister.RegisterDate,
-                                SubseqDelivTypeSType = -1
-                            });
-                            if (result.Status == StatusPCL.Ok) {
-                                CashRegister.TCRSyncStatus = 1;
-                                if (result.Message != null)
+                                var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                                {
+                                    CashAmount = CashRegister.Cashamount,
+                                    TCRCode = CashRegister.TCRCode,
+                                    DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
+                                    OperatorCode = LoginData.OperatorCode,
+                                    SendDateTime = CashRegister.RegisterDate,
+                                    SubseqDelivTypeSType = -1
+                                });
+                                if (result.Status == StatusPCL.Ok)
+                                {
+                                    CashRegister.TCRSyncStatus = 1;
+                                    if (result.Message != null)
+                                        CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else if (result.Status == StatusPCL.TCRAlreadyRegistered)
+                                {
+                                    CashRegister.TCRSyncStatus = 4;
                                     CashRegister.Message = result.Message.Replace("'", "");
-                            }
-                            else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
-                                CashRegister.TCRSyncStatus = 4;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-                            else {
-                                CashRegister.TCRSyncStatus = 999;
-                                CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else
+                                {
+                                    CashRegister.TCRSyncStatus = 999;
+                                    CashRegister.Message = result.Message.Replace("'", "");
+                                }
                             }
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
@@ -3722,7 +3959,7 @@ namespace EHWM.ViewModel {
                         App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", LoginData.token);
                         App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         if(string.IsNullOrEmpty(Configurimi.KodiTCR)) {
-                            var sync = await SinkronizoFiskalizimin();
+                            var sync = await SinkronizoFiskalizimin(true);
                             if (!sync) {
                                 UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
                                 UserDialogs.Instance.HideLoading();
@@ -3750,7 +3987,7 @@ namespace EHWM.ViewModel {
                             if (string.IsNullOrEmpty(Configurimi.TAGNR))
                                 Configurimi.TAGNR = Depoja.TAGNR;
                             if (Configurimi.TAGNR != Depoja.TAGNR) {
-                                var sync = await SinkronizoFiskalizimin();
+                                var sync = await SinkronizoFiskalizimin(true);
                                 if (!sync) {
                                     UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
                                     UserDialogs.Instance.HideLoading();
@@ -3813,7 +4050,12 @@ namespace EHWM.ViewModel {
                                             .Sum(l => l.ShumaPaguar);
                                     }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
-                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                    if (!Configurimi.VetemPerPorosi)
+                                        await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                    else
+                                    {
+                                        EshteRuajtuarArka = true;
+                                    }
                                 }
                             }
                             else {
@@ -3838,8 +4080,12 @@ namespace EHWM.ViewModel {
                                         .Sum(l => l.ShumaPaguar);
                                 }
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
-
-                                await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                if (!Configurimi.VetemPerPorosi)
+                                    await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                                else
+                                {
+                                    EshteRuajtuarArka = true;
+                                }
                             }
                         }
                         else {
@@ -3864,7 +4110,12 @@ namespace EHWM.ViewModel {
                                     .Sum(l => l.ShumaPaguar);
                             }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
-                            await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                            if (!Configurimi.VetemPerPorosi)
+                                await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
+                            else
+                            {
+                                EshteRuajtuarArka = true;
+                            }
                         }
                         while (!EshteRuajtuarArka) {
                             await Task.Delay(2000);
@@ -3879,30 +4130,35 @@ namespace EHWM.ViewModel {
 
                         
                         if(CashRegister.TCRSyncStatus <= 0) {
-                            var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
                             {
-                                CashAmount = CashRegister.Cashamount,
-                                TCRCode = CashRegister.TCRCode,
-                                DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
-                                OperatorCode = LoginData.OperatorCode,
-                                SendDateTime = CashRegister.RegisterDate,
-                                SubseqDelivTypeSType = -1
-                            });
+                                var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                                {
+                                    CashAmount = CashRegister.Cashamount,
+                                    TCRCode = CashRegister.TCRCode,
+                                    DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
+                                    OperatorCode = LoginData.OperatorCode,
+                                    SendDateTime = CashRegister.RegisterDate,
+                                    SubseqDelivTypeSType = -1
+                                });
 
-                            if (result.Status == StatusPCL.Ok) {
-                                CashRegister.TCRSyncStatus = 1;
-                                if (result.Message != null)
+                                if (result.Status == StatusPCL.Ok)
+                                {
+                                    CashRegister.TCRSyncStatus = 1;
+                                    if (result.Message != null)
+                                        CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else if (result.Status == StatusPCL.TCRAlreadyRegistered)
+                                {
+                                    CashRegister.TCRSyncStatus = 4;
                                     CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else
+                                {
+                                    CashRegister.TCRSyncStatus = -1;
+                                    CashRegister.Message = result.Message.Replace("'", "");
+                                }
                             }
-                            else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
-                                CashRegister.TCRSyncStatus = 4;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-                            else {
-                                CashRegister.TCRSyncStatus = -1;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                         }
                         MainPage mainPage = new MainPage();
@@ -3933,14 +4189,19 @@ namespace EHWM.ViewModel {
                     App.ApiClient = new HttpClient();
                     LoginAsync();
                 }
+                else if(e.Message == "Connection refused")
+                {
+                    UserDialogs.Instance.Alert("Eshte refuzuar lidhja me server, ju lutemi provoni perseri! Nese problemi vazhdon, ndalni rrjetin ne pajisje dhe vazhdoni offline");
+                    UserDialogs.Instance.HideLoading();
+                }
             }
             
         }
 
-        public async Task<bool> LoginAsyncWithoutPageChange(string username) {
+        public async Task<bool> LoginAsyncWithoutPageChange(string username,bool update) {
             try {
                 Configurimi = await App.Database.GetConfigurimiAsync();
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 var vizitat = await App.Database.GetVizitatAsync();
                 if (vizitat != null) {
@@ -3979,7 +4240,7 @@ namespace EHWM.ViewModel {
                         App.ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", LoginData.token);
                         App.ApiClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         if (string.IsNullOrEmpty(Configurimi.KodiTCR)) {
-                            var sync = await SinkronizoFiskaliziminWithoutLogin();
+                            var sync = await SinkronizoFiskaliziminWithoutLogin(update);
                             if (!sync) {
                                 UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
                                 UserDialogs.Instance.HideLoading();
@@ -4006,8 +4267,9 @@ namespace EHWM.ViewModel {
                             Depoja = depot.FirstOrDefault(x => x.Depo == Configurimi.Shfrytezuesi);
                             if (string.IsNullOrEmpty(Configurimi.TAGNR))
                                 Configurimi.TAGNR = Depoja.TAGNR;
+
                             if (Configurimi.TAGNR != Depoja.TAGNR) {
-                                var sync = await SinkronizoFiskalizimin();
+                                var sync = await SinkronizoFiskalizimin(update);
                                 if (!sync) {
                                     UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
                                     UserDialogs.Instance.HideLoading();
@@ -4015,7 +4277,7 @@ namespace EHWM.ViewModel {
                                 }
                             }
                             else {
-                                var sync = await SinkronizoFiskaliziminWithoutLogin();
+                                var sync = await SinkronizoFiskaliziminWithoutLogin(update);
                                 if (!sync) {
                                     UserDialogs.Instance.Alert("Problem me sinkronizimin e fiskalizimit, ju lutemi provoni me vone!");
                                     UserDialogs.Instance.HideLoading();
@@ -4143,30 +4405,35 @@ namespace EHWM.ViewModel {
 
 
                         if (CashRegister.TCRSyncStatus <= 0) {
-                            var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                            if (!App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
                             {
-                                CashAmount = CashRegister.Cashamount,
-                                TCRCode = CashRegister.TCRCode,
-                                DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
-                                OperatorCode = LoginData.OperatorCode,
-                                SendDateTime = CashRegister.RegisterDate,
-                                SubseqDelivTypeSType = -1
-                            });
+                                var result = App.Instance.FiskalizationService.RegisterCashDeposit(new DependencyInjections.FiskalizationExtraModels.RegisterCashDepositInputRequestPCL
+                                {
+                                    CashAmount = CashRegister.Cashamount,
+                                    TCRCode = CashRegister.TCRCode,
+                                    DepositType = DependencyInjections.FiskalizationExtraModels.CashDepositOperationSTypePCL.INITIAL,
+                                    OperatorCode = LoginData.OperatorCode,
+                                    SendDateTime = CashRegister.RegisterDate,
+                                    SubseqDelivTypeSType = -1
+                                });
 
-                            if (result.Status == StatusPCL.Ok) {
-                                CashRegister.TCRSyncStatus = 1;
-                                if (result.Message != null)
+                                if (result.Status == StatusPCL.Ok)
+                                {
+                                    CashRegister.TCRSyncStatus = 1;
+                                    if (result.Message != null)
+                                        CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else if (result.Status == StatusPCL.TCRAlreadyRegistered)
+                                {
+                                    CashRegister.TCRSyncStatus = 4;
                                     CashRegister.Message = result.Message.Replace("'", "");
+                                }
+                                else
+                                {
+                                    CashRegister.TCRSyncStatus = -1;
+                                    CashRegister.Message = result.Message.Replace("'", "");
+                                }
                             }
-                            else if (result.Status == StatusPCL.TCRAlreadyRegistered) {
-                                CashRegister.TCRSyncStatus = 4;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-                            else {
-                                CashRegister.TCRSyncStatus = -1;
-                                CashRegister.Message = result.Message.Replace("'", "");
-                            }
-
                             await App.Database.SaveCashRegisterAsync(CashRegister);
                             return true;
                         }
@@ -4207,10 +4474,25 @@ namespace EHWM.ViewModel {
 
         public ObservableCollection<NumriFisk> NumratFiskalDevMode { get { return _numratFiskalDevMode; } set { SetProperty(ref _numratFiskalDevMode, value); } }
 
+
         private ObservableCollection<Liferimi> _LiferimetDevMode;
 
         public ObservableCollection<Liferimi> LiferimetDevMode { get { return _LiferimetDevMode; } set { SetProperty(ref _LiferimetDevMode, value); } }
-         private ObservableCollection<LiferimiArt> _LiferimetArtDevMode;
+
+
+
+        private ObservableCollection<LevizjetHeader> _LevizjetHeaderDevMode;
+
+        public ObservableCollection<LevizjetHeader> LevizjetHeaderDevMode { get { return _LevizjetHeaderDevMode; } set { SetProperty(ref _LevizjetHeaderDevMode, value); } }   
+        
+
+        
+        private ObservableCollection<LevizjetDetails> _LevizjetDetailsDevMode;
+
+        public ObservableCollection<LevizjetDetails> LevizjetDetailsDevMode { get { return _LevizjetDetailsDevMode; } set { SetProperty(ref _LevizjetDetailsDevMode, value); } }
+
+
+        private ObservableCollection<LiferimiArt> _LiferimetArtDevMode;
 
         public ObservableCollection<LiferimiArt> LiferimetArtDevMode { get { return _LiferimetArtDevMode; } set { SetProperty(ref _LiferimetArtDevMode, value); } }
 
@@ -4369,7 +4651,7 @@ namespace EHWM.ViewModel {
             return null;
         }
 
-        public async Task<bool> SinkronizoFiskalizimin() {
+        public async Task<bool> SinkronizoFiskalizimin(bool update) {
             //SyncLloji = 1 -- update all
             //SyncLloji = 2 -- mos bej update numrinFisk
             string[] config = await GetConfigurationByIDAgjentiAsync();
@@ -4422,7 +4704,8 @@ namespace EHWM.ViewModel {
                     }
                     else {
                         // Update existing record
-
+                        if (!update)
+                            return true;
                         var jsonRequest = JsonConvert.SerializeObject(numriFisk);
                         var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
                         var putResult = await App.ApiClient.PutAsync("numri-fisk", stringContent);
@@ -4452,9 +4735,12 @@ namespace EHWM.ViewModel {
             }
         }
 
-        public async Task<bool> SinkronizoFiskaliziminWithoutLogin() {
+        public async Task<bool> SinkronizoFiskaliziminWithoutLogin(bool update) {
             //SyncLloji = 1 -- update all
             //SyncLloji = 2 -- mos bej update numrinFisk
+            var numriFiskal = await App.Database.GetNumratFiskalAsync();
+            var numriFisk = numriFiskal.FirstOrDefault(x => x.TCRCode == Configurimi.KodiTCR);
+            
             string[] config = await GetConfigurationByIDAgjentiAsyncWithoutLogin();
 
             string TAGNR, TCRCode, OperatorCode, BusinessUnitCode, IDN, LevijeIDN, Viti;
@@ -4472,8 +4758,6 @@ namespace EHWM.ViewModel {
 
                 DataSet dsConfig = null;
                 try {
-                    var numriFiskal = await App.Database.GetNumratFiskalAsync();
-                    var numriFisk = numriFiskal.FirstOrDefault(x => x.TCRCode == Configurimi.KodiTCR);
                     if (numriFisk == null) {
                         var numratFiskalResult = await App.ApiClient.GetAsync("numri-fisk/" + LoginData.Depo);
                         var numratFiskalResponse = await numratFiskalResult.Content.ReadAsStringAsync();
@@ -4505,20 +4789,25 @@ namespace EHWM.ViewModel {
                     }
                     else {
                         // Update existing record
+                        if (update)
+                        {
+                            var jsonRequest = JsonConvert.SerializeObject(numriFisk);
+                            var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                            var putResult = await App.ApiClient.PutAsync("numri-fisk", stringContent);
+                            if (putResult.IsSuccessStatusCode)
+                            {
+                                return true;
 
-                        var jsonRequest = JsonConvert.SerializeObject(numriFisk);
-                        var stringContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                        var putResult = await App.ApiClient.PutAsync("numri-fisk", stringContent);
-                        if (putResult.IsSuccessStatusCode) {
-                            return true;
+                            }
+                            //else {
+                            //    UserDialogs.Instance.Alert("Shenimet nuk u shtuan me sukses");
+                            //    return false;
 
+                            //}
+                            return false;
                         }
-                        //else {
-                        //    UserDialogs.Instance.Alert("Shenimet nuk u shtuan me sukses");
-                        //    return false;
-
-                        //}
-                        return false;
+                        else
+                            return true;
                     }
                 }
                 catch (Exception ex) {
@@ -4563,6 +4852,21 @@ namespace EHWM.ViewModel {
         public static Guid NONE = new Guid("00000000-0000-0000-0000-000000000000");
 
         public async Task ShtijeKorrigjim() {
+            if (SelectedVizita == null)
+            {
+                UserDialogs.Instance.Alert("Ju lutemi selektoni viziten para se te vazhdoni me shitje", "Error", "Ok");
+                return;
+            }
+            if (SelectedVizita.IDStatusiVizites == "6")
+            {
+                UserDialogs.Instance.Alert("Vizita veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
+                return;
+            }
+            if (SelectedVizita.IDStatusiVizites != "1")
+            {
+                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+                return;
+            }
             try {
                 if(SelectedVizita != null) {
                     if(SelectedVizita.IDStatusiVizites != "0" || SelectedVizita.IDStatusiVizites != "1") {
@@ -4629,10 +4933,11 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizita veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            //if (SelectedVizita.IDStatusiVizites != "1") {
-            //    UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
-            //    return;
-            //}
+            if (SelectedVizita.IDStatusiVizites != "1")
+            {
+                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+                return;
+            }
             //foreach (var g in VizitatFilteredByDate) {
             //    if (g != null) {
             //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
@@ -4689,10 +4994,11 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Vizitje veqse ka perfunduar, ju lutem selektoni nje vizite tjeter", "Verejtje", "Ok");
                 return;
             }
-            //if (SelectedVizita.IDStatusiVizites != "1") {
-            //    UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
-            //    return;
-            //}
+            if (SelectedVizita.IDStatusiVizites != "1")
+            {
+                UserDialogs.Instance.Alert("Ju lutemi hapeni viziten para se te vazhdoni me shitje", "Error", "Ok");
+                return;
+            }
             //foreach (var g in VizitatFilteredByDate) {
             //    if (g != null) {
             //        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
@@ -4747,11 +5053,16 @@ namespace EHWM.ViewModel {
                     UserDialogs.Instance.Alert("Ju lutem selektoni nje vizite");
                     return;
                 }
-                if (!checkOraRealizimit(SelectedVizita.IDVizita)) {
-                    UserDialogs.Instance.Alert("Duhet te shtohet vizite e re per kete klient!", "Error", "Ok");
-                    return;             
+                if (SelectedVizita.IDStatusiVizites != "1")
+                {
+                    if (!checkOraRealizimit(SelectedVizita.IDVizita))
+                    {
+                        UserDialogs.Instance.Alert("Duhet te shtohet vizite e re per kete klient!", "Error", "Ok");
+                        return;
+                    }
                 }
-                foreach (var g in VizitatFilteredByDate) {
+
+                foreach (var g in SearchedVizitat) {
                     if (g != null) {
                         if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString()) {
                             if (g.IDStatusiVizites == "1") {
@@ -4761,14 +5072,27 @@ namespace EHWM.ViewModel {
                         }
                     }
                 }
-                var res = VizitatFilteredByDate.FirstOrDefault(x => x.IDVizita == SelectedVizita.IDVizita);
+                foreach (var g in VizitatFilteredByDate)
+                {
+                    if (g != null)
+                    {
+                        if (g.IDVizita.ToString() != SelectedVizita.IDVizita.ToString())
+                        {
+                            if (g.IDStatusiVizites == "1")
+                            {
+                                UserDialogs.Instance.Alert("Ka vizite te hapur, ju lutem perfundoni viziten e hapur fillimisht", "Error", "Ok");
+                                return;
+                            }
+                        }
+                    }
+                }
+                var res = SearchedVizitat.FirstOrDefault(x => x.IDVizita == SelectedVizita.IDVizita);
                 if (res != null) {
                     switch (res.IDStatusiVizites) {
                         case "0":
                             break;
                         case "1":
-                            UserDialogs.Instance.Alert("Vizita veqse eshte e hapur", "Error", "Ok");
-                            return;
+                            break;
                         case "2":
                         case "3":
                         case "4":
@@ -4780,7 +5104,10 @@ namespace EHWM.ViewModel {
                             break;
                     }
                     await App.Current.MainPage.Navigation.PopPopupAsync();
-                    await App.Instance.PushAsyncNewPage(new HapVizitenPage() { BindingContext = this });
+                    var page = new HapVizitenPage();
+                    SelectedVizitaForStatus = SelectedVizita;
+                    page.BindingContext = App.Instance.MainViewModel;
+                    await App.Instance.PushAsyncNewPage(page);
                     //var updateResult = await App.Database.UpdateVizitaAsync(res);
                     //if (updateResult == 1) {
                     //    
@@ -4818,17 +5145,17 @@ namespace EHWM.ViewModel {
                 
                 var maxOraRealizimit = Vizitat
                     .Where(v => v.DataPlanifikimit >= FromDate && v.DataPlanifikimit <= ToDate)
-                    .Max(v => v.OraRealizimit);
+                    .Max(v => v.DataAritjes);
                 if (maxOraRealizimit == null) {
                     maxOraRealizimit = MyTimeInWesternEurope;
-                    if (SelectedVizita.OraRealizimit == null)
-                        SelectedVizita.OraRealizimit = MyTimeInWesternEurope;
+                    if (SelectedVizita.DataAritjes == null)
+                        SelectedVizita.DataAritjes = MyTimeInWesternEurope;
                 }
                 DateTime OraRealizimitAll = (DateTime)maxOraRealizimit;
-                if(SelectedVizita.OraRealizimit == null) {
-                    SelectedVizita.OraRealizimit = MyTimeInWesternEurope;
+                if(SelectedVizita.DataAritjes == null) {
+                    SelectedVizita.DataAritjes = MyTimeInWesternEurope;
                 }
-                DateTime OraRealizimitVizites = (DateTime)SelectedVizita.OraRealizimit  == null ? MyTimeInWesternEurope : (DateTime)SelectedVizita.OraRealizimit;
+                DateTime OraRealizimitVizites = (DateTime)SelectedVizita.DataAritjes == null ? MyTimeInWesternEurope : (DateTime)SelectedVizita.DataAritjes;
 
                 var DataArritjesVizites = SelectedVizita.DataAritjes;
                 if(DataArritjesVizites == null) {
@@ -4852,7 +5179,7 @@ namespace EHWM.ViewModel {
             return _result;
         }
         public bool DatesAreInTheSameWeek(DateTime date1, DateTime date2) {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             if (date1.Date == DateTime.MinValue) {
                 date1 = MyTimeInWesternEurope;
@@ -4919,6 +5246,7 @@ namespace EHWM.ViewModel {
             ClientsPage.BindingContext = this;
             await Task.Delay(50);
             await App.Instance.PushAsyncNewPage(ClientsPage);
+            await Task.Delay(150);
             UserDialogs.Instance.HideLoading();
         }
         public ADatePicker ADatePicker;
@@ -4926,6 +5254,24 @@ namespace EHWM.ViewModel {
             UserDialogs.Instance.ShowLoading("Loading..");
             PorositePage PorositePage = new PorositePage();
             var klientet = await App.Database.GetKlientetAsync();
+            if(App.Instance.MainViewModel.Configurimi.VetemPerPorosi)
+            {
+                var klientDheLokacion = await App.Database.GetKlientetDheLokacionetAsync();
+                var tempKlientet = new List<Klientet>();
+                foreach (var k in klientet)
+                {
+                    var lokacioni = klientDheLokacion.FirstOrDefault(x => x.IDKlienti == k.IDKlienti);
+                    if (lokacioni != null)
+                    {
+                        if (lokacioni.EmriLokacionit == "TIRANE")
+                        {
+                            tempKlientet.Add(k);
+                        }
+                    }
+                }
+                klientet = tempKlientet;
+            }
+
             var krijimiPorosive = await App.Database.GetKrijimiPorosiveAsync();
             var orders = await App.Database.GetOrdersAsync();
             var nrRendor = orders.Where(x => x.Data.Year == DateTime.Now.Year && x.Data.Month == DateTime.Now.Month && x.Data.Date == DateTime.Now.Date);
@@ -5029,7 +5375,6 @@ namespace EHWM.ViewModel {
                         }
                     }
                 }
-
             }
             var artikujtPerShfaqjeFinal = new ObservableCollection<Artikulli>(artikujtPerShfaqje.Where(x=> x.Sasia < 0 || x.Sasia > 0));
             ArtikujtPage.BindingContext = new ArtikujtViewModel(new ArikujtNavigationParameters { Artikujt = artikujtPerShfaqjeFinal.ToList() }) ;

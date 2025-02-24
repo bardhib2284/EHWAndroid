@@ -1,4 +1,5 @@
 ﻿using EHW_M;
+using EHWM.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace EHWM.Views {
 
         protected override void OnAppearing() {
             base.OnAppearing();
+            var bc = (MainViewModel)BindingContext;
+
         }
     }
 }

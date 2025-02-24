@@ -45,6 +45,10 @@ namespace EHWM.Views
                     InkasimiViewModel.SelectedKlient = e.Item as Klientet;
                     InkasimiViewModel.MerrDetyrimet(e.Item as Klientet);
                     App.Instance.PopAsyncModal();
+                }                
+                else if (BindingContext is MainViewModel mvm) {
+                    mvm.SelectedKlient = e.Item as Klientet;
+                    App.Instance.PopAsyncModal();
                 }
             }
         }
@@ -62,6 +66,13 @@ namespace EHWM.Views
                     }
                     else if (BindingContext is InkasimiViewModel) {
                         var bc = (InkasimiViewModel)BindingContext;
+                        if (bc != null) {
+                            bc.SearchedKlientet = new System.Collections.ObjectModel.ObservableCollection<Klientet>(bc.Klientet.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
+                            searchedArtikujt.IsVisible = true;
+                            allArtikujt.IsVisible = false;
+                        }
+                    }else if (BindingContext is MainViewModel) {
+                        var bc = (MainViewModel)BindingContext;
                         if (bc != null) {
                             bc.SearchedKlientet = new System.Collections.ObjectModel.ObservableCollection<Klientet>(bc.Klientet.Where(x => x.Emri.ToLower().Contains(e.NewTextValue.ToLower())));
                             searchedArtikujt.IsVisible = true;

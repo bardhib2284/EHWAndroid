@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EHWM.Views.LevizjetDetailsDetailsDevMode" Title="Levizjet Details">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="20">
+
+
+                <Label Text="NumriLevizjes"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.NumriLevizjes,Mode=TwoWay}"/>
+
+                <Label Text="IDArtikulli"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.IDArtikulli,Mode=TwoWay}" IsEnabled="False"/>
+
+                <Label Text="Sasia"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.Sasia,Mode=TwoWay}"/>
+
+                <Label Text="Njesia_matese"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.Njesia_matese,Mode=TwoWay}"/>
+
+                <Label Text="ArtEmri"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.ArtEmri,Mode=TwoWay}"/>
+
+                <Label Text="Cmimi"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.Cmimi,Mode=TwoWay}"  IsEnabled="False"/>
+
+                <Label Text="SyncStatus"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.SyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="Artikulli"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.Artikulli,Mode=TwoWay}"/>
+
+                <Label Text="Seri"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.Seri,Mode=TwoWay}"/>
+
+                <Label Text="TCRSyncStatus"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.TCRSyncStatus,Mode=TwoWay}"/>
+
+                <Label Text="Depo"/>
+                <Entry Text="{Binding SelectedLevizjetDetailsDevMode.Depo,Mode=TwoWay}"/>
+
+
+                <Button Text="Ruaj Ndryshimet" Clicked="Button_Clicked"/>
+            </StackLayout>
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

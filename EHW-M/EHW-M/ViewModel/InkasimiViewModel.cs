@@ -32,7 +32,7 @@ namespace EHWM.ViewModel {
         public List<EvidencaPagesave> EvidencaEPagesave { get; set; }
         public Agjendet Agjendi;
 
-        public DateTime TodaysDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+        public DateTime TodaysDate => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
         public ICommand RegjistroCommand { get; set; }
         public InkasimiViewModel(InkasimiViewModelNavigationParameters inkasimiViewModelNavigationParameters) {
@@ -196,7 +196,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText(" \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
                 var agjender = await App.Database.GetAgjendetAsync();
                 var agjendi = agjender.FirstOrDefault(x => x.Depo == Agjendi.Depo);
                 await _printer.printText("          " + agjendi.Emri + " " + agjendi.Mbiemri + "         " + MyTimeInWesternEurope.ToString("dd.MM.yyyy HH:mm:ss") + "\n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
@@ -372,7 +372,7 @@ namespace EHWM.ViewModel {
             }
             else {
                 try {
-                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
                     DateTime n = MyTimeInWesternEurope;
                     string hr = n.Hour.ToString();
                     string min = n.Minute.ToString();

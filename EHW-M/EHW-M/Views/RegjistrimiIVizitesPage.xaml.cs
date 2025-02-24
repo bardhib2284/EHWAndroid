@@ -16,16 +16,40 @@ namespace EHWM.Views {
     public partial class RegjistrimiIVizitesPage : ContentPage {
         public RegjistrimiIVizitesPage() {
             InitializeComponent();
+            pickerForClients.Focused += PickerForClients_Focused;
         }
+
+        private async void PickerForClients_Focused(object sender, FocusEventArgs e)
+        {
+            try
+            {
+                UserDialogs.Instance.ShowLoading("Duke hapur klientet");
+                ZgjidhKlientetModalPage ZgjidhKlientetModalPage = new ZgjidhKlientetModalPage();
+                ZgjidhKlientetModalPage.BindingContext = App.Instance.MainViewModel;
+
+                await App.Instance.PushAsyncNewModal(ZgjidhKlientetModalPage);
+                UserDialogs.Instance.HideLoading();
+
+            }
+            catch (Exception ex)
+            {
+                var g = ex.Message;
+            }
+        }
+
         protected override async void OnAppearing() {
             base.OnAppearing();
             var bc = (MainViewModel)BindingContext;
-            if(bc.LastSelectedVizita != null) {
-                if(bc.LastSelectedVizita.IDKlientDheLokacion != null) {
+            bc.SelectedClient = null;
+            if (bc.LastSelectedVizita != null)
+            {
+                if (bc.LastSelectedVizita.IDKlientDheLokacion != null)
+                {
                     var kdl = await App.Database.GetKlientetDheLokacionetAsync();
-                    pickerForClients.SelectedIndex = bc.Clients.IndexOf(bc.Clients.FirstOrDefault(x => x.IDKlienti == kdl.FirstOrDefault(y => y.IDKlientDheLokacion == bc.LastSelectedVizita.IDKlientDheLokacion).IDKlienti));
+                    bc.SelectedClient = bc.Clients.FirstOrDefault(x => x.IDKlienti == kdl.FirstOrDefault(y => y.IDKlientDheLokacion == bc.LastSelectedVizita.IDKlientDheLokacion).IDKlienti);
                 }
-                else {
+                else
+                {
                     UserDialogs.Instance.Alert("Vizita e selektuar nuk ka klient te lidhur me viziten, ju lutem raportoni problemin, dhe ri-zgjedhni klientin perseri");
                 }
             }
@@ -39,8 +63,8 @@ namespace EHWM.Views {
             UserDialogs.Instance.ShowLoading("Duke Regjistruar Viziten");
             var kdl = await App.Database.GetKlientetDheLokacionetAsync();
             if (kdl != null && kdl.Count > 0) {
-                if (pickerForClients.SelectedItem != null) {
-                    var client = kdl.FirstOrDefault(x => x.IDKlienti == (bc.Clients[pickerForClients.SelectedIndex].IDKlienti));
+                if (bc.SelectedKlient != null) {
+                    var client = kdl.FirstOrDefault(x => x.IDKlienti == bc.SelectedKlient.IDKlienti);
                     if (client != null)
                         Adresa.Text = client.Adresa;
                     var res = await Geolocation.GetLastKnownLocationAsync();
@@ -56,11 +80,11 @@ namespace EHWM.Views {
                         IDKlientDheLokacion = client?.IDKlientDheLokacion,
                         Komenti = "",
                         OraPlanifikimit = null,
-                        IDStatusiVizites = 0.ToString(),
+                        IDStatusiVizites = 1.ToString(),
                         SyncStatus = 0,
                         DataPlanifikimit = App.Instance.MainViewModel.RegjistroVizitenDate
                     };
-                        client = kdl.FirstOrDefault(x => x.IDKlienti == (pickerForClients.SelectedItem as Klientet).IDKlienti);
+                        client = kdl.FirstOrDefault(x => x.IDKlienti == (bc.SelectedKlient as Klientet).IDKlienti);
                         if (client != null)
                             Adresa.Text = client.Adresa;
                         App.Instance.MainViewModel.RegjistroVizitenVizita.IDKlientDheLokacion = client?.IDKlientDheLokacion;
@@ -76,6 +100,8 @@ namespace EHWM.Views {
                             App.Instance.MainViewModel.RegjistroVizitenVizita = null;
                             return;
                         }
+                        v.MenyraVizites = 1;
+                    
                         var result = await App.Database.SaveVizitaAsync(App.Instance.MainViewModel.RegjistroVizitenVizita);
                         if(result != -1) {
                         if (App.Instance.MainViewModel.VizitatFilteredByDate == null) {

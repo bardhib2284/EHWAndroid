@@ -8,27 +8,27 @@
             <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand">
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                     <Label Text="Klienti: " HorizontalOptions="StartAndExpand" FontSize="18" VerticalTextAlignment="Center" />
-                    <Entry IsEnabled="False" TextColor="Black" Text="{Binding SelectedVizita.Klienti}" FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                    <Entry IsEnabled="False" TextColor="Black" Text="{Binding SelectedVizitaForStatus.Klienti}" FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Adresa: " FontSize="18" HorizontalOptions="StartAndExpand"  VerticalTextAlignment="Center"/>
-                    <Entry IsEnabled="False" TextColor="Black" Text="{Binding SelectedVizita.Vendi}" FontSize="18"  HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                    <Entry IsEnabled="False" TextColor="Black" Text="{Binding SelectedVizitaForStatus.Vendi}" FontSize="18"  HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Data dhe koha : " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
-                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.DataPlanifikimit,StringFormat='{}{0:dd.MM.yyyy}',Mode=OneWay}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
+                    <Entry IsEnabled="False" Text="{Binding SelectedVizitaForStatus.DataPlanifikimit,StringFormat='{}{0:dd.MM.yyyy}',Mode=OneWay}" FontSize="18" HorizontalOptions="EndAndExpand"  TextColor="Black" MinimumHeightRequest="170" WidthRequest="170" VerticalTextAlignment="Center"/>
                 </StackLayout>
                 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Statusi Aktual: " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
-                    <Entry IsEnabled="False" Text="{Binding SelectedVizita.IDStatusiVizites,Converter={StaticResource VizitaStatusToString}}"  TextColor="Black"  FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
+                    <Entry IsEnabled="False" Text="{Binding SelectedVizitaForStatus.IDStatusiVizites,Converter={StaticResource VizitaStatusToString}}"  TextColor="Black"  FontSize="18" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" WidthRequest="170"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">
                     <Label Text="Statusi i ri: " FontSize="18" VerticalTextAlignment="Center" HorizontalOptions="StartAndExpand"/>
-                    <Picker x:Name="statusiVizites" SelectedItem="{Binding SelectedVizita.IDStatusiVizites,Converter={StaticResource VizitaStatusToInt},Mode=TwoWay}"  TextColor="Black" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" SelectedIndex="{Binding SelectedVizita.IDStatusiVizites}" WidthRequest="170" ItemDisplayBinding="{Binding Gjendja}" />
+                    <Picker x:Name="statusiVizites" SelectedItem="{Binding SelectedVizitaForStatus.IDStatusiVizites,Converter={StaticResource VizitaStatusToInt},Mode=TwoWay}"  TextColor="Black" HorizontalOptions="EndAndExpand" MinimumHeightRequest="170" SelectedIndex="{Binding SelectedVizitaForStatus.IDStatusiVizites}" WidthRequest="170" ItemDisplayBinding="{Binding Gjendja}" />
                 </StackLayout>
             </StackLayout>
 

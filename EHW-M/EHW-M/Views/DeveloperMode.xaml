@@ -65,6 +65,58 @@
 
                 </Frame>
                 <BoxView BackgroundColor="red" HeightRequest="1"/>
+                <Frame Padding="5">
+                    <StackLayout VerticalOptions="Fill">
+                        <StackLayout Orientation="Horizontal">
+                            <Label Text="Levizjet" FontAttributes="Bold"/>
+                            <Button Clicked="Button_Clicked" HorizontalOptions="EndAndExpand" WidthRequest="150" HeightRequest="50" Text="Kerko me numer te levizjes"/>
+                            <Entry x:Name="hiddenEntryForLevizjetSearch" IsVisible="false" />
+                        </StackLayout>
+                        
+                        <ListView ItemsSource="{Binding LevizjetHeaderDevMode}" RowHeight="100" SeparatorVisibility="Default" SeparatorColor="Blue" HeightRequest="200" VerticalOptions="Fill" ItemTapped="ListView_ItemTapped">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand">
+                                            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                                <StackLayout Orientation="Horizontal" Padding="5">
+                                                    <Label Text="NumriLevizjes : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding NumriLevizjes}" FontSize="13" />
+                                                </StackLayout>
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="LevizjeNga : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding LevizjeNga}" FontSize="13"/>
+                                                </StackLayout> 
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="LevizjeNe : " FontSize="13" TextColor="Gray"/>
+                                                    <Label Text="{Binding LevizjeNe}" FontSize="13"/>
+                                                </StackLayout>
+                                            </StackLayout>
+
+                                            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="NrFisk  : " FontSize="12" TextColor="Gray"/>
+                                                    <Label Text="{Binding NumriFisk}" FontSize="12"/>
+                                                </StackLayout>
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="Totali  : " FontSize="12" TextColor="Gray"/>
+                                                    <Label Text="{Binding Totali}" FontSize="12"/>
+                                                </StackLayout>
+                                                <StackLayout Orientation="Horizontal" Padding="5" HorizontalOptions="FillAndExpand">
+                                                    <Label Text="Data e levizjes : " FontSize="12" TextColor="Gray"/>
+                                                    <Label Text="{Binding Data}" FontSize="12"/>
+                                                </StackLayout>
+                                            </StackLayout>
+                                        </StackLayout>
+
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+
+                </Frame>
+                <BoxView BackgroundColor="red" HeightRequest="1"/>
 
                 <Frame Padding="5">
                 <StackLayout VerticalOptions="Fill">

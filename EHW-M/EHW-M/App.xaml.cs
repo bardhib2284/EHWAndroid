@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
 using System.Net.Http.Headers;
+using static SQLite.SQLite3;
 
 namespace EHW_M {
     public partial class App : Application {
@@ -77,7 +78,7 @@ namespace EHW_M {
                         var levizjet = await Database.GetLevizjetHeaderAsync();
                         await CreateUpdateScriptLevizjetHeader(levizjet);
                         var levizjetDetails = await Database.GetLevizjeDetailsAsync();
-                        await CreateUpdateScriptLevizjetHeaderDetails(levizjetDetails);
+                        //await CreateUpdateScriptLevizjetHeaderDetails(levizjetDetails);
                         var liferimetArt = await Database.GetLiferimetArtAsync();
                         await CreateUpdateScriptLiferimiArt(liferimetArt);
                         //var malliMbetur = await Database.GetMalliMbeturAsync();
@@ -102,8 +103,8 @@ namespace EHW_M {
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", conf.Token);
                 var LevizjetHeaderJson = JsonConvert.SerializeObject(OrderDetails);
                 var stringContent = new StringContent(LevizjetHeaderJson, Encoding.UTF8, "application/json");
-                var result = await App.ApiClient.PostAsync("levizje-detial", stringContent);
-
+                var result = await httpClient.PostAsync("levizje-detial", stringContent);
+                
                 if (result.IsSuccessStatusCode) {
                     return true;
                 }
@@ -113,7 +114,10 @@ namespace EHW_M {
                 }
                 return false;
             }catch(Exception ex) {
+                UserDialogs.Instance.Alert(ex.Message);
+
                 return false;
+
             }
             
         }
@@ -179,7 +183,7 @@ namespace EHW_M {
                     lif.Export_Status = 2;
                     DateTime MyTime = DateTime.UtcNow;
 
-                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(2);
+                    DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(MyTime, "GMT Standard Time").AddHours(1);
                     lif.KohaLiferimit = MyTimeInWesternEurope;
                 }
                 var vizitatJson = JsonConvert.SerializeObject(Liferimi);

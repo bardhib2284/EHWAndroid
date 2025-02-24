@@ -19,7 +19,7 @@
             </StackLayout>            
             <StackLayout Orientation="Horizontal" HeightRequest="60">
                 <Label Text="Filter: " WidthRequest="100" VerticalTextAlignment="Center"  HorizontalTextAlignment="Start"/>
-                <SearchBar HorizontalOptions="Fill" WidthRequest="200" TextChanged="SearchBar_TextChanged"/>
+                <SearchBar x:Name="searchText" HorizontalOptions="Fill" WidthRequest="200" TextChanged="SearchBar_TextChanged"/>
                 <Button Text="Shitje" Command="{Binding GoToShitjaCommand}"/>
             </StackLayout>
             <Grid Margin="0,10">

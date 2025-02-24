@@ -31,6 +31,7 @@ namespace EHWM.Views.Popups {
             }
             if (BindingContext is ShitjaViewModel lvm) {
                 lvm.EditActive = false;
+                lvm.ClosedEditPopup = true;
                 await App.Instance.MainPage.Navigation.PopPopupAsync(true);
             }
         }
@@ -40,6 +41,23 @@ namespace EHWM.Views.Popups {
             regjistroArkenStack.IsVisible = false;
         }
 
-        
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            if (BindingContext is MainViewModel mvm)
+            {
+                mvm.EshteRuajtuarArka = true;
+            }
+
+            if (BindingContext is SinkronizimiViewModel svm)
+            {
+                svm.EshteRuajtuarArka = true;
+            }
+            if (BindingContext is ShitjaViewModel lvm)
+            {
+                lvm.EditActive = false;
+            }
+        }
+
     }
 }

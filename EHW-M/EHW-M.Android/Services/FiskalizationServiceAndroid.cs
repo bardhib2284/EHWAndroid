@@ -69,6 +69,10 @@ namespace EHW_M.Droid.Services {
 
         public ResultLogPCL RegisterInvoice(RegisterInvoiceInputRequestPCL req) {
             try {
+                if (!App.Instance.DoIHaveInternetNoAlert())
+                {
+                    return null;
+                }
                 InvoiceItemType[] invoiceItemTypes = new InvoiceItemType[req.InvoiceItems.Count];
                 ResultLogPCL logpcl = new ResultLogPCL();
 
@@ -184,6 +188,9 @@ namespace EHW_M.Droid.Services {
 
         public int CheckCorrectiveInvoice(string invId, string DeviceID, string TCRCode, string OperatorCode, string BusinessUnitCode, string NIPT) {
             try {
+                if(!App.Instance.DoIHaveInternetNoAlert()) {
+                    return 0;
+                }
                 using (FiscalisationService fs = new FiscalisationService()) {
                     fs.Url = App.Instance.WebServerFiskalizimiUrl;
 
@@ -308,6 +315,7 @@ namespace EHW_M.Droid.Services {
         }
 
         public ResultLogPCL RegisterWTN(RegisterWTNInputRequestPCL req) {
+
             ResultLog resultlog = new ResultLog();
             ResultLogPCL logpcl = new ResultLogPCL();
             resultlog.Status = Status.InternalError;

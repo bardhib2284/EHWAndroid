@@ -9,7 +9,7 @@
                 <Label Text="Regjistro Viziten Duke Zgjedhur Klientin" HorizontalOptions="Center" Margin="0,0,0,50" TextColor="Black"/>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                     <Label Text="Klienti: " HorizontalOptions="StartAndExpand" FontSize="18" VerticalTextAlignment="Center" />
-                    <Picker x:Name="pickerForClients" ItemsSource="{Binding Clients}" HorizontalOptions="EndAndExpand" ItemDisplayBinding="{Binding Emri}" SelectedIndexChanged="Picker_SelectedIndexChanged"  FontSize="18" MinimumHeightRequest="170" WidthRequest="170"/>
+                    <Entry Text="{Binding SelectedKlient.Emri}" x:Name="pickerForClients" HorizontalOptions="EndAndExpand" FontSize="18" MinimumHeightRequest="170" WidthRequest="170"/>
                 </StackLayout>
 
                 <StackLayout Orientation="Horizontal"  HorizontalOptions="FillAndExpand">

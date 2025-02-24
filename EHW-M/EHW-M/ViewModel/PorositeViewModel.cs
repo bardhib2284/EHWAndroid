@@ -76,7 +76,7 @@ namespace EHWM.ViewModel {
             Klientet = PorositeViewModelNavigationParameters.Klientet;
             Agjendi = PorositeViewModelNavigationParameters.Agjendi;
             NrRendor = PorositeViewModelNavigationParameters.NrRendor;
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             Data = MyTimeInWesternEurope;
             SubTitle = "Lista e porosive "  + Data.AddDays(-7).ToString("dd/MM/yyyy") + " - " + Data.ToString("dd/MM/yyyy");
@@ -214,7 +214,7 @@ namespace EHWM.ViewModel {
                 await _printer.printText(
 "---------------------------------------------------------------------\n");
 
-                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+                DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Adresa: Autostrada Tirane Durres \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
@@ -440,9 +440,16 @@ namespace EHWM.ViewModel {
                 await _printer.printText("Shitesi: E. H. W.          J61804031V \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_LEFT });
                 await _printer.printText("Adresa: Autostrada Tirane Durres \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
                 await _printer.printText("Tel: 048 200 711        04 356 085 \n", new MPosFontAttribute { Alignment = MPosAlignment.MPOS_ALIGNMENT_DEFAULT });
+                if(NrPorosise == null)
+                {
+                    NrPorosise = CurrentlySelectedOrder.IDOrder;
+                }
                 await _printer.printText("Numri i Porosise: " + NrPorosise +"\n");
                 await _printer.printText("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-
+                if(SelectedKlient == null)
+                {
+                    SelectedKlient = Klientet.FirstOrDefault(x => x.IDKlienti == CurrentlySelectedOrder.IDKlientDheLokacion);
+                }
                 await _printer.printText("\nBleresi: " + SelectedKlient.Emri);
                 await _printer.printText("\nAdresa: ");
                 await _printer.printText("\nNRB:   NRF: \n");
@@ -639,7 +646,7 @@ namespace EHWM.ViewModel {
         public async Task RegjistroAsync() 
         {
             Location loc = await Xamarin.Essentials.Geolocation.GetLastKnownLocationAsync();
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             Orders order = new Orders
             {
@@ -784,7 +791,7 @@ namespace EHWM.ViewModel {
                 UserDialogs.Instance.Alert("Zgjedhni klientin fillimisht", "Verejtje", "Ok");
                 return;
             }
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             KrijimiPorosive krijimiPorosive = new KrijimiPorosive
             {
@@ -859,7 +866,7 @@ namespace EHWM.ViewModel {
         }
 
         public async Task GoToKrijoPorosineAsync() {
-            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(2);
+            DateTime MyTimeInWesternEurope = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "GMT Standard Time").AddHours(1);
 
             NrPorosise = "PRS-" + App.Instance.MainViewModel.LoginData.DeviceID + "-" + MyTimeInWesternEurope.ToString("yyMMdd")+ "-" + NrRendor.ToString("00");
             KrijoPorosinePage kpPorosia = new KrijoPorosinePage();
