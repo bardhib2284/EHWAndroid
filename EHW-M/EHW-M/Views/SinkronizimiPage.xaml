@@ -17,7 +17,7 @@
                 <Button Text="Sink. klientet" Grid.Row="1" Grid.Column="1" Command="{Binding SinkronizoKlientet}"/>
                 <Button Text="Azhurno" Grid.Row="2" Grid.ColumnSpan="2" Command="{Binding AzhurnoCommand}"/>
                 <Button Text="Sinkronizo" Grid.Row="3" Grid.ColumnSpan="2" Command="{Binding SinkronizoCommand}"/>
-                <Button Text="Lif dhe Por" Grid.Row="4" Grid.Column="0" Command="{Binding LifDheArtCommand}"/>
+                <Button Text="Liferimi dhe Porosite" Grid.Row="4" Grid.Column="0" Command="{Binding LifDheArtCommand}"/>
                 <Button Text="Shkarko" Grid.Row="4" Grid.Column="1" Command="{Binding ShkarkoCommand}"/>
             </Grid>
 

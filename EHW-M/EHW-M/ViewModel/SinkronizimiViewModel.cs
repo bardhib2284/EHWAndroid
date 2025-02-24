@@ -100,10 +100,6 @@ namespace EHWM.ViewModel {
         {
             try
             {
-                if (!App.Instance.DoIHaveInternet())
-                {
-                    return;
-                }
                 UserDialogs.Instance.ShowLoading("Inicializimi... ");
                 string[] KeyFields = null;//Used in sync
                 string strFilterDwn = "1=1";//Used in sync
@@ -125,12 +121,12 @@ namespace EHWM.ViewModel {
                 //MessageBox.Show("SyncConfigSynced " + SyncConfigSynced.ToString());
                 var ConfigSynced = await sync.SyncTable("Konfigurimi", null, PnSyncDirection.SnapshotDownload, "", "", Agjendi.DeviceID);
 
-                if (!SyncConfigSynced || !ConfigSynced)
-                {
-                    UserDialogs.Instance.Alert("Sinkronizimi nuk mund te vazhdoje [KOMUNIKIMI ME MSQLMOBILESERVER deshtoi]", "Gabim");
-                    UserDialogs.Instance.HideLoading();
-                    return;
-                }
+                //if (!SyncConfigSynced || !ConfigSynced)
+                //{
+                //    UserDialogs.Instance.Alert("Sinkronizimi nuk mund te vazhdoje [KOMUNIKIMI ME MSQLMOBILESERVER deshtoi]", "Gabim");
+                //    UserDialogs.Instance.HideLoading();
+                //    return;
+                //}
                 EditorView = "";
                 EditorView += "Sync Config dhe Konfig SnapShotDownload Sukses\n";
                 var konfigurimi = (await App.Database.GetKonfigurimetAsync()).FirstOrDefault(x => x.DeviceID == Agjendi.DeviceID);
@@ -140,7 +136,7 @@ namespace EHWM.ViewModel {
                 try
                 {
                     var Sinkronizimet = (await App.Database.GetSyncConfigurationsAsync()).OrderBy(x => x.ID).ToList();
-                    Sinkronizimet = Sinkronizimet.Where(x => x.Equals("Lif") || x.Equals("Por")).ToList();
+                    Sinkronizimet = Sinkronizimet.Where(x => x.TableName.Contains("Liferimi") || x.TableName.Contains("LiferimiArt") || x.TableName.Equals("PorosiaArt") || x.TableName.Equals("Porosite")).ToList();
                     if (Sinkronizimet != null && Sinkronizimet.Count > 0)
                     {
                         var strSessionID = new Guid();
@@ -509,11 +505,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
+                                    var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                     var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                     if (malliMbetur.Count > 0) {
-                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                        CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                             .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                                            .Sum(l => l.ShumaPaguar.Value);
                                     }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -534,11 +531,12 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
+                                var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                 var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                 if (malliMbetur.Count > 0) {
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                    CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                         .Where(l => l.PayType == "KESH")
-                                        .Sum(l => l.ShumaPaguar);
+                                        .Sum(l => l.ShumaPaguar.Value);
                                 }
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
 
@@ -560,11 +558,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
+                            var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                             var malliMbetur = await App.Database.GetMalliMbeturAsync();
                             if (malliMbetur.Count > 0) {
-                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                     .Where(l => l.PayType == "KESH")
-                                    .Sum(l => l.ShumaPaguar);
+                                    .Sum(l => l.ShumaPaguar.Value);
                             }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);

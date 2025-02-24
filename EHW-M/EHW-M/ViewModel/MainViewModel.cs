@@ -77,6 +77,7 @@ namespace EHWM.ViewModel {
 
 
         public bool DissapearingFromShitjaPage { get; set; }
+        public bool DissapearingFromPagesaPage { get; set; }
 
         private bool _AllClientsList;
         public bool AllClientsList {
@@ -3805,11 +3806,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
+                                    var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                     var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                     if (malliMbetur.Count > 0) {
-                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                        CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                             .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                                            .Sum(l => l.ShumaPaguar.Value);
                                     }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     if(!Configurimi.VetemPerPorosi)
@@ -3835,11 +3837,12 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
+                                var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                 var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                 if(malliMbetur.Count > 0) {
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                    CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                         .Where(l => l.PayType == "KESH")
-                                        .Sum(l => l.ShumaPaguar);
+                                        .Sum(l => l.ShumaPaguar.Value);
                                 }
 
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
@@ -3866,11 +3869,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
+                            var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                             var malliMbetur = await App.Database.GetMalliMbeturAsync();
                             if (malliMbetur.Count > 0) {
-                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                     .Where(l => l.PayType == "KESH")
-                                    .Sum(l => l.ShumaPaguar);
+                                    .Sum(l => l.ShumaPaguar.Value);
                             }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             if (!Configurimi.VetemPerPorosi)
@@ -4043,11 +4047,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
+                                    var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                     var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                     if (malliMbetur.Count > 0) {
-                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                        CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                             .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                                            .Sum(l => l.ShumaPaguar.Value);
                                     }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     if (!Configurimi.VetemPerPorosi)
@@ -4073,11 +4078,12 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
+                                var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                 var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                 if (malliMbetur.Count > 0) {
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                    CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                         .Where(l => l.PayType == "KESH")
-                                        .Sum(l => l.ShumaPaguar);
+                                        .Sum(l => l.ShumaPaguar.Value);
                                 }
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                 if (!Configurimi.VetemPerPorosi)
@@ -4103,11 +4109,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
+                            var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                             var malliMbetur = await App.Database.GetMalliMbeturAsync();
                             if (malliMbetur.Count > 0) {
-                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                     .Where(l => l.PayType == "KESH")
-                                    .Sum(l => l.ShumaPaguar);
+                                    .Sum(l => l.ShumaPaguar.Value);
                             }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             if (!Configurimi.VetemPerPorosi)
@@ -4191,6 +4198,10 @@ namespace EHWM.ViewModel {
                 }
                 else if(e.Message == "Connection refused")
                 {
+                    UserDialogs.Instance.Alert("Eshte refuzuar lidhja me server, ju lutemi provoni perseri! Nese problemi vazhdon, ndalni rrjetin ne pajisje dhe vazhdoni offline");
+                    UserDialogs.Instance.HideLoading();
+                }
+                else if(e.Message== "The operation was canceled.") {
                     UserDialogs.Instance.Alert("Eshte refuzuar lidhja me server, ju lutemi provoni perseri! Nese problemi vazhdon, ndalni rrjetin ne pajisje dhe vazhdoni offline");
                     UserDialogs.Instance.HideLoading();
                 }
@@ -4332,11 +4343,12 @@ namespace EHWM.ViewModel {
                                         TCRSyncStatus = 0,
                                     };
                                     var liferimet = await App.Database.GetLiferimetAsync();
+                                    var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                     var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                     if (malliMbetur.Count > 0) {
-                                        CashAmountForFirstTimeOfDayRegister = liferimet
+                                        CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                             .Where(l => l.PayType == "KESH")
-                                            .Sum(l => l.ShumaPaguar);
+                                            .Sum(l => l.ShumaPaguar.Value);
                                     }
                                     CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                                     await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);
@@ -4357,11 +4369,12 @@ namespace EHWM.ViewModel {
                                     TCRSyncStatus = 0,
                                 };
                                 var liferimet = await App.Database.GetLiferimetAsync();
+                                var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                                 var malliMbetur = await App.Database.GetMalliMbeturAsync();
                                 if (malliMbetur.Count > 0) {
-                                    CashAmountForFirstTimeOfDayRegister = liferimet
+                                    CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                         .Where(l => l.PayType == "KESH")
-                                        .Sum(l => l.ShumaPaguar);
+                                        .Sum(l => l.ShumaPaguar.Value);
                                 }
                                 CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
 
@@ -4383,11 +4396,12 @@ namespace EHWM.ViewModel {
                                 TCRSyncStatus = 0,
                             };
                             var liferimet = await App.Database.GetLiferimetAsync();
+                            var evidencaPagesave = await App.Database.GetEvidencaPagesaveAsync();
                             var malliMbetur = await App.Database.GetMalliMbeturAsync();
                             if (malliMbetur.Count > 0) {
-                                CashAmountForFirstTimeOfDayRegister = liferimet
+                                CashAmountForFirstTimeOfDayRegister = evidencaPagesave
                                     .Where(l => l.PayType == "KESH")
-                                    .Sum(l => l.ShumaPaguar);
+                                    .Sum(l => l.ShumaPaguar.Value);
                             }
                             CashRegister.Cashamount = decimal.Parse(CashAmountForFirstTimeOfDayRegister.ToString());
                             await App.Instance.MainPage.Navigation.PushPopupAsync(new RegjistroArkenPopup() { BindingContext = this }, true);

@@ -20,8 +20,23 @@ namespace EHWM.Views {
             InitializeComponent();
         }
 
+        protected override void OnAppearing() {
+            base.OnAppearing();
+            var bc = (ShitjaViewModel)BindingContext;
+
+            if (bc.PagesaType == "BANK") 
+            {
+                if (bc.TotalPrice == 0) {
+                    bc.TotalPrice = bc.TotalBillPrice;
+                }
+                App.Instance.MainViewModel.DissapearingFromPagesaPage = false;
+            }
+            
+        }
+
         protected override void OnDisappearing() {
             App.Instance.MainViewModel.DissapearingFromShitjaPage = true;
+
             base.OnDisappearing();
         }
         bool hasBackButtonRequested = false;
